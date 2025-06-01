@@ -34,32 +34,6 @@
 (defconst gl-max-stable-units 210) ; Max percentage of army
 (defconst gl-max-siege-units 211) ; Max percentage of army
 
-; ===== Train Units =====
-; ----- Train Default Barracks Units -----
-(defrule
-    (unit-type-count-total infantry-class < ((goal gl-max-barracks-units) * population-cap))
-    =>
-    (train gl-default-barracks-unit)
-)
-; ----- Train Default Archery Units -----
-(defrule
-    (unit-type-count-total archery-class < ((goal gl-max-archery-units) * population-cap))
-    =>
-    (train gl-default-archery-unit)
-)
-; ----- Train Default Stable Units -----
-(defrule
-    (unit-type-count-total cavalry-class < ((goal gl-max-stable-units) * population-cap))
-    =>
-    (train gl-default-stable-unit)
-)
-; ----- Train Default Siege Units -----
-(defrule
-    (unit-type-count-total siege-weapon-class < ((goal gl-max-siege-units) * population-cap))
-    =>
-    (train gl-default-siege-unit)
-)
-
 ; --- Game Start: Initial setup actions ---
 (defrule
     (true) ; This rule runs once at the very start of the game
@@ -100,4 +74,30 @@
 =>
     (chat-to-all "Unleashing the adaptable horde!")
     (attack-now)
+)
+
+; ===== Train Units =====
+; ----- Train Default Barracks Units -----
+(defrule
+    (unit-type-count-total infantry-class < ((goal gl-max-barracks-units) * population-cap))
+    =>
+    (train gl-default-barracks-unit)
+)
+; ----- Train Default Archery Units -----
+(defrule
+    (unit-type-count-total archery-class < ((goal gl-max-archery-units) * population-cap))
+    =>
+    (train gl-default-archery-unit)
+)
+; ----- Train Default Stable Units -----
+(defrule
+    (unit-type-count-total cavalry-class < ((goal gl-max-stable-units) * population-cap))
+    =>
+    (train gl-default-stable-unit)
+)
+; ----- Train Default Siege Units -----
+(defrule
+    (unit-type-count-total siege-weapon-class < ((goal gl-max-siege-units) * population-cap))
+    =>
+    (train gl-default-siege-unit)
 )
