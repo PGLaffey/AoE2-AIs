@@ -1,0 +1,132 @@
+;--------------------------------------------------------------------------------
+; Scenario Attacker AI v3 (Civ-Aware, No Economy, Unlimited Resources, Basic Counters)
+; - Assumes military production buildings are pre-built in the scenario.
+; - Assumes unlimited resources are provided by the scenario.
+; - Assumes population capacity is handled by the scenario.
+; - Automatically adjusts initial unit composition based on its civilization.
+; - Continuously trains a mix of units from Barracks, Archery Range, Stable, and Siege Workshop.
+; - Attempts to counter enemy unit compositions.
+; - Launches an attack with available military units every minute.
+;
+; Save this as a .per file (e.g., ScenarioAttackerV3.per) in your AI folder.
+;--------------------------------------------------------------------------------
+
+; --- Constants ---
+(defconst ATTACK_INTERVAL 60)
+(defconst MIN_ATTACK_FORCE 1)
+(defconst MAX_MILITARY_POPULATION 200)
+(defconst TIMER_ATTACK 1)
+(defconst TIMER_POP_LIMIT 2)
+
+(defconst g-pop-cap 1)
+
+(defconst g-enemy-archers 100)
+(defconst g-enemy-cav 101)
+(defconst g-enemy-spear 102)
+
+(defconst g-default-barracks-unit 200) ; Default unit if there is nothing to counter
+(defconst g-default-archery-unit 201) ; Default unit if there is nothing to counter
+(defconst g-default-stable-unit 202) ; Default unit if there is nothing to counter
+(defconst g-default-siege-unit 203) ; Default unit if there is nothing to counter
+(defconst g-barracks-unit 204) ; Currently creating unit taking counter into account
+(defconst g-archery-unit 205) ; Currently creating unit taking counter into account
+(defconst g-stable-unit 206) ; Currently creating unit taking counter into account
+(defconst g-siege-unit 207) ; Currently creating unit taking counter into account
+(defconst g-max-barracks-units-perc 208) ; Max percentage of army
+(defconst g-max-archery-units-perc 209) ; Max percentage of army
+(defconst g-max-stable-units-perc 210) ; Max percentage of army
+(defconst g-max-siege-units-perc 211) ; Max percentage of army
+(defconst g-max-barracks-units 212) ; Max number of units
+(defconst g-max-archery-units 213) ; Max percentage of army
+(defconst g-max-stable-units 214) ; Max percentage of army
+(defconst g-max-siege-units 215) ; Max percentage of army
+
+; --- Game Start: Initial setup actions ---
+(defrule
+    (true) ; This rule runs once at the very start of the game
+=>
+    (chat-to-all "Scenario Attacker AI v5: The Nightmare Reborn!")
+    (set-strategic-number sn-attack-intelligence 1)
+    (set-strategic-number sn-enable-offensive-priority 1)
+    (set-strategic-number sn-enable-patrol-attack 1)
+    (set-strategic-number sn-percent-attack-soldiers 100)
+    (set-strategic-number sn-wall-targeting-mode 1)
+    (set-strategic-number sn-enable-training-queue 40)
+
+    (set-goal g-pop-cap 50)
+
+    (enable-timer TIMER_ATTACK ATTACK_INTERVAL)
+    (enable-timer TIMER_POP_LIMIT 5)
+    (disable-self)
+)
+
+; ==== Civ Pick  - Goth Override =====
+#load-if-defined GOTHIC-CIV
+(load "mydefend/goths")
+#end-if
+; ==== Civ Pick - Huns Override =====
+#load-if-defined HUN-CIV
+(load "mydefend/huns")
+#end-if
+
+; --- Attack Logic: Triggered by the timer (remains the same) ---
+(defrule
+    (timer-triggered TIMER_ATTACK)
+    (military-population >= MIN_ATTACK_FORCE)
+    =>
+    (chat-to-all "Unleashing the adaptable horde!")
+    (attack-now)
+    (disable-timer TIMER_ATTACK)
+    (enable-timer TIMER_ATTACK ATTACK_INTERVAL)
+)
+
+; ===== Train Units =====
+; ----- Set Pop Limits for Unit Types -----
+(defrule
+    (timer-triggered TIMER_POP_LIMIT)
+    => 
+    (set-goal g-max-barracks-units g-max-barracks-units-perc)
+    (up-modify-goal g-max-barracks-units c:/ 100)
+    (up-modify-goal g-max-barracks-units g:* g-pop-cap)
+
+    (set-goal g-max-archery-units g-max-archery-units-perc)
+    (up-modify-goal g-max-archery-units c:/ 100)
+    (up-modify-goal g-max-archery-units g:* g-pop-cap)
+
+    (set-goal g-max-stable-units g-max-stable-units-perc)
+    (up-modify-goal g-max-stable-units c:/ 100)
+    (up-modify-goal g-max-stable-units g:* g-pop-cap)
+
+    (set-goal g-max-siege-units g-max-siege-units-perc)
+    (up-modify-goal g-max-siege-units c:/ 100)
+    (up-modify-goal g-max-siege-units g:* g-pop-cap)
+
+    (up-chat-data-to-all "Barracks Unit Target: %d" g: g-max-barracks-units)
+    (disable-timer TIMER_POP_LIMIT)
+    (enable-timer TIMER_POP_LIMIT 5)
+)
+; ----- Train Default Barracks Units -----
+(defrule
+    (unit-type-count-total infantry-class g:< g-max-barracks-units)
+    =>
+    (train g-default-barracks-unit)
+    (up-chat-data-to-all "Barracks train: %d" g: g-default-barracks-unit) 
+)
+; ----- Train Default Archery Units -----
+(defrule
+    (unit-type-count-total archery-class g:< g-max-archery-units)
+    =>
+    (train g-default-archery-unit)
+)
+; ----- Train Default Stable Units -----
+(defrule
+    (unit-type-count-total cavalry-class g:< g-max-stable-units)
+    =>
+    (train g-default-stable-unit)
+)
+; ----- Train Default Siege Units -----
+(defrule
+    (unit-type-count-total siege-weapon-class g:< g-max-siege-units)
+    =>
+    (train g-default-siege-unit)
+)
