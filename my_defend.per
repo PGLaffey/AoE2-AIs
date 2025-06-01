@@ -17,241 +17,81 @@
 (defconst MAX_MILITARY_POPULATION 200)
 (defconst TIMER_ATTACK 1)
 
-; --- Strategic Number Slots for Target Unit Types ---
-(defconst SN_TARGET_BARRACKS_UNIT 10)
-(defconst SN_TARGET_ARCHERY_UNIT 11)
-(defconst SN_TARGET_STABLE_UNIT 12)
-(defconst SN_TARGET_SIEGE_UNIT 13)
+(defconst gl-enemy-archers 100)
+(defconst gl-enemy-cav 101)
+(defconst gl-enemy-spear 102)
 
-; --- Unit Line ID Constants ---
-(defconst ULINE_MILITIA militia-line)
-(defconst ULINE_SPEARMAN spearman-line)
-(defconst ULINE_ARCHER archer-line)
-(defconst ULINE_SKIRMISHER skirmisher-line)
-(defconst ULINE_KNIGHT knight-line)
-(defconst ULINE_CAMEL camel-rider-line)
-(defconst ULINE_CAVALRY_ARCHER cavalry-archer-line)
-(defconst ULINE_HAND_CANNONEER hand-cannoneer)
-(defconst ULINE_RAM battering-ram-line)
-(defconst ULINE_MANGONEL mangonel-line)
-(defconst ULINE_SCORPION scorpion-line)
-(defconst ULINE_BOMBARD_CANNON bombard-cannon)
+(defconst gl-default-barracks-unit 200) ; Default unit if there is nothing to counter
+(defconst gl-default-archery-unit 201) ; Default unit if there is nothing to counter
+(defconst gl-default-stable-unit 202) ; Default unit if there is nothing to counter
+(defconst gl-default-siege-unit 203) ; Default unit if there is nothing to counter
+(defconst gl-barracks-unit 204) ; Currently creating unit taking counter into account
+(defconst gl-archery-unit 205) ; Currently creating unit taking counter into account
+(defconst gl-stable-unit 206) ; Currently creating unit taking counter into account
+(defconst gl-siege-unit 207) ; Currently creating unit taking counter into account
+(defconst gl-max-barracks-units 208) ; Max percentage of army
+(defconst gl-max-archery-units 209) ; Max percentage of army
+(defconst gl-max-stable-units 210) ; Max percentage of army
+(defconst gl-max-siege-units 211) ; Max percentage of army
 
-; --- Thresholds for Countering ---
-(defconst ENEMY_ARCHER_THRESHOLD 5)
-(defconst ENEMY_CAVALRY_THRESHOLD 5)
-(defconst ENEMY_INFANTRY_THRESHOLD 7)
-(defconst ENEMY_SIEGE_THRESHOLD 2)
-
-; --- Civ Pick ---
-#load-if-defined gothic-civ
+; ===== Train Units =====
+; ----- Train Default Barracks Units -----
 (defrule
-    (game-time == 0 )
+    (unit-type-count-total infantry-class < ((goal gl-max-barracks-units) * population-cap))
     =>
-    (
-
+    (train gl-default-barracks-unit)
+)
+; ----- Train Default Archery Units -----
+(defrule
+    (unit-type-count-total archery-class < ((goal gl-max-archery-units) * population-cap))
+    =>
+    (train gl-default-archery-unit)
+)
+; ----- Train Default Stable Units -----
+(defrule
+    (unit-type-count-total cavalry-class < ((goal gl-max-stable-units) * population-cap))
+    =>
+    (train gl-default-stable-unit)
+)
+; ----- Train Default Siege Units -----
+(defrule
+    (unit-type-count-total siege-weapon-class < ((goal gl-max-siege-units) * population-cap))
+    =>
+    (train gl-default-siege-unit)
+)
 
 ; --- Game Start: Initial setup actions ---
 (defrule
-    (game-time == 0) ; This rule runs once at the very start of the game
+    (true) ; This rule runs once at the very start of the game
 =>
     (chat-to-all "Scenario Attacker AI v3: Civ-Aware and Ready!")
-    (set-strategic-number sn-enable-training-queue 1)
-    (set-strategic-number sn-
+    (set-strategic-number sn-attack-intelligence 1)
+    (set-strategic-number sn-enable-offensive-priority 1)
+    (set-strategic-number sn-enable-patrol-attack 1)
+    (set-strategic-number sn-percent-attack-soldiers 100)
+    (set-strategic-number sn-wall-targeting-mode 1)
+
     (enable-timer TIMER_ATTACK ATTACK_INTERVAL)
-
-    ; --- SET DEFAULT INITIAL TARGET UNITS ---
-    ; These will be used if no specific civilization logic overrides them.
-    (chat-to-all "Setting default unit preferences...")
-    (set-strategic-number SN_TARGET_BARRACKS_UNIT ULINE_SPEARMAN)
-    (set-strategic-number SN_TARGET_ARCHERY_UNIT ULINE_ARCHER)
-    (set-strategic-number SN_TARGET_STABLE_UNIT ULINE_KNIGHT)
-    (set-strategic-number SN_TARGET_SIEGE_UNIT ULINE_MANGONEL)
-
-    ; --- CIVILIZATION-SPECIFIC UNIT PREFERENCES ---
-    ; Override defaults based on the AI's civilization.
-    ; Add more 'if' blocks for other civilizations you want to support.
-
-    (if (civilization == CIV_BRITONS)
-        then
-            (chat-to-all "Playing as Britons: Emphasizing strong archery!")
-            (set-strategic-number SN_TARGET_ARCHERY_UNIT ULINE_ARCHER)  ; Britons have excellent foot archers
-            (set-strategic-number SN_TARGET_BARRACKS_UNIT ULINE_SPEARMAN) ; To protect archers
-            ; Castle will produce Longbowmen (handled by the generic unique-unit rule)
-    )
-    (if (civilization == CIV_FRANKS)
-        then
-            (chat-to-all "Playing as Franks: Knights will lead the charge!")
-            (set-strategic-number SN_TARGET_STABLE_UNIT ULINE_KNIGHT)   ; Franks have excellent knights
-            (set-strategic-number SN_TARGET_BARRACKS_UNIT ULINE_MILITIA) ; Can make Throwing Axemen from Castle
-    )
-    (if (civilization == CIV_GOTHS) ; Assuming Goths ID is correctly set
-        then
-            (chat-to-all "Playing as Goths: Infantry swarm incoming!")
-            (set-strategic-number SN_TARGET_BARRACKS_UNIT ULINE_MILITIA) ; Goths have strong, cheap infantry
-            ; Huskarls (UU) can be made from Barracks in Imperial Age, but this script
-            ; defaults UUs to Castle. For simplicity, we'll stick to militia-line here.
-            ; The generic unique-unit rule will train Huskarls from the Castle.
-    )
-    (if (civilization == CIV_VIKINGS)
-        then
-            (chat-to-all "Playing as Vikings: Berserks and Arbalests!")
-            (set-strategic-number SN_TARGET_BARRACKS_UNIT ULINE_MILITIA) ; For Berserks (from Castle) and Champions
-            (set-strategic-number SN_TARGET_ARCHERY_UNIT ULINE_ARCHER)   ; Vikings get Arbalesters
-            (set-strategic-number SN_TARGET_SIEGE_UNIT ULINE_RAM)        ; Good siege to support infantry
-    )
-    (if (civilization == CIV_MONGOLS)
-        then
-            (chat-to-all "Playing as Mongols: Mangudai and Siege!")
-            (set-strategic-number SN_TARGET_ARCHERY_UNIT ULINE_CAVALRY_ARCHER) ; Strong Cav Archers, Mangudai from Castle
-            (set-strategic-number SN_TARGET_STABLE_UNIT ULINE_KNIGHT)          ; Hussars are good too
-            (set-strategic-number SN_TARGET_SIEGE_UNIT ULINE_MANGONEL)         ; Excellent siege
-    )
-    (if (civilization == CIV_MAYANS)
-        then
-            (chat-to-all "Playing as Mayans: Plumed Archers and Eagles!")
-            (set-strategic-number SN_TARGET_ARCHERY_UNIT ULINE_ARCHER)    ; Plumed Archers from Castle, Arbalesters
-            (set-strategic-number SN_TARGET_BARRACKS_UNIT ULINE_MILITIA)  ; Eagle Warriors are militia-line
-                                                                        ; (actually eagle-warrior-line, but militia-line is a fallback)
-                                                                        ; For more precision: (defconst ULINE_EAGLE eagle-warrior-line)
-                                                                        ; and use ULINE_EAGLE here.
-            (set-strategic-number SN_TARGET_STABLE_UNIT 0)                ; Mayans don't have cavalry, set to 0 to not train from stable
-    )
-    (if (civilization == CIV_HUNS)
-        then
-            (chat-to-all "Playing as Huns: Tarkans and Cavalry Archers!")
-            (set-strategic-number SN_TARGET_STABLE_UNIT ULINE_KNIGHT)          ; Tarkans from Castle, good cavalry
-            (set-strategic-number SN_TARGET_ARCHERY_UNIT ULINE_CAVALRY_ARCHER) ; Good Cavalry Archers
-            (set-strategic-number SN_TARGET_BARRACKS_UNIT ULINE_SPEARMAN)      ; Basic infantry support
-    )
-    ; Add more (if (civilization == CIV_XYZ) then ...) blocks here for other civs
+    (disable-self)
 )
 
-; --- Unit Production: Generic Rules ---
-; These rules now use the SN_TARGET_..._UNIT strategic numbers to decide what to train.
-; (These rules remain unchanged from v2)
-
-; --- Barracks Production ---
+; ==== Civ Pick  - Goth Override =====
+#load-if-defined gothic-civ
 (defrule
     (true)
-    (building-type-count barracks > 0)
-    (barracks-available)
-    (strategic-number SN_TARGET_BARRACKS_UNIT > 0) ; Ensure a valid unit type is set
-    (can-train (strategic-number SN_TARGET_BARRACKS_UNIT))
-    (military-population < MAX_MILITARY_POPULATION)
-=>
-    (train (strategic-number SN_TARGET_BARRACKS_UNIT))
+    =>
+    (load "goths.per")
+    (disable-self)
 )
 
-; --- Archery Range Production ---
+; ==== Civ Pick - Huns Override =====
+#load-if-defined hun-civ
 (defrule
     (true)
-    (building-type-count archery-range > 0)
-    (archery-range-available)
-    (strategic-number SN_TARGET_ARCHERY_UNIT > 0)
-    (can-train (strategic-number SN_TARGET_ARCHERY_UNIT))
-    (military-population < MAX_MILITARY_POPULATION)
-=>
-    (train (strategic-number SN_TARGET_ARCHERY_UNIT))
+    =>
+    (load "huns.per")
+    (disable-self)
 )
-
-; --- Stable Production ---
-(defrule
-    (true)
-    (building-type-count stable > 0)
-    (stable-available)
-    (strategic-number SN_TARGET_STABLE_UNIT > 0)
-    (can-train (strategic-number SN_TARGET_STABLE_UNIT))
-    (military-population < MAX_MILITARY_POPULATION)
-=>
-    (train (strategic-number SN_TARGET_STABLE_UNIT))
-)
-
-; --- Siege Workshop Production ---
-(defrule
-    (true)
-    (building-type-count siege-workshop > 0)
-    (siege-workshop-available)
-    (strategic-number SN_TARGET_SIEGE_UNIT > 0)
-    (can-train (strategic-number SN_TARGET_SIEGE_UNIT))
-    (military-population < MAX_MILITARY_POPULATION)
-=>
-    (train (strategic-number SN_TARGET_SIEGE_UNIT))
-)
-
-; --- Unit Production: Unique Unit from Castle (remains largely the same) ---
-(defrule
-    (true)
-    (building-type-count castle > 0)
-    (castle-available)
-    (can-train-unique-unit)
-    (military-population < MAX_MILITARY_POPULATION)
-=>
-    (train-unique-unit)
-)
-
-; --- Basic Counter Logic ---
-; (These rules remain unchanged from v2)
-
-; Counter: Enemy Archers -> Make Skirmishers
-(defrule
-    (true) ; Check frequently
-    (enemy-unit-count archer-line > ENEMY_ARCHER_THRESHOLD)
-    (strategic-number SN_TARGET_ARCHERY_UNIT != ULINE_SKIRMISHER) ; Only switch if not already making them
-=>
-    (set-strategic-number SN_TARGET_ARCHERY_UNIT ULINE_SKIRMISHER)
-    (chat-to-all "Enemy archers detected! Switching to Skirmishers.")
-)
-
-; Counter: Enemy Cavalry (Knights, Camels) -> Make Spearmen/Pikemen/Halberdiers
-(defrule
-    (true)
-    (enemy-unit-count knight-line > ENEMY_CAVALRY_THRESHOLD)
-    (strategic-number SN_TARGET_BARRACKS_UNIT != ULINE_SPEARMAN)
-=>
-    (set-strategic-number SN_TARGET_BARRACKS_UNIT ULINE_SPEARMAN)
-    (chat-to-all "Enemy knights detected! Switching Barracks to Spearmen line.")
-)
-(defrule
-    (true)
-    (enemy-unit-count camel-rider-line > ENEMY_CAVALRY_THRESHOLD)
-    (strategic-number SN_TARGET_BARRACKS_UNIT != ULINE_SPEARMAN)
-=>
-    (set-strategic-number SN_TARGET_BARRACKS_UNIT ULINE_SPEARMAN)
-    (chat-to-all "Enemy camels detected! Switching Barracks to Spearmen line.")
-)
-
-; Counter: Enemy Infantry (Militia-line, Spearman-line) -> Make Archers or Hand Cannoneers
-(defrule
-    (true)
-    (enemy-unit-count militia-line > ENEMY_INFANTRY_THRESHOLD)
-    (if (can-research hand-cannoneer) ; A proxy for gunpowder availability
-        then
-            (strategic-number SN_TARGET_ARCHERY_UNIT != ULINE_HAND_CANNONEER)
-        else
-            (strategic-number SN_TARGET_ARCHERY_UNIT != ULINE_ARCHER)
-    )
-=>
-    (if (can-research hand-cannoneer)
-        then
-            (set-strategic-number SN_TARGET_ARCHERY_UNIT ULINE_HAND_CANNONEER)
-            (chat-to-all "Enemy infantry detected! Switching Archery to Hand Cannoneers.")
-        else
-            (set-strategic-number SN_TARGET_ARCHERY_UNIT ULINE_ARCHER)
-            (chat-to-all "Enemy infantry detected! Switching Archery to Archers.")
-    )
-)
-
-; Counter: Enemy Siege -> Make Rams or fast cavalry to snipe them
-(defrule
-    (true)
-    (enemy-unit-count mangonel-line > ENEMY_SIEGE_THRESHOLD)
-    (strategic-number SN_TARGET_SIEGE_UNIT != ULINE_RAM) ; Prioritize rams to soak/destroy siege
-=>
-    (set-strategic-number SN_TARGET_SIEGE_UNIT ULINE_RAM)
-    (chat-to-all "Enemy mangonels detected! Switching Siege to Rams.")
-)
-
 
 ; --- Attack Logic: Triggered by the timer (remains the same) ---
 (defrule
@@ -259,21 +99,5 @@
     (military-population >= MIN_ATTACK_FORCE)
 =>
     (chat-to-all "Unleashing the adaptable horde!")
-    (up-reset-filters)
-    (up-select-type militia-line)
-    (up-select-type spearman-line)
-    (up-select-type archer-line)
-    (up-select-type skirmisher-line)
-    (up-select-type cavalry-archer-line)
-    (up-select-type hand-cannoneer)
-    (up-select-type knight-line)
-    (up-select-type camel-rider-line)
-    (up-select-type siege-weapon) ; Broad category for all siege
-    (up-select-type unique-unit)
-
-    (up-get-selected-count current-selection-count)
-    (if (> current-selection-count 0)
-        then
-            (attack-now)
-    )
+    (attack-now)
 )
