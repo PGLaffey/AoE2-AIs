@@ -1,24 +1,16 @@
-;--------------------------------------------------------------------------------
-; Scenario Attacker AI v3 (Civ-Aware, No Economy, Unlimited Resources, Basic Counters)
-; - Assumes military production buildings are pre-built in the scenario.
-; - Assumes unlimited resources are provided by the scenario.
-; - Assumes population capacity is handled by the scenario.
-; - Automatically adjusts initial unit composition based on its civilization.
-; - Continuously trains a mix of units from Barracks, Archery Range, Stable, and Siege Workshop.
-; - Attempts to counter enemy unit compositions.
-; - Launches an attack with available military units every minute.
-;
-; Save this as a .per file (e.g., ScenarioAttackerV3.per) in your AI folder.
-;--------------------------------------------------------------------------------
-
 ; --- Constants ---
-(defconst ATTACK_INTERVAL 60)
-(defconst MIN_ATTACK_FORCE 1)
-(defconst MAX_MILITARY_POPULATION 200)
+(defconst ATTACK_TIME 20)
+(defconst RETREAT_TIME 60)
 (defconst TIMER_ATTACK 1)
-(defconst TIMER_POP_LIMIT 2)
+(defconst TIMER_RETREAT 3)
+; (defconst TIMER_POP_LIMIT 2)
+(defconst TIMER_POP_INCREASE 2)
 
 (defconst g-pop-cap 1)
+(defconst g-pop-cap-multiplier 4)
+(defconst g-attack-time 2)
+(defconst g-retreat-time 3)
+(defconst g-difficulty-modifier 5)
 
 (defconst g-enemy-archers 100)
 (defconst g-enemy-cav 101)
@@ -41,24 +33,73 @@
 (defconst g-max-stable-units 214) ; Max percentage of army
 (defconst g-max-siege-units 215) ; Max percentage of army
 
-; --- Game Start: Initial setup actions ---
+(defconst s-creation-speed-increase 0)
+(defconst s-creation-speed-decrease 1)
+
+; ===== Game Start: Initial setup actions =====
 (defrule
     (true) ; This rule runs once at the very start of the game
 =>
-    (chat-to-all "Scenario Attacker AI v5: The Nightmare Reborn!")
+    (chat-to-all "Scenario Attacker AI V5: The Nightmare Reborn!")
     (set-strategic-number sn-attack-intelligence 1)
-    (set-strategic-number sn-enable-offensive-priority 1)
+    ; (set-strategic-number sn-enable-offensive-priority 1)
     (set-strategic-number sn-enable-patrol-attack 1)
     (set-strategic-number sn-percent-attack-soldiers 100)
     (set-strategic-number sn-wall-targeting-mode 1)
     (set-strategic-number sn-enable-training-queue 40)
+    (set-strategic-number sn-number-explore-groups 1)
+    (set-strategic-number sn-relic-return-distance 0)
+    (set-strategic-number sn-do-not-scale-for-difficulty-level 1)
+    (set-strategic-number sn-enable-training-queue 5)
+    (set-strategic-number sn-enable-research-queue 1)
 
-    (set-goal g-pop-cap 50)
+    (set-goal g-pop-cap 5)
+    (set-goal g-pop-cap-multiplier 136)
+    (set-goal g-difficulty-modifier 100)
 
-    (enable-timer TIMER_ATTACK ATTACK_INTERVAL)
-    (enable-timer TIMER_POP_LIMIT 5)
+    (enable-timer TIMER_RETREAT 0)
+    (enable-timer TIMER_POP_INCREASE 5)
     (disable-self)
 )
+
+; ----- Difficulty Mutliplier ----- 
+(defrule ; Decrease difficulty
+    (or
+        (taunt-detected any-human 45)
+        (taunt-detected any-computer 45)
+    )
+    => 
+    (acknowledge-taunt any-human 45)
+    (acknowledge-taunt any-computer 45)
+    ; Reset Difficulty
+    (up-modify-goal g-pop-cap c:* 100)
+    (up-modify-goal g-pop-cap g:/ g-difficulty-modifier) 
+    ; Set difficulty 
+    (up-modify-goal g-difficulty-modifier c:- 10)
+    (up-modify-goal g-pop-cap g:* g-difficulty-modifier)
+    (up-modify-goal g-pop-cap c:/ 100)
+    (fe-set-signal c: s-creation-speed-increase c: 1)
+    (up-chat-data-to-all "New difficulty is %d percent" g: g-difficulty-modifier)
+)
+(defrule ; Increase difficulty
+    (or
+        (taunt-detected any-human 31)
+        (taunt-detected any-computer 31)
+    )
+    => 
+    (acknowledge-taunt any-human 31)
+    (acknowledge-taunt any-computer 31)
+    ; Reset Difficulty
+    (up-modify-goal g-pop-cap c:* 100)
+    (up-modify-goal g-pop-cap g:/ g-difficulty-modifier) 
+    ; Set difficulty 
+    (up-modify-goal g-difficulty-modifier c:+ 10)
+    (up-modify-goal g-pop-cap g:* g-difficulty-modifier)
+    (up-modify-goal g-pop-cap c:/ 100)
+    (fe-set-signal c: s-creation-speed-decrease c: 1)
+    (up-chat-data-to-all "New difficulty is %d percent" g: g-difficulty-modifier)
+)
+
 
 ; ==== Civ Pick  - Goth Override =====
 #load-if-defined GOTHIC-CIV
@@ -69,64 +110,161 @@
 (load "mydefend/huns")
 #end-if
 
-; --- Attack Logic: Triggered by the timer (remains the same) ---
-(defrule
-    (timer-triggered TIMER_ATTACK)
-    (military-population >= MIN_ATTACK_FORCE)
+; ===== Attack Logic: Attack then Retreat =====
+(defrule ; Retreat
+    (timer-triggered TIMER_RETREAT)
     =>
-    (chat-to-all "Unleashing the adaptable horde!")
-    (attack-now)
+    (disable-timer TIMER_RETREAT)
+    (set-strategic-number sn-number-attack-groups 0)
+    (set-strategic-number sn-percent-attack-soldiers 0)
+    (generate-random-number RETREAT_TIME)
+    (up-get-fact random-number 0 g-retreat-time)
+    (up-modify-goal g-retreat-time c:+ RETREAT_TIME)
+    (up-chat-data-to-all "Retreating for %d seconds" g: g-retreat-time)
+    (up-set-timer c: TIMER_ATTACK g: g-retreat-time)
+)
+(defrule ; Attack
+    (timer-triggered TIMER_ATTACK)
+    =>
     (disable-timer TIMER_ATTACK)
-    (enable-timer TIMER_ATTACK ATTACK_INTERVAL)
+    (set-strategic-number sn-number-attack-groups 200)
+    (set-strategic-number sn-percent-attack-soldiers 100)
+    (generate-random-number ATTACK_TIME)
+    (up-get-fact random-number 0 g-attack-time)
+    (up-modify-goal g-attack-time c:+ ATTACK_TIME)
+    (up-chat-data-to-all "Attacking for %d seconds" g: g-attack-time)
+    (up-set-timer c: TIMER_RETREAT g: g-attack-time)
 )
 
 ; ===== Train Units =====
 ; ----- Set Pop Limits for Unit Types -----
 (defrule
-    (timer-triggered TIMER_POP_LIMIT)
+    (timer-triggered TIMER_POP_INCREASE)
     => 
-    (set-goal g-max-barracks-units g-max-barracks-units-perc)
-    (up-modify-goal g-max-barracks-units c:/ 100)
+    (up-modify-goal g-pop-cap g:* g-pop-cap-multiplier)
+    (up-modify-goal g-pop-cap c:/ 100)
+    (up-chat-data-to-all "New pop cap %d" g: g-pop-cap)
+
+    (up-modify-goal g-max-barracks-units g:= g-max-barracks-units-perc)
     (up-modify-goal g-max-barracks-units g:* g-pop-cap)
+    (up-modify-goal g-max-barracks-units c:/ 100)
 
-    (set-goal g-max-archery-units g-max-archery-units-perc)
-    (up-modify-goal g-max-archery-units c:/ 100)
+    (up-modify-goal g-max-archery-units g:= g-max-archery-units-perc)
     (up-modify-goal g-max-archery-units g:* g-pop-cap)
+    (up-modify-goal g-max-archery-units c:/ 100)
 
-    (set-goal g-max-stable-units g-max-stable-units-perc)
-    (up-modify-goal g-max-stable-units c:/ 100)
+
+    (up-modify-goal g-max-stable-units g:= g-max-stable-units-perc)
     (up-modify-goal g-max-stable-units g:* g-pop-cap)
+    (up-modify-goal g-max-stable-units c:/ 100)
 
-    (set-goal g-max-siege-units g-max-siege-units-perc)
-    (up-modify-goal g-max-siege-units c:/ 100)
+
+    (up-modify-goal g-max-siege-units g:= g-max-siege-units-perc)
     (up-modify-goal g-max-siege-units g:* g-pop-cap)
+    (up-modify-goal g-max-siege-units c:/ 100)
 
-    (up-chat-data-to-all "Barracks Unit Target: %d" g: g-max-barracks-units)
-    (disable-timer TIMER_POP_LIMIT)
-    (enable-timer TIMER_POP_LIMIT 5)
+    (disable-timer TIMER_POP_INCREASE)
+    (enable-timer TIMER_POP_INCREASE 420)
 )
-; ----- Train Default Barracks Units -----
+
+; ----- Default Unit Creation -----
 (defrule
     (unit-type-count-total infantry-class g:< g-max-barracks-units)
+    (unit-count-total g:< g-pop-cap)
     =>
-    (train g-default-barracks-unit)
-    (up-chat-data-to-all "Barracks train: %d" g: g-default-barracks-unit) 
+    (up-train 0 g: g-default-barracks-unit)
 )
-; ----- Train Default Archery Units -----
 (defrule
     (unit-type-count-total archery-class g:< g-max-archery-units)
+    (unit-count-total g:< g-pop-cap)
     =>
-    (train g-default-archery-unit)
+    (up-train 0 g: g-default-archery-unit)
 )
-; ----- Train Default Stable Units -----
 (defrule
     (unit-type-count-total cavalry-class g:< g-max-stable-units)
+    (unit-type-count-total scout-cavalry-line g:< g-max-stable-units)
+    (unit-count-total g:< g-pop-cap)
     =>
-    (train g-default-stable-unit)
+    (up-train 0 g: g-default-stable-unit)
 )
-; ----- Train Default Siege Units -----
 (defrule
     (unit-type-count-total siege-weapon-class g:< g-max-siege-units)
+    (unit-count-total g:< g-pop-cap)
     =>
-    (train g-default-siege-unit)
+    (up-train 0 g: g-default-siege-unit)
+)
+
+; ===== Research Unit Techs =====
+(defrule ; Feudal Age Techs
+    (current-age == feudal-age)
+    =>
+    (research ri-man-at-arms)
+    (research ri-arson)
+    (research ri-bloodlines)
+    (disable-self)
+)
+
+(defrule ; Castle Age Techs
+    (current-age == castle-age)
+    =>
+    (research ri-squires)
+    (research 875) ; Gambesons
+    (research ri-crossbow)
+    (research ri-elite-skirmisher)
+    (research ri-thumb-ring)
+    (research ri-long-swordsman)
+    (research ri-pikeman)
+    (research ri-light-cavalry)
+    (research ri-husbandry)
+    (research my-unique-research)
+    (disable-self)
+)
+
+(defrule ; Imperial Age Techs
+    (current-age == imperial-age)
+    =>
+    (research ri-arbalest)
+    (research ri-heavy-cavalry-archer)
+    (research ri-elite-elephant-archer)
+    (research ri-parthian-tactics)
+    (research ri-two-handed-swordsman)
+    (research ri-halberdier)
+    (research ri-hussar)
+    (research ri-cavalier)
+    (research ri-heavy-camel)
+    (research 715) ; Elite Step Lancer
+    (research ri-capped-ram)
+    (research 257) ; Onager
+    (research my-unique-unit-upgrade)
+    (research 457) ; Perfusion for Goths
+    (disable-self)
+)
+(defrule
+    (research-completed ri-two-handed-swordsman)
+    =>
+    (research ri-champion)
+    (disable-self)
+)
+(defrule
+    (research-completed ri-cavalier)
+    =>
+    (research ri-paladin)
+    (disable-self)
+)
+(defrule
+    (research-completed ri-capped-ram)
+    =>
+    (research 255) ; Siege Ram
+    (disable-self)
+)
+(defrule 
+    (research-completed 257) ; Onager
+    =>
+    (research 320) ; Siege Onager
+    (disable-self)
+)
+(defrule
+    (research-available ri-conscription)
+    =>
+    (research ri-conscription)
 )
