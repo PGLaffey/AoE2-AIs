@@ -33,6 +33,12 @@
 (defconst g-max-stable-units 214) ; Max percentage of army
 (defconst g-max-siege-units 215) ; Max percentage of army
 
+(defconst g-temp1 1001)
+(defconst g-temp2 1002)
+(defconst g-temp3 1003)
+(defconst g-temp4 1004)
+(defconst g-temp5 1005)
+
 (defconst s-creation-speed-increase 0)
 (defconst s-creation-speed-decrease 1)
 
@@ -41,18 +47,19 @@
     (true) ; This rule runs once at the very start of the game
 =>
     (chat-to-all "Scenario Attacker AI V5: The Nightmare Reborn!")
-    (set-strategic-number sn-attack-intelligence 1)
+    (set-strategic-number sn-attack-intelligence 0)
     ; (set-strategic-number sn-enable-offensive-priority 1)
     (set-strategic-number sn-enable-patrol-attack 1)
     (set-strategic-number sn-percent-attack-soldiers 100)
     (set-strategic-number sn-wall-targeting-mode 1)
-    (set-strategic-number sn-enable-training-queue 40)
-    (set-strategic-number sn-number-explore-groups 1)
+    (set-strategic-number sn-enable-training-queue 1)
+    (set-strategic-number sn-number-explore-groups 0)
     (set-strategic-number sn-relic-return-distance 0)
     (set-strategic-number sn-do-not-scale-for-difficulty-level 1)
     (set-strategic-number sn-enable-training-queue 5)
     (set-strategic-number sn-enable-research-queue 1)
 
+    ; (set-goal g-pop-cap 5)
     (set-goal g-pop-cap 5)
     (set-goal g-pop-cap-multiplier 136)
     (set-goal g-difficulty-modifier 100)
@@ -127,7 +134,7 @@
     (timer-triggered TIMER_ATTACK)
     =>
     (disable-timer TIMER_ATTACK)
-    (set-strategic-number sn-number-attack-groups 200)
+    (set-strategic-number sn-number-attack-groups 500)
     (set-strategic-number sn-percent-attack-soldiers 100)
     (generate-random-number ATTACK_TIME)
     (up-get-fact random-number 0 g-attack-time)
@@ -148,48 +155,54 @@
     (up-modify-goal g-max-barracks-units g:= g-max-barracks-units-perc)
     (up-modify-goal g-max-barracks-units g:* g-pop-cap)
     (up-modify-goal g-max-barracks-units c:/ 100)
+    (up-chat-data-to-all "Barracks Target %d" g: g-max-barracks-units)
 
     (up-modify-goal g-max-archery-units g:= g-max-archery-units-perc)
     (up-modify-goal g-max-archery-units g:* g-pop-cap)
     (up-modify-goal g-max-archery-units c:/ 100)
-
+    (up-chat-data-to-all "Archery Target %d" g: g-max-archery-units)
 
     (up-modify-goal g-max-stable-units g:= g-max-stable-units-perc)
     (up-modify-goal g-max-stable-units g:* g-pop-cap)
     (up-modify-goal g-max-stable-units c:/ 100)
-
+    (up-chat-data-to-all "Stable Target %d" g: g-max-stable-units)
 
     (up-modify-goal g-max-siege-units g:= g-max-siege-units-perc)
     (up-modify-goal g-max-siege-units g:* g-pop-cap)
     (up-modify-goal g-max-siege-units c:/ 100)
+    (up-chat-data-to-all "Siege Target %d" g: g-max-siege-units)
 
+    ; (research ri-conscription)
     (disable-timer TIMER_POP_INCREASE)
-    (enable-timer TIMER_POP_INCREASE 420)
+    (enable-timer TIMER_POP_INCREASE 40)
 )
 
 ; ----- Default Unit Creation -----
 (defrule
     (unit-type-count-total infantry-class g:< g-max-barracks-units)
-    (unit-count-total g:< g-pop-cap)
+    ; (unit-count-total g:< g-pop-cap)
     =>
+    (up-chat-data-to-all "Creating %d" g: g-default-barracks-unit)
     (up-train 0 g: g-default-barracks-unit)
 )
+
 (defrule
     (unit-type-count-total archery-class g:< g-max-archery-units)
-    (unit-count-total g:< g-pop-cap)
+    ; (unit-count-total g:< g-pop-cap)
     =>
     (up-train 0 g: g-default-archery-unit)
 )
 (defrule
     (unit-type-count-total cavalry-class g:< g-max-stable-units)
     (unit-type-count-total scout-cavalry-line g:< g-max-stable-units)
-    (unit-count-total g:< g-pop-cap)
+    ; (unit-count-total g:< g-pop-cap)
     =>
+    (up-chat-data-to-all "Creating %d" g: g-default-stable-unit)
     (up-train 0 g: g-default-stable-unit)
 )
 (defrule
     (unit-type-count-total siege-weapon-class g:< g-max-siege-units)
-    (unit-count-total g:< g-pop-cap)
+    ; (unit-count-total g:<= g-pop-cap)
     =>
     (up-train 0 g: g-default-siege-unit)
 )
@@ -201,6 +214,7 @@
     (research ri-man-at-arms)
     (research ri-arson)
     (research ri-bloodlines)
+    (research ri-conscription)
     (disable-self)
 )
 
@@ -236,6 +250,7 @@
     (research ri-capped-ram)
     (research 257) ; Onager
     (research my-unique-unit-upgrade)
+    (research my-second-unique-research)
     (research 457) ; Perfusion for Goths
     (disable-self)
 )
@@ -262,9 +277,4 @@
     =>
     (research 320) ; Siege Onager
     (disable-self)
-)
-(defrule
-    (research-available ri-conscription)
-    =>
-    (research ri-conscription)
 )
