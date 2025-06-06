@@ -18,7 +18,16 @@ void roll_all_dice() {
 int roll_dice(int dice_no, int sides) {
     int num = xsGetRandomNumberMax(sides) + 1;
     xsSetTriggerVariable(dice_no, num);
-    return num
+    return num;
+}
+
+void roll_dice_unused(int dice_no) {
+    int sides = 1000;
+    if(xsTriggerVariable(var) < 0) {
+        sides = xsTriggerVariable(var) * -1;
+    }
+    int num = xsGetRandomNumberMax(sides) + 1;
+    xsSetTriggerVariable(var, num);
 }
 
 void event_roll() {
@@ -31,19 +40,22 @@ void event_roll() {
     if (event_type == 100) {
         do_common_event();
     }
+    roll_dice_unused(4);
+    roll_dice_unused(5);
+    roll_dice_unused(6);
+    roll_dice_unused(7);
+    roll_dice_unused(8);
+    roll_dice_unused(9);
 }
 
 void do_common_event() {
-    int side = roll_dice(var_player_dice, 3);
+    int side = roll_dice(var_player_dice, 2);
     switch(side) {
         case 1 : {
             do_common_attack_event();
         }
         case 2 : {
             do_common_defend_event();
-        }
-        default : {
-            do_common_neutral_event();
         }
     }
 }
@@ -72,24 +84,109 @@ void do_common_attack_event() {
 
 void do_common_defend_event() {
     int player = roll_dice(var_player_dice, 3);
-    int event = roll_dice(var_event_dice, 5);
-    switch(event) {
-        case 1 : {
-
+    int event = roll_dice(var_event_dice, 55);
+    if (event <= xsArrayGetSize(attack_unique_techs)) {
+        re_attack_unique_tech(event, player);
+    } else {
+        switch(event - xsArrayGetSize(attack_unique_techs)) {
+            case 1 : {
+                xsChatData("Event 55");
+            }
         }
     }
 }
 
 // ===== Common Defend Events =====
 int attack_unique_techs = set_defend_unique_techs();
+int attack_unique_techs_status = xsArrayCreateInt(xsArrayGetSize(attack_unique_techs), 0, "attack_unique_tech_status");
 void set_defend_unique_techs() {
-    int list = xsArrayCreateInt(10,);
-    xsArraySetInt(list, 0, );
+    int list = xsArrayCreateInt(54,);
+    xsArraySetInt(list, 0, 912); // Feteters
+    xsArraySetInt(list, 1, 460); // Atlatl
+    xsArraySetInt(list, 2, 24); // Garland Wars
+    xsArraySetInt(list, 3, 834); // Mahayana
+    xsArraySetInt(list, 4, 578); // Kabash
+    xsArraySetInt(list, 5, 3); // Yeomen  
+    xsArraySetInt(list, 6, 685); // Stirrups 
+    xsArraySetInt(list, 7, 686); // Bagains
+    xsArraySetInt(list, 8, 754); // Burgundian Vineyards
+    xsArraySetInt(list, 9, 627); // Manipur Cavalry
+    xsArraySetInt(list, 10, 482); // Stronghold
+    xsArraySetInt(list, 11, 5); // Furor Celtica
+    xsArraySetInt(list, 12, 462); // Great Wall
+    xsArraySetInt(list, 13, 690); // Cuman Mercenaries
+    xsArraySetInt(list, 14, 832); // Wootz Steel
+    xsArraySetInt(list, 15, 923); // Svan Towers
+    xsArraySetInt(list, 16, 924); // Aznauri Cavalry
+    xsArraySetInt(list, 17, 835); // Kshatriyas
+    xsArraySetInt(list, 18, 506); // Grant Trunk Road
+    xsArraySetInt(list, 19, 507); // Shatangi
+    xsArraySetInt(list, 20, 516); // Andean Sling
+    xsArraySetInt(list, 21, 499); // Silk Road
+    xsArraySetInt(list, 22, 494); // Pirotechnia
+    xsArraySetInt(list, 23, 484); // Yasama
+    xsArraySetInt(list, 24, 996); // Fortified Bastions
+    xsArraySetInt(list, 25, 1006); // Lamellar Armor
+    xsArraySetInt(list, 26, 1007); // Ordo Cavalry
+    xsArraySetInt(list, 27, 486); // Eupseong
+    xsArraySetInt(list, 28, 692); // Tower Shields
+    xsArraySetInt(list, 29, 515); // Recurve Bow
+    xsArraySetInt(list, 30, 625); // Forced Levy
+    xsArraySetInt(list, 31, 577); // Farimba
+    xsArraySetInt(list, 32, 485); // Hulche Javelineers
+    xsArraySetInt(list, 33, 7); // Citadels
+    xsArraySetInt(list, 34, 783); // Lechitic Legacy
+    xsArraySetInt(list, 35, 573); // Arquebus
+    xsArraySetInt(list, 36, 883); // Ballistas
+    xsArraySetInt(list, 37, 884); // Comitatenses
+    xsArraySetInt(list, 38, 28); // Birmaristan
+    xsArraySetInt(list, 39, 1070); // Coiled Serpent Array
+    xsArraySetInt(list, 40, 1069); // Bolt Magazine
+    xsArraySetInt(list, 41, 757); // Hauberk
+    xsArraySetInt(list, 42, 455); // Detinets
+    xsArraySetInt(list, 43, 513); // Druzhina
+    xsArraySetInt(list, 44, 440); // Supremacy
+    xsArraySetInt(list, 45, 687); // Silk Armor
+    xsArraySetInt(list, 46, 11); // Crenellations
+    xsArraySetInt(list, 47, 491); // Sipahi
+    xsArraySetInt(list, 48, 10); // Artillery
+    xsArraySetInt(list, 49, 629); // Paper Money
+    xsArraySetInt(list, 50, 463); // Chieftains
+    xsArraySetInt(list, 51, 49); // Bigsveigar
+    xsArraySetInt(list, 52, 1061); // Tuntian
+    xsArraySetInt(list, 53, 1062); // Ming Guang Armor                 
     return list;
 }
 
-void re_(int player) {
-    xsResearchTechnology(int techID, bool force, bool techAvailable, player);
+void re_attack_unique_tech(int tech_index, int player) {
+    int status = xsArrayGetInt(attack_unique_techs_status, tech_index);
+    int tech_id = xsArrayGetInt(attack_unique_techs, tech_index);
+    switch (player) {
+        case 1 : {
+            if (status % 2 < 1) {
+                xsResearchTechnology(tech_id, true, false, player);
+                xsArraySetInt(attack_unique_techs_status, tech_index, status + 1);
+            }
+        }
+        case 2 : {
+            if (status / 2 % 2 < 1) {
+                xsResearchTechnology(tech_id, true, false, player);
+                xsArraySetInt(attack_unique_techs_status, tech_index, status + 2);
+            }
+        }
+        case 3 : {
+            if (status / 2 / 2 % 2 < 1) {
+                xsResearchTechnology(tech_id, true, false, player);
+                xsArraySetInt(attack_unique_techs_status, tech_index, status + 4);
+            }
+        }
+        case 4 : {
+            if (status / 2 / 2 / 2 % 2 < 1) {
+                xsResearchTechnology(tech_id, true, false, player);
+                xsArraySetInt(attack_unique_techs_status, tech_index, status + 8);
+            }
+        }
+    }
 }
 
 // ===== Common Attack Events =====
