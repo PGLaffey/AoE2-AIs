@@ -47,27 +47,31 @@
     (true) ; This rule runs once at the very start of the game
 =>
     (chat-to-all "Scenario Attacker AI V5: The Nightmare Reborn!")
-    (set-strategic-number sn-attack-intelligence 0)
+    (set-strategic-number sn-attack-intelligence 1)
     ; (set-strategic-number sn-enable-offensive-priority 1)
     (set-strategic-number sn-enable-patrol-attack 1)
     (set-strategic-number sn-percent-attack-soldiers 100)
-    (set-strategic-number sn-wall-targeting-mode 1)
+    (set-strategic-number sn-wall-targeting-mode 0)
     (set-strategic-number sn-enable-training-queue 1)
     (set-strategic-number sn-number-explore-groups 0)
     (set-strategic-number sn-relic-return-distance 0)
     (set-strategic-number sn-do-not-scale-for-difficulty-level 1)
     (set-strategic-number sn-enable-training-queue 5)
     (set-strategic-number sn-enable-research-queue 1)
+    (set-strategic-number sn-coop-share-attacking 0)
 
     ; (set-goal g-pop-cap 5)
-    (set-goal g-pop-cap 5)
-    (set-goal g-pop-cap-multiplier 136)
+    (set-goal g-pop-cap 2)
+    ; (set-goal g-pop-cap-multiplier 136)
+    (set-goal g-pop-cap-multiplier 132)
     (set-goal g-difficulty-modifier 100)
 
     (enable-timer TIMER_RETREAT 0)
     (enable-timer TIMER_POP_INCREASE 5)
     (disable-self)
 )
+; ----- Player Targets -----
+
 
 ; ----- Difficulty Mutliplier ----- 
 (defrule ; Decrease difficulty
@@ -174,7 +178,8 @@
 
     ; (research ri-conscription)
     (disable-timer TIMER_POP_INCREASE)
-    (enable-timer TIMER_POP_INCREASE 40)
+    (enable-timer TIMER_POP_INCREASE 255)
+    ; (enable-timer TIMER_POP_INCREASE 400)
 )
 
 ; ----- Default Unit Creation -----
@@ -188,6 +193,7 @@
 
 (defrule
     (unit-type-count-total archery-class g:< g-max-archery-units)
+    (unit-type-count-total cavalry-archer-class g:< g-max-archery-units)
     ; (unit-count-total g:< g-pop-cap)
     =>
     (up-train 0 g: g-default-archery-unit)
@@ -277,4 +283,9 @@
     =>
     (research 320) ; Siege Onager
     (disable-self)
+)
+(defrule
+    (research-available ri-conscription)
+    =>
+    (research ri-conscription)
 )
