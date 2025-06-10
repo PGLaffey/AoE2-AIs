@@ -51,14 +51,13 @@
     ; (set-strategic-number sn-enable-offensive-priority 1)
     (set-strategic-number sn-enable-patrol-attack 1)
     (set-strategic-number sn-percent-attack-soldiers 100)
-    (set-strategic-number sn-wall-targeting-mode 0)
+    (set-strategic-number sn-wall-targeting-mode 1)
     (set-strategic-number sn-enable-training-queue 1)
     (set-strategic-number sn-number-explore-groups 0)
     (set-strategic-number sn-relic-return-distance 0)
     (set-strategic-number sn-do-not-scale-for-difficulty-level 1)
     (set-strategic-number sn-enable-training-queue 5)
     (set-strategic-number sn-enable-research-queue 1)
-    (set-strategic-number sn-coop-share-attacking 0)
 
     ; (set-goal g-pop-cap 5)
     (set-goal g-pop-cap 2)
@@ -70,8 +69,6 @@
     (enable-timer TIMER_POP_INCREASE 5)
     (disable-self)
 )
-; ----- Player Targets -----
-
 
 ; ----- Difficulty Mutliplier ----- 
 (defrule ; Decrease difficulty
