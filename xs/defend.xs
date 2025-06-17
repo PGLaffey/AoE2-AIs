@@ -2,6 +2,9 @@ const int var_event_type_dice = 0;
 const int var_player_dice = 1;
 const int var_side_dice = 2;
 const int var_event_dice = 3;
+const int var_quantity_dice = 4;
+
+const int var_trigger_event = 10;
 
 int test = 0;
 int attack_unique_techs = 0;
@@ -14,7 +17,7 @@ void roll_all_dice() {
             sides = xsTriggerVariable(var) * -1;
         }
         int num = xsGetRandomNumberMax(sides) + 1;
-        xsChatData("Set Dice "+var+1+" to "+num+" out of "+sides,);
+        xsChatData("Set Dice "+var+1+" to "+num+" out of "+sides);
         xsSetTriggerVariable(var, num);
     }
 }
@@ -94,15 +97,6 @@ int set_defend_unique_techs() {
     return (list);
 }
 
-
-
-void main() {
-    test = xsArrayCreateInt(5, 0, "test");
-    attack_unique_techs = set_defend_unique_techs();
-    attack_unique_techs_status = xsArrayCreateInt(xsArrayGetSize(attack_unique_techs), 0, "attack_unique_tech_status");
-}
-
-
 void re_attack_unique_tech(int tech_index = 0, int player = 0) {
     int status = xsArrayGetInt(attack_unique_techs_status, tech_index);
     int tech_id = xsArrayGetInt(attack_unique_techs, tech_index);
@@ -133,6 +127,7 @@ void re_attack_unique_tech(int tech_index = 0, int player = 0) {
         }
     }
 }
+// ===== (END) Common Defend Events =====
 
 // ===== Common Attack Events =====
 void re_cavalry_armor(int player = 0) {
@@ -164,6 +159,16 @@ void re_melee_attack (int player = 0) {
     xsResearchTechnology(68, false, true, player); // Iron Casting
     xsResearchTechnology(67, false, true, player); // Forging Furnace
 }
+// ===== (END) Common Attack Events =====
+
+// ===== Common Neutral Events =====
+void spawn_deer() {
+    int quantity = roll_dice(var_quantity_dice, 50);
+    xsEffectAmount(cGaiaModResource, cAttributeSpawnCap, cAttributeSet, 15);
+    xsEffectAmount(cGaiaSpawnUnit, 65, 109, quantity);
+    xsChatData("Spring has come and the deer flourish");
+}
+// ===== (END) Common Neutral Events =====
 
 void do_common_attack_event() {
     int player = roll_dice(var_player_dice, 4) + 3;
@@ -201,8 +206,21 @@ void do_common_defend_event() {
     }
 }
 
+void do_common_neutral_event() {
+    int event = roll_dice(var_event_dice, 2);
+    switch(event) {
+        case 1 : {
+            spawn_deer();
+        }
+        case 2 : {
+            xsSetTriggerVariable(var_trigger_event, 1);
+            xsChatData("Winter has come and hungry wolves decend the mountains");
+        }
+    }
+}
+
 void do_common_event() {
-    int side = roll_dice(var_side_dice, 2);
+    int side = roll_dice(var_side_dice, 3);
     switch(side) {
         case 1 : {
             do_common_attack_event();
@@ -210,8 +228,11 @@ void do_common_event() {
         case 2 : {
             do_common_defend_event();
         }
+        case 3 : {
+            do_common_neutral_event();
+        }
         default : {
-            xsChatData("Invalid roll "+side+" for Side Dice",);
+            xsChatData("Invalid roll "+side+" for Side Dice");
         }
     }
 }
@@ -232,4 +253,10 @@ void event_roll() {
     roll_dice_unused(7);
     roll_dice_unused(8);
     roll_dice_unused(9);
+}
+
+void main() {
+    test = xsArrayCreateInt(5, 0, "test");
+    attack_unique_techs = set_defend_unique_techs();
+    attack_unique_techs_status = xsArrayCreateInt(xsArrayGetSize(attack_unique_techs), 0, "attack_unique_tech_status");
 }

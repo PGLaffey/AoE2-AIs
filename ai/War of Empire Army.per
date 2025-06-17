@@ -1,0 +1,25 @@
+; ===== Goal IDs =====
+(defconst g-flare-x 100)
+(defconst g-flare-y 101)
+(defconst g-state-1 102)
+(defconst g-state-2 103)
+(defconst g-state-3 104)
+(defconst g-state-4 105)
+
+; ===== Event IDs (trigger Set AI Goal) =====
+
+; ===== Timer IDs =====
+
+
+; ===== Init =====
+
+
+; ===== Commands =====
+(defrule
+    (cc-players-unit-type-count any-human-ally flare > 0)
+    =>
+    (up-find-flare g-flare-x)
+    (up-full-reset-search)
+    (up-find-local c: cmdid-military c: 240)
+    (up-get-search-state g-state-1)
+)

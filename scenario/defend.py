@@ -11,15 +11,12 @@ scenario = AoE2DEScenario.from_file(input_path)
 
 trigger_manager = scenario.trigger_manager
 
-hoh_trigger = trigger_manager.get_trigger(23)
-trigger_manager.copy_trigger_tree_per_player(
-    from_player=PlayerId.ONE,
-    trigger_select=23,
-    create_copy_for_players=[PlayerId.TWO, PlayerId.THREE],
-    group_triggers_by=GroupBy.PLAYER,
-    include_player_source=True,
-    include_player_target=True
-)
+xs_manager = scenario.xs_manager
+xs_manager.xs_check.raise_on_error = True
+xs_manager.xs_check.ignores.add('DiscardedFn')
+xs_manager.xs_check.ignores.add('NoNumPromo')
+xs_manager.initialise_xs_trigger(insert_index=0)
+xs_manager.add_script(xs_file_path='C:\\Program Files (x86)\\Steam\\steamapps\\common\\AoE2DE\\resources\\_common\\xs\\defend.xs', validate=True)
 
 print(trigger_manager.get_summary_as_string())
 q = input('Save?')

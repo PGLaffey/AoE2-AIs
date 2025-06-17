@@ -70,6 +70,41 @@
     (disable-self)
 )
 
+; ----- Player Target -----
+(defrule
+    (or
+        (player-number 4)
+        (player-number 7)
+    )
+    (player-in-game 1)
+    =>
+    (set-strategic-number sn-target-player-number 1)
+    (disable-self)
+)
+(defrule
+    (not (player-in-game 1))
+    =>
+    (set-strategic-number sn-target-player-number 0)  
+    (disable-self)  
+)
+
+(defrule
+    (or
+        (player-number 5)
+        (player-number 6)
+    )
+    (player-in-game 3)
+    =>
+    (set-strategic-number sn-target-player-number 3)
+    (disable-self)
+)
+(defrule
+    (not (player-in-game 3))
+    =>
+    (set-strategic-number sn-target-player-number 0)  
+    (disable-self)  
+)
+
 ; ----- Difficulty Mutliplier ----- 
 (defrule ; Decrease difficulty
     (or

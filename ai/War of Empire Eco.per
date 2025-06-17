@@ -1,0 +1,211 @@
+; ===== Goal IDs =====
+(defconst g-food-vils 1)
+(defconst g-wood-vils 2)
+(defconst g-gold-vils 3)
+(defconst g-stone-vils 4)
+(defconst g-vil-pop 5)
+(defconst g-food-vil-perc 6)
+(defconst g-wood-vil-perc 7)
+(defconst g-gold-vil-perc 8)
+(defconst g-stone-vil-perc 9)
+
+; ===== Event IDs (trigger Set AI Goal) =====
+(defconst e-add-food-vil 1)
+(defconst e-add-wood-vil 2)
+(defconst e-add-gold-vil 3)
+(defconst e-add-stone-vil 4)
+
+; ===== Timer IDs =====
+(defconst t-tribute 1)
+
+; ===== Init =====
+(defrule
+    (true)
+    =>
+    (set-strategic-number sn-cap-civilian-explorers 0)
+    (set-strategic-number sn-cap-civilian-builders 0)
+    (set-strategic-number sn-coop-share-information 1)
+
+    (enable-timer t-tribute 60)
+    (disable-self)
+)
+
+; ===== Tribute Loop =====
+(defrule
+    (timer-triggered t-tribute)
+    =>
+    (disable-timer t-tribute)
+    (tribute-to-player any-human-ally food 32767)
+    (tribute-to-player any-human-ally wood 32767)
+    (tribute-to-player any-human-ally gold 32767)
+    (tribute-to-player any-human-ally stone 32767)
+    (enable-timer t-tribute 60)
+)
+
+; ===== Add Villagers =====
+(defrule
+    (event-detected trigger e-add-food-vil)
+    =>
+    (up-modify-goal g-food-vils c:+ 1)
+    (up-modify-goal g-vil-pop c:+ 1)
+    (up-modify-goal g-food-vil-perc g:= g-food-vils)
+    (up-modify-goal g-food-vil-perc c:* 100)
+    (up-modify-goal g-food-vil-perc g:/ g-vil-pop)
+    (up-modify-sn sn-food-gatherer-percentage g:= g-food-vil-perc)
+    (up-chat-data-to-player any-human-ally "Food Villager Count = %d" g: g-food-vils)
+    (acknowledge-event trigger e-add-food-vil)
+)
+(defrule
+    (event-detected trigger e-add-wood-vil)
+    =>
+    (up-modify-goal g-wood-vils c:+ 1)
+    (up-modify-goal g-vil-pop c:+ 1)
+    (up-modify-goal g-wood-vil-perc g:= g-wood-vils)
+    (up-modify-goal g-wood-vil-perc c:* 100)
+    (up-modify-goal g-wood-vil-perc g:/ g-vil-pop)
+    (up-modify-sn sn-wood-gatherer-percentage g:= g-wood-vil-perc)
+    (up-chat-data-to-player any-human-ally "Wood Villager Count = %d" g: g-wood-vils)
+    (acknowledge-event trigger e-add-wood-vil)
+)
+(defrule
+    (event-detected trigger e-add-gold-vil)
+    =>
+    (up-modify-goal g-gold-vils c:+ 1)
+    (up-modify-goal g-vil-pop c:+ 1)
+    (up-modify-goal g-gold-vil-perc g:= g-gold-vils)
+    (up-modify-goal g-gold-vil-perc c:* 100)
+    (up-modify-goal g-gold-vil-perc g:/ g-vil-pop)
+    (up-modify-sn sn-gold-gatherer-percentage g:= g-gold-vil-perc)
+    (up-chat-data-to-player any-human-ally "Gold Villager Count = %d" g: g-gold-vils)
+    (acknowledge-event trigger e-add-gold-vil)
+)
+(defrule
+    (event-detected trigger e-add-stone-vil)
+    =>
+    (up-modify-goal g-stone-vils c:+ 1)
+    (up-modify-goal g-vil-pop c:+ 1)
+    (up-modify-goal g-stone-vil-perc g:= g-stone-vils)
+    (up-modify-goal g-stone-vil-perc c:* 100)
+    (up-modify-goal g-stone-vil-perc g:/ g-vil-pop)
+    (up-modify-sn sn-stone-gatherer-percentage g:= g-stone-vil-perc)
+    (up-chat-data-to-player any-human-ally "Stone Villager Count = %d" g: g-stone-vils)
+    (acknowledge-event trigger e-add-stone-vil)
+)
+
+; ===== Villager Commands =====
+(defrule
+    (taunt-detected any-human-ally 3)
+    =>
+    (up-modify-goal g-food-vil-perc c:+ 15)
+    (up-modify-goal g-food-vils g:= g-food-vil-perc)
+    (up-modify-goal g-food-vils g:* g-vil-pop)
+    (up-modify-goal g-food-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Food Villager Count = %d" g: g-food-vils)
+
+    (up-modify-goal g-wood-vil-perc c:- 5)
+    (up-modify-goal g-wood-vils g:= g-wood-vil-perc)
+    (up-modify-goal g-wood-vils g:* g-vil-pop)
+    (up-modify-goal g-wood-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Wood Villager Count = %d" g: g-wood-vils)
+
+    (up-modify-goal g-gold-vil-perc c:- 5)
+    (up-modify-goal g-gold-vils g:= g-gold-vil-perc)
+    (up-modify-goal g-gold-vils g:* g-vil-pop)
+    (up-modify-goal g-gold-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Gold Villager Count = %d" g: g-gold-vils)
+
+    (up-modify-goal g-stone-vil-perc c:- 5)
+    (up-modify-goal g-stone-vils g:= g-stone-vil-perc)
+    (up-modify-goal g-stone-vils g:* g-vil-pop)
+    (up-modify-goal g-stone-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Stone Villager Count = %d" g: g-stone-vils)
+
+    (acknowledge-taunt any-human-ally 3)
+)
+(defrule
+    (taunt-detected any-human-ally 4)
+    =>
+    (up-modify-goal g-food-vil-perc c:- 5)
+    (up-modify-goal g-food-vils g:= g-food-vil-perc)
+    (up-modify-goal g-food-vils g:* g-vil-pop)
+    (up-modify-goal g-food-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Food Villager Count = %d" g: g-food-vils)
+
+    (up-modify-goal g-wood-vil-perc c:+ 15)
+    (up-modify-goal g-wood-vils g:= g-wood-vil-perc)
+    (up-modify-goal g-wood-vils g:* g-vil-pop)
+    (up-modify-goal g-wood-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Wood Villager Count = %d" g: g-wood-vils)
+
+    (up-modify-goal g-gold-vil-perc c:- 5)
+    (up-modify-goal g-gold-vils g:= g-gold-vil-perc)
+    (up-modify-goal g-gold-vils g:* g-vil-pop)
+    (up-modify-goal g-gold-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Gold Villager Count = %d" g: g-gold-vils)
+
+    (up-modify-goal g-stone-vil-perc c:- 5)
+    (up-modify-goal g-stone-vils g:= g-stone-vil-perc)
+    (up-modify-goal g-stone-vils g:* g-vil-pop)
+    (up-modify-goal g-stone-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Stone Villager Count = %d" g: g-stone-vils)
+
+    (acknowledge-taunt any-human-ally 4)
+)
+(defrule
+    (taunt-detected any-human-ally 5)
+    =>
+    (up-modify-goal g-food-vil-perc c:- 5)
+    (up-modify-goal g-food-vils g:= g-food-vil-perc)
+    (up-modify-goal g-food-vils g:* g-vil-pop)
+    (up-modify-goal g-food-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Food Villager Count = %d" g: g-food-vils)
+
+    (up-modify-goal g-wood-vil-perc c:- 5)
+    (up-modify-goal g-wood-vils g:= g-wood-vil-perc)
+    (up-modify-goal g-wood-vils g:* g-vil-pop)
+    (up-modify-goal g-wood-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Wood Villager Count = %d" g: g-wood-vils)
+
+    (up-modify-goal g-gold-vil-perc c:+ 15)
+    (up-modify-goal g-gold-vils g:= g-gold-vil-perc)
+    (up-modify-goal g-gold-vils g:* g-vil-pop)
+    (up-modify-goal g-gold-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Gold Villager Count = %d" g: g-gold-vils)
+
+    (up-modify-goal g-stone-vil-perc c:- 5)
+    (up-modify-goal g-stone-vils g:= g-stone-vil-perc)
+    (up-modify-goal g-stone-vils g:* g-vil-pop)
+    (up-modify-goal g-stone-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Stone Villager Count = %d" g: g-stone-vils)
+
+    (acknowledge-taunt any-human-ally 5)
+)
+(defrule
+    (taunt-detected any-human-ally 6)
+    =>
+    (up-modify-goal g-food-vil-perc c:- 5)
+    (up-modify-goal g-food-vils g:= g-food-vil-perc)
+    (up-modify-goal g-food-vils g:* g-vil-pop)
+    (up-modify-goal g-food-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Food Villager Count = %d" g: g-food-vils)
+
+    (up-modify-goal g-wood-vil-perc c:- 5)
+    (up-modify-goal g-wood-vils g:= g-wood-vil-perc)
+    (up-modify-goal g-wood-vils g:* g-vil-pop)
+    (up-modify-goal g-wood-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Wood Villager Count = %d" g: g-wood-vils)
+
+    (up-modify-goal g-gold-vil-perc c:- 5)
+    (up-modify-goal g-gold-vils g:= g-gold-vil-perc)
+    (up-modify-goal g-gold-vils g:* g-vil-pop)
+    (up-modify-goal g-gold-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Gold Villager Count = %d" g: g-gold-vils)
+
+    (up-modify-goal g-stone-vil-perc c:+ 15)
+    (up-modify-goal g-stone-vils g:= g-stone-vil-perc)
+    (up-modify-goal g-stone-vils g:* g-vil-pop)
+    (up-modify-goal g-stone-vils c:/ 100)
+    (up-chat-data-to-player any-human-ally "Stone Villager Count = %d" g: g-stone-vils)
+
+    (acknowledge-taunt any-human-ally 6)
+)
