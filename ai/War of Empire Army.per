@@ -5,21 +5,128 @@
 (defconst g-state-2 103)
 (defconst g-state-3 104)
 (defconst g-state-4 105)
+(defconst g-respond-message 1)
 
 ; ===== Event IDs (trigger Set AI Goal) =====
 
 ; ===== Timer IDs =====
+(defconst t-respond-message 1)
+(defconst t-flare-timeout 2)
+(defconst t-delayed-stance 3)
 
+; ===== Constants =====
+(defconst c-all-units-class -1)
+(defconst c-attack-now 31)
+(defconst c-retreat-now 45)
+(defconst c-help-defend 48)
+(defconst attack-move 19)
 
 ; ===== Init =====
+(defrule
+    (true)
+    =>
+    (set-strategic-number sn-attack-intelligence 1)
+    (set-strategic-number sn-enable-patrol-attack 1)   
+    (set-strategic-number sn-percent-attack-soldiers 100)
+    (set-strategic-number sn-wall-targeting-mode 1)
+    (set-strategic-number sn-enable-training-queue 1)
+    (set-strategic-number sn-number-explore-groups 0)
+    (set-strategic-number sn-relic-return-distance 0)
+    (set-strategic-number sn-do-not-scale-for-difficulty-level 1)
+    (set-strategic-number sn-enable-training-queue 5)
+    (set-strategic-number sn-enable-research-queue 1) 
+    (set-strategic-number sn-coop-share-attacking 1)
+    
 
+    (set-goal g-respond-message 0)
+
+    (disable-self)
+)
+(defrule
+    (timer-triggered t-delayed-stance)
+    =>
+    (disable-timer t-delayed-stance)
+    (up-set-attack-stance -1 c: stance-defensive)
+)
 
 ; ===== Commands =====
 (defrule
     (cc-players-unit-type-count any-human-ally flare > 0)
+    (up-compare-goal g-respond-message == 0)
+    (up-timer-status t-flare-timeout <= timer-triggered)
     =>
+    (set-strategic-number sn-disable-attack-groups 0)
+    (set-strategic-number sn-disable-defend-groups 15)
+    (set-strategic-number sn-number-attack-groups 500)
+    (set-strategic-number sn-target-player-number 0)
+
+    (enable-timer t-flare-timeout 10)
+    (up-reset-unit c: -1)
     (up-find-flare g-flare-x)
     (up-full-reset-search)
-    (up-find-local c: cmdid-military c: 240)
+    (up-find-local c: all-units-class c: 240)
     (up-get-search-state g-state-1)
+    (up-target-point g-flare-x attack-move formation-stagger stance-defensive)
+    (set-goal g-respond-message 16)
+)
+(defrule
+    (taunt-detected any-human-ally c-attack-now)
+    (up-compare-goal g-respond-message == 0)
+    =>
+    (set-strategic-number sn-disable-attack-groups 0)
+    (set-strategic-number sn-disable-defend-groups 15)
+    (set-strategic-number sn-number-attack-groups 500)
+    (set-strategic-number sn-target-player-number 0)
+
+    (up-set-attack-stance -1 c: stance-aggressive)
+    (up-reset-unit c: -1)
+    (attack-now)
+    (set-goal g-respond-message 23)
+    (acknowledge-taunt any-human-ally c-attack-now)
+)
+(defrule
+    (taunt-detected any-human-ally c-retreat-now)
+    (up-compare-goal g-respond-message == 0)
+    =>
+    (set-strategic-number sn-disable-attack-groups 1)
+    (set-strategic-number sn-disable-defend-groups 0)
+    (set-strategic-number sn-number-attack-groups 0)
+    (set-strategic-number sn-target-player-number -1)
+
+    (up-set-attack-stance -1 c: stance-no-attack)
+    (enable-timer t-delayed-stance 20)
+
+    (up-reset-unit c: -1)
+    (up-reset-attack-now)
+    (up-update-targets)
+    (up-retreat-now)
+    (set-goal g-respond-message 24)
+    (acknowledge-taunt any-human-ally c-retreat-now)
+)
+(defrule
+    (taunt-detected any-human-ally c-help-defend)
+    (up-compare-goal g-respond-message == 0)
+    =>
+    (up-set-attack-stance -1 c: stance-defensive)
+    (up-reset-unit c: -1)
+    (set-strategic-number sn-number-attack-groups 0)
+    (set-strategic-number sn-target-player-number -1)
+    (attack-now)
+    (set-goal g-respond-message 8)
+    (acknowledge-taunt any-human-ally c-help-defend)
+)
+
+; ===== Message Response =====
+(defrule
+    (up-compare-goal g-respond-message > 0)
+    (up-timer-status t-respond-message == timer-disabled)
+    =>
+    (enable-timer t-respond-message 2)
+)
+(defrule
+    (timer-triggered t-respond-message)
+    =>
+    (disable-timer t-respond-message)
+    (up-chat-data-to-player every-ally "%d" g: g-respond-message)
+    (set-goal g-respond-message 0)
 )
