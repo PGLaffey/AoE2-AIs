@@ -5,8 +5,9 @@ const int var_town_eco_level = 1;
 const int var_town_defense_level = 2;
 const int var_town_resource = 3;
 const int var_town_new_owner = 4;
-const int var_town_center = 5;
-const int var_town_rebuild = 6;
+const int var_town_center_x = 5;
+const int var_town_center_y = 6;
+const int var_town_rebuild = 7;
 
 const int town_count = 10;
 
