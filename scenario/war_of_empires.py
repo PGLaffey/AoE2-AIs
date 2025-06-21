@@ -2,18 +2,24 @@ from AoE2ScenarioParser.datasets.buildings import BuildingInfo
 from AoE2ScenarioParser.datasets.heroes import HeroInfo
 from AoE2ScenarioParser.datasets.other import OtherInfo
 from AoE2ScenarioParser.datasets.players import PlayerId
-from AoE2ScenarioParser.datasets.trigger_lists import ObjectAttribute, Operation, Comparison, ObjectType, ObjectClass
+from AoE2ScenarioParser.datasets.trigger_lists import ObjectAttribute, Operation, Comparison, ObjectType, ObjectClass, \
+    ObjectState
 from AoE2ScenarioParser.datasets.units import UnitInfo
 from AoE2ScenarioParser.objects.data_objects.trigger import Trigger
 from AoE2ScenarioParser.objects.support.trigger_select import TriggerSelect
 from AoE2ScenarioParser.scenarios.aoe2_de_scenario import AoE2DEScenario
 from AoE2ScenarioParser.datasets.techs import TechInfo
 
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
 scenario_folder = 'C:/Users/User/Games/Age of Empires 2 DE/76561198138036391/resources/_common/scenario'
 input_path = f'{scenario_folder}/war of empires.aoe2scenario'
 output_path = f'{scenario_folder}/war of empires - python.aoe2scenario'
 
-xs_path = 'C:/Program Files (x86)/Steam/steamapps/common/AoE2DE/resources/_common/xs/war_of_empires.xs'
+xs_path = 'C:/Program Files (x86)/Steam/steamapps/common/AoE2DE/resources/_common/xs/War of Empire.xs'
 
 scenario = AoE2DEScenario.from_file(input_path)
 t_man = scenario.trigger_manager
@@ -25,8 +31,10 @@ for i in range(10):
 
 player_list = [
     {'player': 1, 'eco': 3, 'army': 5},
-    {'player': 2, 'eco': 4, 'army': 8}
+    {'player': 2, 'eco': 6, 'army': 8}
 ]
+player_horde = {'player': 4, 'eco': 4, 'army': 4}
+player_civilians = {'player': 7, 'eco': 7, 'army': 7}
 
 archery_upgrades = [TechInfo.CROSSBOWMAN, TechInfo.ARBALESTER, TechInfo.ELITE_SKIRMISHER, TechInfo.IMPERIAL_SKIRMISHER,
                     TechInfo.HEAVY_CAVALRY_ARCHER, TechInfo.ELITE_ELEPHANT_ARCHER, TechInfo.ELITE_GENITOUR,
@@ -76,8 +84,8 @@ for player in player_list:
         trigger.new_effect.research_technology(source_player=player['army'], technology=tech, force_research_technology=True)
 
 # Setup Unlimited Resources
-gaia_resources = [OtherInfo.GOLD_MINE, OtherInfo.STONE_MINE, OtherInfo.FORAGE_BUSH, (1539, 'Tree'), # Felled Tree
-                  OtherInfo.FRUIT_BUSH]
+gaia_resources = [OtherInfo.GOLD_MINE, OtherInfo.STONE_MINE, OtherInfo.FORAGE_BUSH, OtherInfo.TREE_OAK_FOREST,
+                  OtherInfo.FRUIT_BUSH, OtherInfo.TREE_BAMBOO_FOREST, OtherInfo.TREE_PINE_FOREST]
 player_resources = [BuildingInfo.FARM]
 for res_obj in gaia_resources:
     try:
@@ -111,11 +119,15 @@ heroes = [HeroInfo.ABRAHA_ELEPHANT, HeroInfo.GENGHIS_KHAN]
 town_count = 10
 town_max_defense_level = 10
 town_radius = 5
+town_locations = [
+    Point(10, 10) # TODO Add more locations
+]
 def town_var_id(town_number: int, var: int):
     return (town_number * 10) + var
 for town_num in range(1, town_count + 1):
     # Setup Town Variables
-    town_vars = {
+    town_i = town_num - 1
+    town_var_ids = {
         'owner': 0,
         'eco level': 1,
         'defense level': 2,
@@ -125,33 +137,33 @@ for town_num in range(1, town_count + 1):
         'center y': 6,
         'rebuild': 7
     }
-    for var_name, var_i in town_vars.items():
-        town_vars[var_name] = t_man.add_variable(var_name.capitalize(), town_var_id(town_num, var_i))
-    town_i = town_num - 1
-    # Setup Town Rebuild
-    for defense_level in range(1, town_max_defense_level + 1):
-        rebuild_trigger = t_man.add_trigger(f'Town {town_num} Rebuild Level {defense_level}')
-        rebuild_trigger.new_condition.variable_value(variable=town_vars['defense level'], comparison=Comparison.EQUAL,
-                                                     quantity=defense_level)
-        rebuild_trigger.new_condition.variable_value(variable=town_vars['rebuild'], comparison=Comparison.EQUAL,
-                                                     quantity=1)
+    for var_name, var_i in town_var_ids.items():
+        town_var_ids[var_name] = t_man.add_variable(var_name.capitalize(), town_var_id(town_num, var_i))
+    town_center = town_locations[town_i]
+    town_area = {'area_x1': town_center.x - town_radius, 'area_x2': town_center.x + town_radius,
+                 'area_y1': town_center.y - town_radius, 'area_y2': town_center.y + town_radius}
+    # Loop Over Potential Owners
+    for owner in player_list:
+        enemy_players = [player for player in player_list if player['player'] != owner['player']]
+        # Setup Town Rebuild Trigger Per Defense Level
+        for defense_level in range(1, town_max_defense_level + 1):
+            rebuild_trigger = t_man.add_trigger(f'Town {town_num} Rebuild Level {defense_level} (p{owner["player"]})')
+            rebuild_trigger.new_condition.variable_value(variable=town_var_ids['defense level'], comparison=Comparison.EQUAL,
+                                                         quantity=defense_level)
+            rebuild_trigger.new_condition.variable_value(variable=town_var_ids['rebuild'], comparison=Comparison.EQUAL,
+                                                         quantity=1)
+            # Check there are player or enemy units in town area (condition is not more than 1)
+            rebuild_trigger.new_condition.objects_in_area(source_player=owner['player'], **town_area,
+                                                          object_type=ObjectType.MILITARY, quantity=1, inverted=True,
+                                                          object_state=ObjectState.ALIVE)
+            rebuild_trigger.new_condition.objects_in_area(source_player=player['army'], **town_area,
+                                                          object_type=ObjectType.MILITARY, quantity=1, inverted=True,
+                                                          object_state=ObjectState.ALIVE)
 
-        # Move Heroes out of town and kill army
-        for player in player_list:
-            if player['player'] == 1:
-                teleport_location = (town_vars['center x'] + town_radius + 2, town_vars['center y'] - town_radius - 2)
-            else:
-                teleport_location = (town_vars['center x'] - town_radius - 2, town_vars['center y'] + town_radius + 2)
 
-
-            rebuild_trigger.new_effect.teleport_object(source_player=player['player'],
-                                                       area_x1=town_vars['center x'] - town_radius, area_x2=town_vars['center x'] + town_radius,
-                                                       area_y1=town_vars['center y'] - town_radius, area_y2=town_vars['center y'] + town_radius,
-                                                       location_x=teleport_location[0], location_y=teleport_location[1],
-                                                       object_type=ObjectType.MILITARY, object_group=ObjectClass.HERO)
-        # Place Building as per Defense Level
-        if defense_level == 1:
-            rebuild_defense_1(rebuild_trigger, town_vars)
+            # Place Building as per Defense Level
+            if defense_level == 1:
+                rebuild_defense_1(rebuild_trigger, town_vars)
 
 
 

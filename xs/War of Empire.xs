@@ -96,8 +96,8 @@ void change_town_owner(int town_num = 0) {
     // Remove a town level as damage
     change_town_eco_level(town_num, false);
     change_town_defense_level(town_num, false);
-    // Mark town to be rebuilt
-    xsSetTriggerVariable(town_var_id(town_num, var_town_rebuild), 1);
+    // Create center tower
+    // TODO create center tower with ability to rebuild
     xsChatData("Town " + town_num + " ownership changed from " + town_owner + " to " + new_owner);
  }
 
