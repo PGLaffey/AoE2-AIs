@@ -5,3 +5,5 @@ Issue with hall of heroes where P1s get converted when P2 or P3 use theirs
 Message when techs are complete
 Make enemy upgrades more common
 Make more enemy Civs (random civs on each side)
+More hills (interesting environment)
+
