@@ -1,0 +1,7 @@
+TODO
+Too easy early - age up faster
+Need endgame condition (e.g. build and defend wonder or after 1h can destroy enemy production buildings)
+Issue with hall of heroes where P1s get converted when P2 or P3 use theirs
+Message when techs are complete
+Make enemy upgrades more common
+Make more enemy Civs (random civs on each side)

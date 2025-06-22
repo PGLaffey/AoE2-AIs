@@ -144,7 +144,7 @@ for town_num in range(1, town_count + 1):
                  'area_y1': town_center.y - town_radius, 'area_y2': town_center.y + town_radius}
     # Loop Over Potential Owners
     for owner in player_list:
-        enemy_players = [player for player in player_list if player['player'] != owner['player']]
+        enemy_players = [player for player in player_list if player['player'] != owner['player']] + [player_horde]
         # Setup Town Rebuild Trigger Per Defense Level
         for defense_level in range(1, town_max_defense_level + 1):
             rebuild_trigger = t_man.add_trigger(f'Town {town_num} Rebuild Level {defense_level} (p{owner["player"]})')
@@ -152,15 +152,16 @@ for town_num in range(1, town_count + 1):
                                                          quantity=defense_level)
             rebuild_trigger.new_condition.variable_value(variable=town_var_ids['rebuild'], comparison=Comparison.EQUAL,
                                                          quantity=1)
-            # Check there are player or enemy units in town area (condition is not more than 1)
-            rebuild_trigger.new_condition.objects_in_area(source_player=owner['player'], **town_area,
-                                                          object_type=ObjectType.MILITARY, quantity=1, inverted=True,
-                                                          object_state=ObjectState.ALIVE)
-            rebuild_trigger.new_condition.objects_in_area(source_player=player['army'], **town_area,
-                                                          object_type=ObjectType.MILITARY, quantity=1, inverted=True,
-                                                          object_state=ObjectState.ALIVE)
+            # Check there are any units in town area (condition is not more than 1)
+            for p in enemy_players + [owner]:
+                rebuild_trigger.new_condition.objects_in_area(source_player=p['player'], **town_area,
+                                                              object_type=ObjectType.MILITARY, quantity=1, inverted=True,
+                                                              object_state=ObjectState.ALIVE)
+                rebuild_trigger.new_condition.objects_in_area(source_player=p['army'], **town_area,
+                                                              object_type=ObjectType.MILITARY, quantity=1, inverted=True,
+                                                              object_state=ObjectState.ALIVE)
 
-
+            rebuild_trigger.new_effect.send_chat(source_player=owner['player'], message=f'Rebuilding Town {town_num}')
             # Place Building as per Defense Level
             if defense_level == 1:
                 rebuild_defense_1(rebuild_trigger, town_vars)
