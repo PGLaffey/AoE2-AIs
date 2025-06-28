@@ -33,6 +33,7 @@
 (defconst g-max-stable-units 214) ; Max percentage of army
 (defconst g-max-siege-units 215) ; Max percentage of army
 
+
 (defconst g-temp1 1001)
 (defconst g-temp2 1002)
 (defconst g-temp3 1003)
@@ -41,6 +42,9 @@
 
 (defconst s-creation-speed-increase 0)
 (defconst s-creation-speed-decrease 1)
+
+; ===== Event IDs =====
+(defconst e-decrease-pop 1)
 
 ; ===== Game Start: Initial setup actions =====
 (defrule
@@ -59,10 +63,10 @@
     (set-strategic-number sn-enable-training-queue 5)
     (set-strategic-number sn-enable-research-queue 1)
 
-    ; (set-goal g-pop-cap 5)
-    (set-goal g-pop-cap 2)
-    ; (set-goal g-pop-cap-multiplier 136)
-    (set-goal g-pop-cap-multiplier 132)
+    ; (set-goal g-pop-cap 2)
+    (set-goal g-pop-cap 10)
+    ; (set-goal g-pop-cap-multiplier 132)
+    (set-goal g-pop-cap-multiplier 122)
     (set-goal g-difficulty-modifier 100)
 
     (enable-timer TIMER_RETREAT 0)
@@ -143,6 +147,25 @@
     (up-chat-data-to-all "New difficulty is %d percent" g: g-difficulty-modifier)
 )
 
+; ===== Event Trigger ======
+(defrule ; Change phase 
+    (game-time >= 6120)
+    =>
+    (set-strategic-number sn-target-player-number -1)
+    (set-strategic-number sn-wall-targeting-mode 0)
+    (set-goal g-default-siege-unit trebuchet)
+    (set-goal g-pop-cap 300)
+    (disable-timer TIMER_POP_INCREASE)
+    (attack-now)
+    (disable-self)
+)
+(defrule
+    (event-detected trigger e-decrease-pop)
+    =>
+    (acknowledge-event trigger e-decrease-pop)
+    (up-modify-goal g-pop-cap c:- 50)
+)
+
 
 ; ==== Civ Pick  - Goth Override =====
 #load-if-defined GOTHIC-CIV
@@ -163,7 +186,7 @@
     (generate-random-number RETREAT_TIME)
     (up-get-fact random-number 0 g-retreat-time)
     (up-modify-goal g-retreat-time c:+ RETREAT_TIME)
-    (up-chat-data-to-all "Retreating for %d seconds" g: g-retreat-time)
+    ; (up-chat-data-to-all "Retreating for %d seconds" g: g-retreat-time)
     (up-set-timer c: TIMER_ATTACK g: g-retreat-time)
 )
 (defrule ; Attack
@@ -175,7 +198,7 @@
     (generate-random-number ATTACK_TIME)
     (up-get-fact random-number 0 g-attack-time)
     (up-modify-goal g-attack-time c:+ ATTACK_TIME)
-    (up-chat-data-to-all "Attacking for %d seconds" g: g-attack-time)
+    ; (up-chat-data-to-all "Attacking for %d seconds" g: g-attack-time)
     (up-set-timer c: TIMER_RETREAT g: g-attack-time)
 )
 
@@ -191,22 +214,22 @@
     (up-modify-goal g-max-barracks-units g:= g-max-barracks-units-perc)
     (up-modify-goal g-max-barracks-units g:* g-pop-cap)
     (up-modify-goal g-max-barracks-units c:/ 100)
-    (up-chat-data-to-all "Barracks Target %d" g: g-max-barracks-units)
+    ; (up-chat-data-to-all "Barracks Target %d" g: g-max-barracks-units)
 
     (up-modify-goal g-max-archery-units g:= g-max-archery-units-perc)
     (up-modify-goal g-max-archery-units g:* g-pop-cap)
     (up-modify-goal g-max-archery-units c:/ 100)
-    (up-chat-data-to-all "Archery Target %d" g: g-max-archery-units)
+    ; (up-chat-data-to-all "Archery Target %d" g: g-max-archery-units)
 
     (up-modify-goal g-max-stable-units g:= g-max-stable-units-perc)
     (up-modify-goal g-max-stable-units g:* g-pop-cap)
     (up-modify-goal g-max-stable-units c:/ 100)
-    (up-chat-data-to-all "Stable Target %d" g: g-max-stable-units)
+    ; (up-chat-data-to-all "Stable Target %d" g: g-max-stable-units)
 
     (up-modify-goal g-max-siege-units g:= g-max-siege-units-perc)
     (up-modify-goal g-max-siege-units g:* g-pop-cap)
     (up-modify-goal g-max-siege-units c:/ 100)
-    (up-chat-data-to-all "Siege Target %d" g: g-max-siege-units)
+    ; (up-chat-data-to-all "Siege Target %d" g: g-max-siege-units)
 
     ; (research ri-conscription)
     (disable-timer TIMER_POP_INCREASE)
@@ -219,7 +242,7 @@
     (unit-type-count-total infantry-class g:< g-max-barracks-units)
     ; (unit-count-total g:< g-pop-cap)
     =>
-    (up-chat-data-to-all "Creating %d" g: g-default-barracks-unit)
+    ; (up-chat-data-to-all "Creating %d" g: g-default-barracks-unit)
     (up-train 0 g: g-default-barracks-unit)
 )
 
@@ -235,7 +258,7 @@
     (unit-type-count-total scout-cavalry-line g:< g-max-stable-units)
     ; (unit-count-total g:< g-pop-cap)
     =>
-    (up-chat-data-to-all "Creating %d" g: g-default-stable-unit)
+    ; (up-chat-data-to-all "Creating %d" g: g-default-stable-unit)
     (up-train 0 g: g-default-stable-unit)
 )
 (defrule
@@ -259,6 +282,7 @@
 (defrule ; Castle Age Techs
     (current-age == castle-age)
     =>
+    (research my-unique-research)
     (research ri-squires)
     (research 875) ; Gambesons
     (research ri-crossbow)
@@ -266,21 +290,24 @@
     (research ri-thumb-ring)
     (research ri-long-swordsman)
     (research ri-pikeman)
+    (research ri-eagle-warrior)
     (research ri-light-cavalry)
     (research ri-husbandry)
-    (research my-unique-research)
+    
     (disable-self)
 )
 
 (defrule ; Imperial Age Techs
     (current-age == imperial-age)
     =>
+    (research my-second-unique-research)
     (research ri-arbalest)
     (research ri-heavy-cavalry-archer)
     (research ri-elite-elephant-archer)
     (research ri-parthian-tactics)
     (research ri-two-handed-swordsman)
     (research ri-halberdier)
+    (research ri-elite-eagle-warrior)
     (research ri-hussar)
     (research ri-cavalier)
     (research ri-heavy-camel)
