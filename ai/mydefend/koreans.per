@@ -1,4 +1,4 @@
-; ==== Civ Pick - Chinese Override =====
+; ==== Civ Pick - Korean Override =====
 (defrule
     (current-age == dark-age)
     =>
@@ -25,12 +25,12 @@
     (current-age == castle-age)
     =>
     (set-goal g-default-barracks-unit fire-lancer-line)
-    (set-goal g-default-archery-unit chu-ko-nu-line)
-    (set-goal g-default-stable-unit scout-cavalry-line) 	
+    (set-goal g-default-archery-unit war-wagon-line)
+    (set-goal g-default-stable-unit scout-cavalry-line)  	
     (set-goal g-default-siege-unit rocket-cart-line)
-    (set-goal g-max-barracks-units-perc 40)
-    (set-goal g-max-archery-units-perc 40)
-    (set-goal g-max-stable-units-perc 10)
+    (set-goal g-max-barracks-units-perc 20)
+    (set-goal g-max-archery-units-perc 50)
+    (set-goal g-max-stable-units-perc 20)
     (set-goal g-max-siege-units-perc 10)
     (disable-self)
 )
@@ -40,12 +40,12 @@
     (current-age == imperial-age)
     =>
     (set-goal g-default-barracks-unit fire-lancer-line)
-    (set-goal g-default-archery-unit chu-ko-nu-line)
-    (set-goal g-default-stable-unit knight-line)
+    (set-goal g-default-archery-unit war-wagon-line)
+    (set-goal g-default-stable-unit scout-cavalry-line)  	
     (set-goal g-default-siege-unit rocket-cart-line)
-    (set-goal g-max-barracks-units-perc 30)
-    (set-goal g-max-archery-units-perc 45)
-    (set-goal g-max-stable-units-perc 10)
+    (set-goal g-max-barracks-units-perc 20)
+    (set-goal g-max-archery-units-perc 50)
+    (set-goal g-max-stable-units-perc 15)
     (set-goal g-max-siege-units-perc 15)
     (disable-self)
 )

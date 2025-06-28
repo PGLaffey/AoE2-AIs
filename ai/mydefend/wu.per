@@ -1,4 +1,4 @@
-; ==== Civ Pick - Chinese Override =====
+; ==== Civ Pick - Wu Override =====
 (defrule
     (current-age == dark-age)
     =>
@@ -11,12 +11,12 @@
 (defrule
     (current-age == feudal-age)
     =>
-    (set-goal g-default-barracks-unit spearman-line)
+    (set-goal g-default-barracks-unit militiaman-line)
     (set-goal g-default-archery-unit archer-line)
     (set-goal g-default-stable-unit scout-cavalry-line)
-    (set-goal g-max-barracks-units-perc 40)
+    (set-goal g-max-barracks-units-perc 50)
     (set-goal g-max-archery-units-perc 40)
-    (set-goal g-max-stable-units-perc 20)
+    (set-goal g-max-stable-units-perc 10)
     (disable-self)
 )
 
@@ -24,10 +24,10 @@
 (defrule
     (current-age == castle-age)
     =>
-    (set-goal g-default-barracks-unit fire-lancer-line)
-    (set-goal g-default-archery-unit chu-ko-nu-line)
-    (set-goal g-default-stable-unit scout-cavalry-line) 	
-    (set-goal g-default-siege-unit rocket-cart-line)
+    (set-goal g-default-barracks-unit 1974) ; Jian Swordsman
+    (set-goal g-default-archery-unit fire-archer-line)
+    (set-goal g-default-stable-unit hei-guang-cavalry-line)  	
+    (set-goal g-default-siege-unit scorpion-line)
     (set-goal g-max-barracks-units-perc 40)
     (set-goal g-max-archery-units-perc 40)
     (set-goal g-max-stable-units-perc 10)
@@ -39,15 +39,21 @@
 (defrule
     (current-age == imperial-age)
     =>
-    (set-goal g-default-barracks-unit fire-lancer-line)
-    (set-goal g-default-archery-unit chu-ko-nu-line)
-    (set-goal g-default-stable-unit knight-line)
-    (set-goal g-default-siege-unit rocket-cart-line)
+    (set-goal g-default-barracks-unit 1974) ; Jian Swordsman
+    (set-goal g-default-archery-unit fire-archer-line)
+    (set-goal g-default-stable-unit hei-guang-cavalry-line)  	
+    (set-goal g-default-siege-unit scorpion-line)
     (set-goal g-max-barracks-units-perc 30)
-    (set-goal g-max-archery-units-perc 45)
+    (set-goal g-max-archery-units-perc 50)
     (set-goal g-max-stable-units-perc 10)
-    (set-goal g-max-siege-units-perc 15)
+    (set-goal g-max-siege-units-perc 10)
     (disable-self)
 )
 
+(defrule
+    (can-train 1978) ; Hero
+    (unit-type-count-total 1978 == 1)
+    =>
+    (train 1978)
+)
 

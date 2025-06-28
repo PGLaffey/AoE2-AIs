@@ -1,0 +1,53 @@
+; ==== Civ Pick - Maya Override =====
+(defrule
+    (current-age == dark-age)
+    =>
+    (set-goal g-default-barracks-unit militiaman-line)
+    (set-goal g-max-barracks-units-perc 100)
+    (disable-self)
+)
+
+; ===== Reached Feudal Age =====
+(defrule
+    (current-age == feudal-age)
+    =>
+    (set-goal g-default-barracks-unit eagle-warrior-line)
+    (set-goal g-default-archery-unit archer-line)
+    (set-goal g-default-stable-unit skirmisher-line)
+    (set-goal g-max-barracks-units-perc 40)
+    (set-goal g-max-archery-units-perc 40)
+    (set-goal g-max-stable-units-perc 20)
+    (disable-self)
+)
+
+; ===== Reached Castle Age =====
+(defrule
+    (current-age == castle-age)
+    =>
+    (set-goal g-default-barracks-unit eagle-warrior-line)
+    (set-goal g-default-archery-unit plumed-archer-line)
+    (set-goal g-default-stable-unit skirmisher-line)  	
+    (set-goal g-default-siege-unit battering-ram-line)
+    (set-goal g-max-barracks-units-perc 35)
+    (set-goal g-max-archery-units-perc 30)
+    (set-goal g-max-stable-units-perc 30)
+    (set-goal g-max-siege-units-perc 5)
+    (disable-self)
+)
+
+; ===== Reached Imperial Age =====
+(defrule
+    (current-age == imperial-age)
+    =>
+    (set-goal g-default-barracks-unit eagle-warrior-line)
+    (set-goal g-default-archery-unit plumed-archer-line)
+    (set-goal g-default-stable-unit skirmisher-line)  	
+    (set-goal g-default-siege-unit battering-ram-line)
+    (set-goal g-max-barracks-units-perc 35)
+    (set-goal g-max-archery-units-perc 40)
+    (set-goal g-max-stable-units-perc 20)
+    (set-goal g-max-siege-units-perc 10)
+    (disable-self)
+)
+
+

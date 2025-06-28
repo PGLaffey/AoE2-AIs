@@ -1,0 +1,53 @@
+; ==== Civ Pick - Teuton Override =====
+(defrule
+    (current-age == dark-age)
+    =>
+    (set-goal g-default-barracks-unit militiaman-line)
+    (set-goal g-max-barracks-units-perc 100)
+    (disable-self)
+)
+
+; ===== Reached Feudal Age =====
+(defrule
+    (current-age == feudal-age)
+    =>
+    (set-goal g-default-barracks-unit militiaman-line)
+    (set-goal g-default-archery-unit skirmisher-line)
+    (set-goal g-default-stable-unit scout-cavalry-line)
+    (set-goal g-max-barracks-units-perc 40)
+    (set-goal g-max-archery-units-perc 20)
+    (set-goal g-max-stable-units-perc 40)
+    (disable-self)
+)
+
+; ===== Reached Castle Age =====
+(defrule
+    (current-age == castle-age)
+    =>
+    (set-goal g-default-barracks-unit teutonic-knight-line)
+    (set-goal g-default-archery-unit skirmisher-line)
+    (set-goal g-default-stable-unit knight-line)  	
+    (set-goal g-default-siege-unit battering-ram-line)
+    (set-goal g-max-barracks-units-perc 45)
+    (set-goal g-max-archery-units-perc 10)
+    (set-goal g-max-stable-units-perc 40)
+    (set-goal g-max-siege-units-perc 5)
+    (disable-self)
+)
+
+; ===== Reached Imperial Age =====
+(defrule
+    (current-age == imperial-age)
+    =>
+    (set-goal g-default-barracks-unit teutonic-knight-line)
+    (set-goal g-default-archery-unit hand-cannoneer)
+    (set-goal g-default-stable-unit knight-line)  	
+    (set-goal g-default-siege-unit battering-ram-line)
+    (set-goal g-max-barracks-units-perc 45)
+    (set-goal g-max-archery-units-perc 20)
+    (set-goal g-max-stable-units-perc 25)
+    (set-goal g-max-siege-units-perc 10)
+    (disable-self)
+)
+
+
