@@ -110,21 +110,58 @@ for player in player_list:
                                             object_list_unit_id=res, object_attributes=ObjectAttribute.DEAD_UNIT_ID)
 
 # ===== Towns =====
-def rebuild_defense_1(trigger: Trigger, vars: dict):
-    trigger.new_effect.create_object(source_player=vars['owner'], location_x=vars['center x'],
-                                     location_y=vars['center y'], object_list_unit_id=OtherInfo.THE_ACCURSED_TOWER)
+# 1: Tower
+def rebuild_defense_1(trigger: Trigger, owner: int, center: Point, town_area: dict):
+    trigger.new_effect.kill_object(source_player=owner, **town_area, object_type=ObjectType.BUILDING)
+    trigger.new_effect.create_object(source_player=owner, location_x=center.x,
+                                     location_y=center.y, object_list_unit_id=OtherInfo.THE_ACCURSED_TOWER)
+
+# 2: 1 + Palisade Wall
+def rebuild_defense_2(trigger: Trigger, owner: int, center: Point, town_area: dict):
+    rebuild_defense_1(trigger, owner, center,town_area)
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(2)
+    for tile in wall_area.use_only_edge().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x,
+                                         location_y=tile.y, object_list_unit_id=BuildingInfo.FORTIFIED_PALISADE_WALL)
+
+# 3: Bigger 2 + Sea Towers on Corners
+def rebuild_defense_3(trigger: Trigger, owner: int, center: Point, town_area: dict):
+    rebuild_defense_1(trigger, owner, center, town_area)
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(3)
+    for tile in wall_area.use_only_corners().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.SEA_TOWER)
+    for tile in wall_area.use_only_edge().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.FORTIFIED_PALISADE_WALL)
+
+# 4: 3 + Gates, extra walls and Watch tower
+
+# 5: 4 but stone walls + Guard towers
+
+# 6: 5 + short outer Palisade + Guard towers
+
+# 7: 6 + north castle
+
+# 8: 7 + full walls + Bombard towers
+
+# 9: 8 + upgraded walls + keep
+
+# 10: 9 + Fortress east + west + Fire towers
 
 # TODO Add more heroes
 heroes = [HeroInfo.ABRAHA_ELEPHANT, HeroInfo.GENGHIS_KHAN]
-town_count = 10
+# town_count = 10
 town_max_defense_level = 10
 town_radius = 5
 town_locations = [
-    Point(10, 10) # TODO Add more locations
+    Point(50, 50) # TODO Add more locations
 ]
 def town_var_id(town_number: int, var: int):
     return (town_number * 10) + var
-for town_num in range(1, town_count + 1):
+for town_num in range(1, len(town_locations) + 1):
     # Setup Town Variables
     town_i = town_num - 1
     town_var_ids = {
@@ -164,7 +201,7 @@ for town_num in range(1, town_count + 1):
             rebuild_trigger.new_effect.send_chat(source_player=owner['player'], message=f'Rebuilding Town {town_num}')
             # Place Building as per Defense Level
             if defense_level == 1:
-                rebuild_defense_1(rebuild_trigger, town_vars)
+                rebuild_defense_1(rebuild_trigger, owner['player'], town_center, town_area)
 
 
 
