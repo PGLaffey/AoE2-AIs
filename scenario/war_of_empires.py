@@ -123,7 +123,7 @@ def rebuild_defense_2(trigger: Trigger, owner: int, center: Point, town_area: di
     wall_area.center(center.x, center.y).expand(2)
     for tile in wall_area.use_only_edge().to_coords():
         trigger.new_effect.create_object(source_player=owner, location_x=tile.x,
-                                         location_y=tile.y, object_list_unit_id=BuildingInfo.FORTIFIED_PALISADE_WALL)
+                                         location_y=tile.y, object_list_unit_id=BuildingInfo.FORTIFIED_PALISADE_WALL.ID)
 
 # 3: Bigger 2 + Sea Towers on Corners
 def rebuild_defense_3(trigger: Trigger, owner: int, center: Point, town_area: dict):
@@ -132,29 +132,330 @@ def rebuild_defense_3(trigger: Trigger, owner: int, center: Point, town_area: di
     wall_area.center(center.x, center.y).expand(3)
     for tile in wall_area.use_only_corners().to_coords():
         trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
-                                         object_list_unit_id=BuildingInfo.SEA_TOWER)
+                                         object_list_unit_id=BuildingInfo.SEA_TOWER.ID)
     for tile in wall_area.use_only_edge().to_coords():
         trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
-                                         object_list_unit_id=BuildingInfo.FORTIFIED_PALISADE_WALL)
+                                         object_list_unit_id=BuildingInfo.FORTIFIED_PALISADE_WALL.ID)
 
-# 4: 3 + Gates, extra walls and Watch tower
+# 4: 3 + Gates, extra walls and Watch tower (Gates spawn is +ve most point)
+def rebuild_defense_4(trigger: Trigger, owner: int, center: Point, town_area: dict):
+    rebuild_defense_1(trigger, owner, center, town_area)
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(3)
+    for tile in wall_area.use_only_corners().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.SEA_TOWER.ID)
+        tower_wall = scenario.new.area()
+        tower_wall.center(tile.x, tile.y).expand(1)
+        for tower_tile in tower_wall.to_coords():
+            trigger.new_effect.create_object(source_player=owner, location_x=tower_tile.x, location_y=tower_tile.y,
+                                             object_list_unit_id=BuildingInfo.FORTIFIED_PALISADE_WALL.ID)
+    for x_offset in range(-1, 2, 2):
+        gate_x = center.x + (3 * x_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=gate_x, location_y=center.y + 1,
+                                         object_list_unit_id=BuildingInfo.PALISADE_GATE_SOUTHWEST_TO_NORTHEAST.ID)
+    for y_offset in range(-1, 2, 2):
+        gate_y = center.y + (3 * y_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=center.x + 1, location_y=gate_y,
+                                         object_list_unit_id=BuildingInfo.PALISADE_GATE_NORTHWEST_TO_SOUTHEAST.ID)
+    for tile in wall_area.use_only_edge().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.FORTIFIED_PALISADE_WALL.ID)
 
 # 5: 4 but stone walls + Guard towers
+def rebuild_defense_5(trigger: Trigger, owner: int, center: Point, town_area: dict):
+    rebuild_defense_1(trigger, owner, center, town_area)
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(3)
+    for tile in wall_area.use_only_corners().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.GUARD_TOWER.ID)
+        tower_wall = scenario.new.area()
+        tower_wall.center(tile.x, tile.y).expand(1)
+        for tower_tile in list(set(tower_wall.to_coords()) - set(tower_wall.use_only_corners().to_coords())):
+            trigger.new_effect.create_object(source_player=owner, location_x=tower_tile.x, location_y=tower_tile.y,
+                                             object_list_unit_id=BuildingInfo.STONE_WALL.ID)
+    for x_offset in range(-1, 2, 2):
+        gate_x = center.x + (3 * x_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=gate_x, location_y=center.y + 1,
+                                         object_list_unit_id=BuildingInfo.GATE_SOUTHWEST_TO_NORTHEAST.ID)
+    for y_offset in range(-1, 2, 2):
+        gate_y = center.y + (3 * y_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=center.x + 1, location_y=gate_y,
+                                         object_list_unit_id=BuildingInfo.GATE_NORTHWEST_TO_SOUTHEAST.ID)
+    for tile in wall_area.use_only_edge().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.STONE_WALL.ID)
 
 # 6: 5 + short outer Palisade + Guard towers
+def rebuild_defense_6(trigger: Trigger, owner: int, center: Point, town_area: dict):
+    rebuild_defense_5(trigger, owner, center, town_area)
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(5).use_pattern_grid(block_size=3, gap_size=1)
+    for tile in wall_area.to_coords():
+        if tile.x == town_area['area_x1'] or tile.x == town_area['area_x2'] \
+            or tile.y == town_area['area_y1'] or tile.y == town_area['area_y2']:
+                trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                                 object_list_unit_id=BuildingInfo.FORTIFIED_PALISADE_WALL.ID)
+    tower_area = scenario.new.area()
+    tower_area.center(center.x, center.y).expand(4).use_pattern_grid(block_size=1, gap_size=3)
+    for tile in tower_area.to_coords():
+        if tile.x == town_area['area_x1'] + 1 or tile.x == town_area['area_x2'] - 1 or tile.x == center.x:
+            if tile.y == town_area['area_y1'] + 1 or tile.y == town_area['area_y2'] - 1 or tile.y == center.y:
+                trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                                 object_list_unit_id=BuildingInfo.GUARD_TOWER.ID)
 
-# 7: 6 + north castle
+# 7: 6 + east Fortress (Fortress center is -1 -1 from +ve most point)
+def rebuild_defense_7(trigger: Trigger, owner: int, center: Point, town_area: dict):
+    rebuild_defense_1(trigger, owner, center, town_area)
+    trigger.new_effect.create_object(source_player=owner, location_x=center.x -3, location_y=center.y - 3,
+                                     object_list_unit_id=BuildingInfo.FORTRESS.ID)
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(3)
+    # Inner Towers
+    for tile in wall_area.use_only_corners().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.GUARD_TOWER.ID)
+        tower_wall = scenario.new.area()
+        tower_wall.center(tile.x, tile.y).expand(1)
+        for tower_tile in list(set(tower_wall.to_coords()) - set(tower_wall.use_only_corners().to_coords())):
+            trigger.new_effect.create_object(source_player=owner, location_x=tower_tile.x, location_y=tower_tile.y,
+                                             object_list_unit_id=BuildingInfo.STONE_WALL.ID)
+    # Inner Gates
+    for x_offset in range(-1, 2, 2):
+        gate_x = center.x + (3 * x_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=gate_x, location_y=center.y + 1,
+                                         object_list_unit_id=BuildingInfo.GATE_SOUTHWEST_TO_NORTHEAST.ID)
+    for y_offset in range(-1, 2, 2):
+        gate_y = center.y + (3 * y_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=center.x + 1, location_y=gate_y,
+                                         object_list_unit_id=BuildingInfo.GATE_NORTHWEST_TO_SOUTHEAST.ID)
+    # Inner Walls
+    for tile in wall_area.use_only_edge().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.STONE_WALL.ID)
+    # Outer Walls
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(5).use_pattern_grid(block_size=3, gap_size=1)
+    for tile in wall_area.to_coords():
+        if tile.x == town_area['area_x1'] or tile.x == town_area['area_x2'] \
+            or tile.y == town_area['area_y1'] or tile.y == town_area['area_y2']:
+                trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                                 object_list_unit_id=BuildingInfo.FORTIFIED_PALISADE_WALL.ID)
+    # Outer Towers
+    tower_area = scenario.new.area()
+    tower_area.center(center.x, center.y).expand(4).use_pattern_grid(block_size=1, gap_size=3)
+    for tile in tower_area.to_coords():
+        if tile.x == town_area['area_x1'] + 1 or tile.x == town_area['area_x2'] - 1 or tile.x == center.x:
+            if tile.y == town_area['area_y1'] + 1 or tile.y == town_area['area_y2'] - 1 or tile.y == center.y:
+                trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                                 object_list_unit_id=BuildingInfo.GUARD_TOWER.ID)
 
-# 8: 7 + full walls + Bombard towers
+# 8: 7 + full walls + wall upgrade + Bombard towers
+def rebuild_defense_8(trigger: Trigger, owner: int, center: Point, town_area: dict):
+    rebuild_defense_1(trigger, owner, center, town_area)
+    trigger.new_effect.create_object(source_player=owner, location_x=center.x -3, location_y=center.y - 3,
+                                     object_list_unit_id=BuildingInfo.FORTRESS.ID)
+    # Bombard Towers
+    bomb_area = scenario.new.area()
+    bomb_area.center(center.x, center.y).expand(1)
+    for tile in bomb_area.use_only_corners().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.BOMBARD_TOWER.ID)
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(3)
+    # Inner Towers
+    for tile in wall_area.use_only_corners().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.GUARD_TOWER.ID)
+        tower_wall = scenario.new.area()
+        tower_wall.center(tile.x, tile.y).expand(1)
+        for tower_tile in list(set(tower_wall.to_coords()) - set(tower_wall.use_only_corners().to_coords())):
+            trigger.new_effect.create_object(source_player=owner, location_x=tower_tile.x, location_y=tower_tile.y,
+                                             object_list_unit_id=BuildingInfo.FORTIFIED_WALL.ID)
+    # Inner Gates
+    for x_offset in range(-1, 2, 2):
+        gate_x = center.x + (3 * x_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=gate_x, location_y=center.y + 1,
+                                         object_list_unit_id=BuildingInfo.FORTIFIED_GATE_SOUTHWEST_TO_NORTHEAST.ID)
+    for y_offset in range(-1, 2, 2):
+        gate_y = center.y + (3 * y_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=center.x + 1, location_y=gate_y,
+                                         object_list_unit_id=BuildingInfo.FORTIFIED_GATE_NORTHWEST_TO_SOUTHEAST.ID)
+    # Inner Walls
+    for tile in wall_area.use_only_edge().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.FORTIFIED_WALL.ID)
+    # Outer Gates
+    gate_area = scenario.new.area()
+    gate_area.center(center.x, center.y).expand(5).use_pattern_grid(block_size=1, gap_size=4)
+    for tile in list(gate_area.to_coords()):
+        if tile.x == town_area['area_x1'] or tile.x == town_area['area_x2']:
+            if tile.y == town_area['area_y1'] or tile.y == town_area['area_y2']:
+                continue
+            trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                             object_list_unit_id=BuildingInfo.GATE_SOUTHWEST_TO_NORTHEAST.ID)
+        if tile.y == town_area['area_y1'] or tile.y == town_area['area_y2']:
+            if tile.x == town_area['area_x1'] or tile.x == town_area['area_x2']:
+                continue
+            trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                             object_list_unit_id=BuildingInfo.GATE_NORTHWEST_TO_SOUTHEAST.ID)
+    # Outer Walls
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(5).use_pattern_grid(block_size=3, gap_size=1)
+    for tile in wall_area.to_coords():
+        if tile.x == town_area['area_x1'] or tile.x == town_area['area_x2'] \
+            or tile.y == town_area['area_y1'] or tile.y == town_area['area_y2']:
+                trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                                 object_list_unit_id=BuildingInfo.STONE_WALL.ID)
+    # Outer Towers
+    tower_area = scenario.new.area()
+    tower_area.center(center.x, center.y).expand(4).use_pattern_grid(block_size=1, gap_size=3)
+    for tile in tower_area.to_coords():
+        if tile.x == town_area['area_x1'] + 1 or tile.x == town_area['area_x2'] - 1 or tile.x == center.x:
+            if tile.y == town_area['area_y1'] + 1 or tile.y == town_area['area_y2'] - 1 or tile.y == center.y:
+                trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                                 object_list_unit_id=BuildingInfo.GUARD_TOWER.ID)
 
 # 9: 8 + upgraded walls + keep
+def rebuild_defense_9(trigger: Trigger, owner: int, center: Point, town_area: dict):
+    rebuild_defense_1(trigger, owner, center, town_area)
+    trigger.new_effect.create_object(source_player=owner, location_x=center.x -3, location_y=center.y - 3,
+                                     object_list_unit_id=BuildingInfo.FORTRESS.ID)
+    # Bombard Towers
+    bomb_area = scenario.new.area()
+    bomb_area.center(center.x, center.y).expand(1)
+    for tile in bomb_area.use_only_corners().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.BOMBARD_TOWER.ID)
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(3)
+    # Inner Towers
+    for tile in wall_area.use_only_corners().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.KEEP.ID)
+        tower_wall = scenario.new.area()
+        tower_wall.center(tile.x, tile.y).expand(1)
+        for tower_tile in list(set(tower_wall.to_coords()) - set(tower_wall.use_only_corners().to_coords())):
+            trigger.new_effect.create_object(source_player=owner, location_x=tower_tile.x, location_y=tower_tile.y,
+                                             object_list_unit_id=BuildingInfo.CITY_WALL.ID)
+    # Inner Gates
+    for x_offset in range(-1, 2, 2):
+        gate_x = center.x + (3 * x_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=gate_x, location_y=center.y + 1,
+                                         object_list_unit_id=BuildingInfo.CITY_GATE_SOUTHWEST_TO_NORTHEAST.ID)
+    for y_offset in range(-1, 2, 2):
+        gate_y = center.y + (3 * y_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=center.x + 1, location_y=gate_y,
+                                         object_list_unit_id=BuildingInfo.CITY_GATE_NORTHWEST_TO_SOUTHEAST.ID)
+    # Inner Walls
+    for tile in wall_area.use_only_edge().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.CITY_WALL.ID)
+    # Outer Gates
+    gate_area = scenario.new.area()
+    gate_area.center(center.x, center.y).expand(5).use_pattern_grid(block_size=1, gap_size=4)
+    for tile in list(gate_area.to_coords()):
+        if tile.x == town_area['area_x1'] or tile.x == town_area['area_x2']:
+            if tile.y == town_area['area_y1'] or tile.y == town_area['area_y2']:
+                continue
+            trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                             object_list_unit_id=BuildingInfo.FORTIFIED_GATE_SOUTHWEST_TO_NORTHEAST.ID)
+        if tile.y == town_area['area_y1'] or tile.y == town_area['area_y2']:
+            if tile.x == town_area['area_x1'] or tile.x == town_area['area_x2']:
+                continue
+            trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                             object_list_unit_id=BuildingInfo.FORTIFIED_GATE_NORTHWEST_TO_SOUTHEAST.ID)
+    # Outer Walls
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(5).use_pattern_grid(block_size=3, gap_size=1)
+    for tile in wall_area.to_coords():
+        if tile.x == town_area['area_x1'] or tile.x == town_area['area_x2'] \
+            or tile.y == town_area['area_y1'] or tile.y == town_area['area_y2']:
+                trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                                 object_list_unit_id=BuildingInfo.FORTIFIED_WALL.ID)
+    # Outer Towers
+    tower_area = scenario.new.area()
+    tower_area.center(center.x, center.y).expand(4).use_pattern_grid(block_size=1, gap_size=3)
+    for tile in tower_area.to_coords():
+        if tile.x == town_area['area_x1'] + 1 or tile.x == town_area['area_x2'] - 1 or tile.x == center.x:
+            if tile.y == town_area['area_y1'] + 1 or tile.y == town_area['area_y2'] - 1 or tile.y == center.y:
+                trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                                 object_list_unit_id=BuildingInfo.KEEP.ID)
 
-# 10: 9 + Fortress east + west + Fire towers
+# 10: 9 + Fortress west + Fire towers
+def rebuild_defense_10(trigger: Trigger, owner: int, center: Point, town_area: dict):
+    rebuild_defense_1(trigger, owner, center, town_area)
+    trigger.new_effect.create_object(source_player=owner, location_x=center.x -3, location_y=center.y - 3,
+                                     object_list_unit_id=BuildingInfo.FORTRESS.ID)
+    trigger.new_effect.create_object(source_player=owner, location_x=center.x + 4, location_y=center.y + 4,
+                                     object_list_unit_id=BuildingInfo.FORTRESS.ID)
+    # Fire Towers
+    bomb_area = scenario.new.area()
+    bomb_area.center(center.x, center.y).expand(1)
+    for tile in bomb_area.use_only_corners().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.FIRE_TOWER.ID)
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(3)
+    # Inner Towers
+    for tile in wall_area.use_only_corners().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.KEEP.ID)
+        tower_wall = scenario.new.area()
+        tower_wall.center(tile.x, tile.y).expand(1)
+        for tower_tile in list(set(tower_wall.to_coords()) - set(tower_wall.use_only_corners().to_coords())):
+            trigger.new_effect.create_object(source_player=owner, location_x=tower_tile.x, location_y=tower_tile.y,
+                                             object_list_unit_id=BuildingInfo.CITY_WALL.ID)
+    # Inner Gates
+    for x_offset in range(-1, 2, 2):
+        gate_x = center.x + (3 * x_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=gate_x, location_y=center.y + 1,
+                                         object_list_unit_id=BuildingInfo.CITY_GATE_SOUTHWEST_TO_NORTHEAST.ID)
+    for y_offset in range(-1, 2, 2):
+        gate_y = center.y + (3 * y_offset)
+        trigger.new_effect.create_object(source_player=owner, location_x=center.x + 1, location_y=gate_y,
+                                         object_list_unit_id=BuildingInfo.CITY_GATE_NORTHWEST_TO_SOUTHEAST.ID)
+    # Inner Walls
+    for tile in wall_area.use_only_edge().to_coords():
+        trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                         object_list_unit_id=BuildingInfo.CITY_WALL.ID)
+    # Outer Gates
+    gate_area = scenario.new.area()
+    gate_area.center(center.x, center.y).expand(5).use_pattern_grid(block_size=1, gap_size=4)
+    for tile in list(gate_area.to_coords()):
+        if tile.x == town_area['area_x1'] or tile.x == town_area['area_x2']:
+            if tile.y == town_area['area_y1'] or tile.y == town_area['area_y2']:
+                continue
+            trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                             object_list_unit_id=BuildingInfo.FORTIFIED_GATE_SOUTHWEST_TO_NORTHEAST.ID)
+        if tile.y == town_area['area_y1'] or tile.y == town_area['area_y2']:
+            if tile.x == town_area['area_x1'] or tile.x == town_area['area_x2']:
+                continue
+            trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                             object_list_unit_id=BuildingInfo.FORTIFIED_GATE_NORTHWEST_TO_SOUTHEAST.ID)
+    # Outer Walls
+    wall_area = scenario.new.area()
+    wall_area.center(center.x, center.y).expand(5).use_pattern_grid(block_size=3, gap_size=1)
+    for tile in wall_area.to_coords():
+        if tile.x == town_area['area_x1'] or tile.x == town_area['area_x2'] \
+            or tile.y == town_area['area_y1'] or tile.y == town_area['area_y2']:
+                trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                                 object_list_unit_id=BuildingInfo.FORTIFIED_WALL.ID)
+    # Outer Towers
+    tower_area = scenario.new.area()
+    tower_area.center(center.x, center.y).expand(4).use_pattern_grid(block_size=1, gap_size=3)
+    for tile in tower_area.to_coords():
+        if tile.x == town_area['area_x1'] + 1 or tile.x == town_area['area_x2'] - 1 or tile.x == center.x:
+            if tile.y == town_area['area_y1'] + 1 or tile.y == town_area['area_y2'] - 1 or tile.y == center.y:
+                trigger.new_effect.create_object(source_player=owner, location_x=tile.x, location_y=tile.y,
+                                                 object_list_unit_id=BuildingInfo.KEEP.ID)
 
 # TODO Add more heroes
 heroes = [HeroInfo.ABRAHA_ELEPHANT, HeroInfo.GENGHIS_KHAN]
 # town_count = 10
-town_max_defense_level = 10
+defense_function = [rebuild_defense_1, rebuild_defense_2, rebuild_defense_3, rebuild_defense_4, rebuild_defense_5,
+                    rebuild_defense_6, rebuild_defense_7, rebuild_defense_8, rebuild_defense_9, rebuild_defense_10]
 town_radius = 5
 town_locations = [
     Point(50, 50) # TODO Add more locations
@@ -183,7 +484,7 @@ for town_num in range(1, len(town_locations) + 1):
     for owner in player_list:
         enemy_players = [player for player in player_list if player['player'] != owner['player']] + [player_horde]
         # Setup Town Rebuild Trigger Per Defense Level
-        for defense_level in range(1, town_max_defense_level + 1):
+        for defense_level in range(1, len(defense_function) + 1):
             rebuild_trigger = t_man.add_trigger(f'Town {town_num} Rebuild Level {defense_level} (p{owner["player"]})')
             rebuild_trigger.new_condition.variable_value(variable=town_var_ids['defense level'], comparison=Comparison.EQUAL,
                                                          quantity=defense_level)
@@ -200,8 +501,7 @@ for town_num in range(1, len(town_locations) + 1):
 
             rebuild_trigger.new_effect.send_chat(source_player=owner['player'], message=f'Rebuilding Town {town_num}')
             # Place Building as per Defense Level
-            if defense_level == 1:
-                rebuild_defense_1(rebuild_trigger, owner['player'], town_center, town_area)
+            defense_function[defense_level - 1](rebuild_trigger, owner['player'], town_center, town_area)
 
 
 
