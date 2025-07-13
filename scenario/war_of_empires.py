@@ -9,6 +9,7 @@ from AoE2ScenarioParser.objects.data_objects.trigger import Trigger
 from AoE2ScenarioParser.objects.support.trigger_select import TriggerSelect
 from AoE2ScenarioParser.scenarios.aoe2_de_scenario import AoE2DEScenario
 from AoE2ScenarioParser.datasets.techs import TechInfo
+from AoE2ScenarioParser.datasets.trigger_lists.attribute import Attribute
 
 class Point:
     def __init__(self, x, y):
@@ -465,7 +466,7 @@ def town_var_id(town_number: int, var: int):
 for town_num in range(1, len(town_locations) + 1):
     # Setup Town Variables
     town_i = town_num - 1
-    town_var_ids = {
+    t_town_var_ids = {
         'owner': 0,
         'eco level': 1,
         'defense level': 2,
@@ -475,8 +476,9 @@ for town_num in range(1, len(town_locations) + 1):
         'center y': 6,
         'rebuild': 7
     }
-    for var_name, var_i in town_var_ids.items():
-        town_var_ids[var_name] = t_man.add_variable(var_name.capitalize(), town_var_id(town_num, var_i))
+    town_var_ids = {}
+    for var_name, var_i in t_town_var_ids.items():
+        town_var_ids[var_name] = t_man.add_variable(f'Town {town_num} {var_name.capitalize()}', town_var_id(town_num, var_i))
     town_center = town_locations[town_i]
     town_area = {'area_x1': town_center.x - town_radius, 'area_x2': town_center.x + town_radius,
                  'area_y1': town_center.y - town_radius, 'area_y2': town_center.y + town_radius}
@@ -487,9 +489,11 @@ for town_num in range(1, len(town_locations) + 1):
         for defense_level in range(1, len(defense_function) + 1):
             rebuild_trigger = t_man.add_trigger(f'Town {town_num} Rebuild Level {defense_level} (p{owner["player"]})',
                                                 enabled=True, looping=True)
-            rebuild_trigger.new_condition.variable_value(variable=town_var_ids['defense level'], comparison=Comparison.EQUAL,
+            rebuild_trigger.new_condition.variable_value(variable=town_var_ids['owner'].variable_id, comparison=Comparison.EQUAL,
+                                                         quantity=owner['player'])
+            rebuild_trigger.new_condition.variable_value(variable=town_var_ids['defense level'].variable_id, comparison=Comparison.EQUAL,
                                                          quantity=defense_level)
-            rebuild_trigger.new_condition.variable_value(variable=town_var_ids['rebuild'], comparison=Comparison.EQUAL,
+            rebuild_trigger.new_condition.variable_value(variable=town_var_ids['rebuild'].variable_id, comparison=Comparison.EQUAL,
                                                          quantity=1)
             # Check there are any units in town area (condition is not more than 1)
             for p in enemy_players + [owner]:
@@ -499,64 +503,77 @@ for town_num in range(1, len(town_locations) + 1):
                 rebuild_trigger.new_condition.objects_in_area(source_player=p['army'], **town_area,
                                                               object_type=ObjectType.MILITARY, quantity=1, inverted=True,
                                                               object_state=ObjectState.ALIVE)
-
+            rebuild_trigger.new_effect.change_variable(variable=town_var_ids['rebuild'].variable_id, operation=Operation.SET,
+                                                       quantity=0)
             rebuild_trigger.new_effect.send_chat(source_player=owner['player'], message=f'Rebuilding Town {town_num}')
             # Place Building as per Defense Level
+            rebuild_trigger.new_effect.send_chat(source_player=1, message=f'Trigger {str(defense_function[defense_level - 1])} for P{owner["player"]}')
             defense_function[defense_level - 1](rebuild_trigger, owner['player'], town_center, town_area)
-            rebuild_trigger.new_effect.change_variable(variable=town_var_ids['rebuild'], operation=Operation.SET,
-                                                       quantity=0)
 
         # --- Trigger Upgrade ---
         set_upgrade_trigger = t_man.add_trigger(f'Town {town_num} Upgrade Defense (p{owner["player"]})',
                                                 enabled=True, looping=True)
-        set_upgrade_trigger.new_condition.objects_in_area(source_player=owner['player'], **town_area,
+        set_upgrade_trigger.new_condition.timer(5)
+        set_upgrade_trigger.new_condition.objects_in_area(source_player=owner['player'], **town_area, quantity=1,
                                                           object_list=BuildingInfo.YURT_A.ID, object_state=ObjectState.FOUNDATION)
         set_upgrade_trigger.new_effect.kill_object(source_player=owner['player'], **town_area,
                                                    object_list_unit_id=BuildingInfo.YURT_A.ID)
-        set_upgrade_trigger.new_effect.change_variable(variable=town_var_ids['defense level'], operation=Operation.ADD,
+        set_upgrade_trigger.new_effect.change_variable(variable=town_var_ids['defense level'].variable_id, operation=Operation.ADD,
                                                        quantity=1)
-        set_upgrade_trigger.new_effect.change_variable(variable=town_var_ids['rebuild'], operation=Operation.SET,
+        set_upgrade_trigger.new_effect.change_variable(variable=town_var_ids['rebuild'].variable_id, operation=Operation.SET,
                                                        quantity=1)
         # --- Trigger Rebuild ---
         set_rebuild_trigger = t_man.add_trigger(f'Town {town_num} Rebuild Defense (p{owner["player"]})',
                                                 enabled=True, looping=True)
-        set_rebuild_trigger.new_condition.objects_in_area(source_player=owner['player'], **town_area,
+        set_rebuild_trigger.new_condition.timer(5)
+        set_rebuild_trigger.new_condition.objects_in_area(source_player=owner['player'], **town_area, quantity=1,
                                                           object_list=BuildingInfo.YURT_B.ID, object_state=ObjectState.FOUNDATION)
         set_rebuild_trigger.new_effect.kill_object(source_player=owner['player'], **town_area,
                                                    object_list_unit_id=BuildingInfo.YURT_B.ID)
-        set_upgrade_trigger.new_effect.change_variable(variable=town_var_ids['rebuild'], operation=Operation.SET,
+        set_rebuild_trigger.new_effect.change_variable(variable=town_var_ids['rebuild'].variable_id, operation=Operation.SET,
                                                        quantity=1)
-
+    # Init Town
+    init_town_trigger = t_man.add_trigger(f'Town {town_num} Init', enabled=True, looping=False)
+    init_town_trigger.new_effect.change_variable(variable=town_var_ids['owner'].variable_id, operation=Operation.SET,
+                                                 quantity=1)
+    init_town_trigger.new_effect.change_variable(variable=town_var_ids['defense level'].variable_id, operation=Operation.SET,
+                                                 quantity=1)
+    init_town_trigger.new_effect.change_variable(variable=town_var_ids['rebuild'].variable_id, operation=Operation.SET,
+                                                 quantity=1)
 
 # Setup Tower Purchase Upgrades
 for player_group in player_list:
     player = player_group['player']
-    tower_upgrades_trigger = t_man.add_trigger(f"Tower Upgrades Trigger (p{player})")
+    tower_upgrades_trigger = t_man.add_trigger(f"Town Tower Setup Upgrades (p{player})")
     # Defense Upgrade
     tower_upgrades_trigger.new_effect.change_train_location(source_player=player, button_location=1,
-                                                            object_list_unit_id=OtherInfo.THE_ACCURSED_TOWER.ID,
-                                                            object_list_unit_id_2=BuildingInfo.YURT_A.ID)
+                                                            object_list_unit_id_2=OtherInfo.THE_ACCURSED_TOWER.ID,
+                                                            object_list_unit_id=BuildingInfo.YURT_A.ID)
     tower_upgrades_trigger.new_effect.change_object_name(source_player=player, object_list_unit_id=BuildingInfo.YURT_A.ID,
                                                          message=f'Defense Upgrade')
     tower_upgrades_trigger.new_effect.change_object_cost(source_player=player, object_list_unit_id=BuildingInfo.YURT_A.ID,
-                                                         resource_1=ObjectAttribute.WOOD_COSTS, resource_1_quantity=10)
+                                                         resource_1=Attribute.WOOD_STORAGE, resource_1_quantity=10)
     tower_upgrades_trigger.new_effect.change_object_icon(source_player=player, object_list_unit_id=BuildingInfo.YURT_A.ID,
-                                                         object_list_unit_id_2=BuildingInfo.FORTRESS.ICON_ID)
+                                                         object_list_unit_id_2=BuildingInfo.FORTRESS.ID)
     tower_upgrades_trigger.new_effect.change_object_description(source_player=player, object_list_unit_id=BuildingInfo.YURT_A.ID,
                                                                 message=f'Upgrade Town Defenses <cost>')
+    tower_upgrades_trigger.new_effect.enable_disable_object(source_player=player, enabled=1,
+                                                            object_list_unit_id=BuildingInfo.YURT_A.ID)
     # Repair Defenses
     tower_upgrades_trigger.new_effect.change_train_location(source_player=player, button_location=2,
-                                                            object_list_unit_id=OtherInfo.THE_ACCURSED_TOWER.ID,
-                                                            object_list_unit_id_2=BuildingInfo.YURT_B.ID)
+                                                            object_list_unit_id_2=OtherInfo.THE_ACCURSED_TOWER.ID,
+                                                            object_list_unit_id=BuildingInfo.YURT_B.ID)
     tower_upgrades_trigger.new_effect.change_object_name(source_player=player, object_list_unit_id=BuildingInfo.YURT_B.ID,
                                                          message=f'Repair Defenses')
     tower_upgrades_trigger.new_effect.change_object_cost(source_player=player, object_list_unit_id=BuildingInfo.YURT_B.ID,
-                                                         resource_1=ObjectAttribute.WOOD_COSTS, resource_1_quantity=5)
+                                                         resource_1=Attribute.WOOD_STORAGE, resource_1_quantity=5)
     tower_upgrades_trigger.new_effect.change_object_icon(source_player=player, object_list_unit_id=BuildingInfo.YURT_B.ID,
-                                                         object_list_unit_id_2=BuildingInfo.BLACKSMITH.ICON_ID)
+                                                         object_list_unit_id_2=BuildingInfo.BLACKSMITH.ID)
     tower_upgrades_trigger.new_effect.change_object_description(source_player=player,
                                                                 object_list_unit_id=BuildingInfo.YURT_B.ID,
                                                                 message=f'Repair Town Defenses <cost>')
+    tower_upgrades_trigger.new_effect.enable_disable_object(source_player=player, enabled=1,
+                                                            object_list_unit_id=BuildingInfo.YURT_B.ID)
 
 print(t_man.get_summary_as_string())
 q = input('Save?')
