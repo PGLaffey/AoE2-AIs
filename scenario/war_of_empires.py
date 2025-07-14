@@ -460,6 +460,21 @@ for town_num in range(1, len(town_locations) + 1):
     # Loop Over Potential Owners
     # TODO add logic to destory everything from all players if rebuild = 3
     # TODO add logic for conquoring town, if no towers or castles and there are no units in town, who had the last unit
+    start_conquer_trigger = t_man.add_trigger(f'Town {town_num} Start Conquer', enabled=True, looping=True)
+    conquerer_triggers = []
+    for owner in player_list:
+        conquerer_trigger = t_man.add_trigger(f'Town {town_num} Get Conquerer (p{owner["player"]}',
+                                              enabled=False, looping=False)
+        conquerer_trigger.new_condition
+        conquerer_triggers.append(conquerer_trigger)
+
+        start_conquer_trigger.new_condition.objects_in_area(source_player=owner['player'], **town_area, inverted=True,
+                                                        object_group=ObjectClass.TOWER, quantity=1)
+        start_conquer_trigger.new_condition.objects_in_area(source_player=owner['player'], **town_area, inverted=True,
+                                                        object_list=BuildingInfo.FORTRESS.ID, quantity=1)
+        start_conquer_trigger.new_effect.activate_trigger(conquerer_trigger.trigger_id)
+        start_conquer_trigger.new_effect.send_chat(source_player=owner['player'], message=f'Town {town_num} is available for capture. The last team with units within the town will capture it.')
+
     for owner in player_list:
         enemy_players = [player for player in player_list if player['player'] != owner['player']] + [player_horde]
         destroy_trigger = t_man.add_trigger(f'Town {town_num} Destroy (p{owner["player"]})', enabled=True, looping=True)
