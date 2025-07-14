@@ -457,17 +457,37 @@ for town_num in range(1, len(town_locations) + 1):
     town_center = town_locations[town_i]
     town_area = {'area_x1': town_center.x - town_radius, 'area_x2': town_center.x + town_radius,
                  'area_y1': town_center.y - town_radius, 'area_y2': town_center.y + town_radius}
+
+
     # Loop Over Potential Owners
     # TODO add logic to destory everything from all players if rebuild = 3
     # TODO add logic for conquoring town, if no towers or castles and there are no units in town, who had the last unit
     start_conquer_trigger = t_man.add_trigger(f'Town {town_num} Start Conquer', enabled=True, looping=True)
     conquerer_triggers = []
+
     for owner in player_list:
+        enemy_players = [player for player in player_list if player['player'] != owner['player']] + [player_horde]
+
+
         conquerer_trigger = t_man.add_trigger(f'Town {town_num} Get Conquerer (p{owner["player"]}',
-                                              enabled=False, looping=False)
-        conquerer_trigger.new_condition
+                                              enabled=False, looping=True)
+        # Set player as new owner of town if they have troops in town but enemy does not
+        conquerer_trigger.new_condition.objects_in_area(source_player=owner['player'], **town_area,
+                                                        object_type=ObjectType.MILITARY, quantity=1)
+        conquerer_trigger.new_condition.or_()
+        conquerer_trigger.new_condition.objects_in_area(source_player=owner['army'], **town_area,
+                                                         object_type=ObjectType.MILITARY, quantity=1)
+        for p in enemy_players:
+            conquerer_trigger.new_condition.objects_in_area(source_player=p['player'], **town_area, inverted=True,
+                                                            object_type=ObjectType.MILITARY, quantity=1)
+            conquerer_trigger.new_condition.objects_in_area(source_player=p['army'], **town_area, inverted=True,
+                                                            object_type=ObjectType.MILITARY, quantity=1)
+        conquerer_trigger.new_effect.change_variable(variable=town_var_ids['new owner'].variable_id, operation=Operation.SET,
+                                                     quantity=owner['player'])
         conquerer_triggers.append(conquerer_trigger)
 
+
+        # Make town capturable if all towers and fortress are destroyed
         start_conquer_trigger.new_condition.objects_in_area(source_player=owner['player'], **town_area, inverted=True,
                                                         object_group=ObjectClass.TOWER, quantity=1)
         start_conquer_trigger.new_condition.objects_in_area(source_player=owner['player'], **town_area, inverted=True,
@@ -475,8 +495,8 @@ for town_num in range(1, len(town_locations) + 1):
         start_conquer_trigger.new_effect.activate_trigger(conquerer_trigger.trigger_id)
         start_conquer_trigger.new_effect.send_chat(source_player=owner['player'], message=f'Town {town_num} is available for capture. The last team with units within the town will capture it.')
 
-    for owner in player_list:
-        enemy_players = [player for player in player_list if player['player'] != owner['player']] + [player_horde]
+
+
         destroy_trigger = t_man.add_trigger(f'Town {town_num} Destroy (p{owner["player"]})', enabled=True, looping=True)
         destroy_trigger.new_condition.variable_value(variable=town_var_ids['owner'].variable_id, comparison=Comparison.EQUAL,
                                                      quantity=owner['player'])
@@ -491,7 +511,9 @@ for town_num in range(1, len(town_locations) + 1):
             destroy_trigger.new_condition.objects_in_area(source_player=p['army'], **town_area,
                                                           object_type=ObjectType.MILITARY, quantity=1, inverted=True,
                                                           object_state=ObjectState.ALIVE)
-        destroy_trigger.new_effect.kill_object(source_player=owner['player'], **town_area, object_type=ObjectType.BUILDING)
+            destroy_trigger.new_effect.kill_object(source_player=p['player'], **town_area,
+                                                   object_type=ObjectType.BUILDING)
+        # destroy_trigger.new_effect.kill_object(source_player=owner['player'], **town_area, object_type=ObjectType.BUILDING)
         destroy_trigger.new_effect.change_variable(variable=town_var_ids['rebuild'].variable_id, operation=Operation.SET,
                                                    quantity=2)
         destroy_trigger.new_effect.send_chat(source_player=1, message=f'Destroying Town {town_num}')
@@ -534,6 +556,17 @@ for town_num in range(1, len(town_locations) + 1):
                                                    object_list_unit_id=BuildingInfo.YURT_B.ID)
         set_rebuild_trigger.new_effect.change_variable(variable=town_var_ids['rebuild'].variable_id, operation=Operation.SET,
                                                        quantity=1)
+    # Town Capture
+    capture_trigger = t_man.add_trigger(f'Town {town_num} Captured', enabled=True, looping=True)
+    capture_trigger.new_condition.variable_value(variable=town_var_ids['new owner'].variable_id, comparison=Comparison.EQUAL,
+                                                 quantity=0, inverted=True)
+    for p in player_list + [player_horde]:
+        capture_trigger.new_condition.objects_in_area(source_player=p['player'], **town_area, quantity=1, inverted=True,
+                                                      object_type=ObjectType.MILITARY, object_state=ObjectState.ALIVE)
+    for trigger in conquerer_triggers:
+        capture_trigger.new_effect.deactivate_trigger(trigger.trigger_id)
+    capture_trigger.new_effect.script_call(message=f'town_{town_num}_change_ownership()')
+
     # Init Town
     init_town_trigger = t_man.add_trigger(f'Town {town_num} Init', enabled=True, looping=False)
     init_town_trigger.new_effect.change_variable(variable=town_var_ids['owner'].variable_id, operation=Operation.SET,
