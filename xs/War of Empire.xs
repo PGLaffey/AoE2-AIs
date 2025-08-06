@@ -9,15 +9,16 @@ const int var_town_center_x = 5;
 const int var_town_center_y = 6;
 const int var_town_rebuild = 7;
 
-const int town_count = 10;
+const int town_count = 14;
 
 int town_var_id(int town_num = 0, int var = 0) {
     return ((town_num * 10) + var);
 }
 
 void init_towns() {
-    for (i = 0; < town_count) {
-        xsSetTriggerVariable(town_var_id(i, var_town_owner), 7);
+    for (i = 1; <= town_count) {
+        xsSetTriggerVariable(town_var_id(i, var_town_owner), 4);
+        xsSetTriggerVariable(town_var_id(i, var_town_new_owner), 4);
         xsSetTriggerVariable(town_var_id(i, var_town_eco_level), 1);
         xsSetTriggerVariable(town_var_id(i, var_town_defense_level), 1);
         int resource_type = 0;
@@ -29,10 +30,40 @@ void init_towns() {
                 resource_type = cAttributeWoodGeneration;
             }
             case 3: {
-                resource_type = cAttributeGoldGeneration;
+                resource_type = cAttributeWoodGeneration;
             }
             case 4: {
+                resource_type = cAttributeGoldGeneration;
+            }
+            case 5: {
+                resource_type = cAttributeFoodGeneration;
+            }
+            case 6: {
+                resource_type = cAttributeGoldGeneration;
+            }
+            case 7: {
                 resource_type = cAttributeStoneGeneration;
+            }
+            case 8: {
+                resource_type = cAttributeStoneGeneration;
+            }
+            case 9: {
+                resource_type = cAttributeGoldGeneration;
+            }
+            case 10: {
+                resource_type = cAttributeFoodGeneration;
+            }
+            case 11: {
+                resource_type = cAttributeGoldGeneration;
+            }
+            case 12: {
+                resource_type = cAttributeWoodGeneration;
+            }
+            case 13: {
+                resource_type = cAttributeWoodGeneration;
+            }
+            case 14: {
+                resource_type = cAttributeFoodGeneration;
             }
             default: {
                 resource_type = cAttributeFoodGeneration;
@@ -44,21 +75,21 @@ void init_towns() {
 }
 
 int get_town_level(int town_num = 0, int type = 0) {
-    if (town_num == 0 || type == 0) {
+    if (town_num == 0) {
         return (0);
     }
     int town_level_var_id = (town_num * 10) + type;
-    return xsTriggerVariable(town_level_var_id);
+    return (xsTriggerVariable(town_level_var_id));
 }
 
 int change_town_level(int town_num = 0, int type = 0, bool up = true) {
     int town_level = get_town_level(town_num, type);
     if (up) {
         town_level = town_level + 1;
-    } else if (town_level > 0) {
+    } else if (town_level > 1) {
         town_level = town_level - 1;
     } 
-    xsSetTriggerVariable(town_level_var_id, town_level);
+    xsSetTriggerVariable(town_var_id(town_num, type), town_level);
     xsChatData("Town " + town_num + " changed " + type + " to level " + town_level);
     return (town_level);
 }
@@ -79,9 +110,10 @@ void change_town_defense_level(int town_num = 0, bool up = true) {
 }
 
 void change_town_owner(int town_num = 0) {
-    int new_owner = xsTriggerVariable(var_town_new_owner);
-    if (new_owner == 0 or town_num == 0) {
-        return ()
+    int new_owner = xsTriggerVariable(town_var_id(town_num, var_town_new_owner));
+    // xsChatData("Change town " + town_num + " owner to " + new_owner);
+    if ((new_owner == 0) || (town_num == 0)) {
+        return;
     }
     // Remove income from current owner
     int town_eco_level = get_town_level(town_num, var_town_eco_level);
@@ -91,13 +123,14 @@ void change_town_owner(int town_num = 0) {
     // Add income to new owner
     xsEffectAmount(cModResource, town_resource, cAttributeAdd, (town_eco_level * 100), new_owner);
     // Change current owner to new owner
+    xsChatData("1 Town " + town_num + " ownership changed from " + town_owner + " to " + new_owner);
     xsSetTriggerVariable(town_var_id(town_num, var_town_owner), new_owner);
     xsSetTriggerVariable(town_var_id(town_num, var_town_new_owner), 0);
     // Remove a town level as damage
     change_town_eco_level(town_num, false);
     change_town_defense_level(town_num, false);
     // Set variable to rebuild
-    // TODO destroy old owner build new owner
+    xsSetTriggerVariable(town_var_id(town_num, var_town_rebuild), 1);
     xsChatData("Town " + town_num + " ownership changed from " + town_owner + " to " + new_owner);
  }
 
@@ -148,6 +181,22 @@ void town_10_up_eco() {
     change_town_eco_level(10);
 }
 
+void town_11_up_eco() {
+    change_town_eco_level(11);
+}
+
+void town_12_up_eco() {
+    change_town_eco_level(12);
+}
+
+void town_13_up_eco() {
+    change_town_eco_level(13);
+}
+
+void town_14_up_eco() {
+    change_town_eco_level(14);
+}
+
 // Town Upgrade Defense Triggers
 void town_1_up_defense() {
     change_town_defense_level(1);
@@ -189,6 +238,22 @@ void town_10_up_defense() {
     change_town_defense_level(10);
 }
 
+void town_11_up_defense() {
+    change_town_defense_level(11);
+}
+
+void town_12_up_defense() {
+    change_town_defense_level(12);
+}
+
+void town_13_up_defense() {
+    change_town_defense_level(13);
+}
+
+void town_14_up_defense() {
+    change_town_defense_level(14);
+}
+
 // Town Change Ownership Triggers
 void town_1_change_ownership() {
     change_town_owner(1);
@@ -228,4 +293,20 @@ void town_9_change_ownership() {
 
 void town_10_change_ownership() {
     change_town_owner(10);
+}
+
+void town_11_change_ownership() {
+    change_town_owner(11);
+}
+
+void town_12_change_ownership() {
+    change_town_owner(12);
+}
+
+void town_13_change_ownership() {
+    change_town_owner(13);
+}
+
+void town_14_change_ownership() {
+    change_town_owner(14);
 }

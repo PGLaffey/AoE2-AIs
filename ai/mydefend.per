@@ -1,6 +1,6 @@
-; --- Constants ---
-(defconst ATTACK_TIME 20)
-(defconst RETREAT_TIME 60)
+; --- Timers ---
+(defconst ATTACK_TIME 30)
+(defconst RETREAT_TIME 120)
 (defconst TIMER_ATTACK 1)
 (defconst TIMER_RETREAT 3)
 ; (defconst TIMER_POP_LIMIT 2)
@@ -45,6 +45,16 @@
 
 ; ===== Event IDs =====
 (defconst e-decrease-pop 1)
+
+; ===== Civ Constants =====
+(defconst ACHAEMENIDS 46)
+(defconst ATHENIANS 47)
+(defconst SPARTANS 48)
+(defconst SHU 49)
+(defconst WU 50)
+(defconst WEI 51)
+(defconst JURCHENS 52)
+(defconst KHITANS 53)
 
 ; ===== Game Start: Initial setup actions =====
 (defrule
@@ -529,10 +539,10 @@
 (load "mydefend/vikings")
 #end-if
 ; ==== Civ Pick - Wei Override =====
-#load-if-defined 51
+#load-if-defined WEI-CIV
 (load "mydefend/wei")
 #end-if
 ; ==== Civ Pick - Wu Override =====
-#load-if-defined 50
+#load-if-defined WU-CIV
 (load "mydefend/wu")
 #end-if
