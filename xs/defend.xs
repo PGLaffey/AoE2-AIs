@@ -318,8 +318,107 @@ void event_roll() {
 }
 
 int set_defend_defense_techs() {
-    int list = xsArrayCreateInt(54, 0, "defend_defense_techs");
-    xsArraySetInt(list, 0, int tech);
+    int list = xsArrayCreateInt(19, 0, "defend_defense_techs");
+    xsArraySetInt(list, 0, 756);  // Hussite Reforms
+    xsArraySetInt(list, 1, 3);    // Yeomen
+    xsArraySetInt(list, 2, 755);  // Flemish Revolution
+    xsArraySetInt(list, 3, 408);  // Greek Fire
+    xsArraySetInt(list, 4, 482);  // Stronghold
+    xsArraySetInt(list, 5, 462);  // Great Wall
+    xsArraySetInt(list, 6, 923);  // Svan Towers
+    xsArraySetInt(list, 7, 484);  // Yasama
+    xsArraySetInt(list, 8, 996);  // Fortified Bastions
+    xsArraySetInt(list, 9, 486);  // Eupseong
+    xsArraySetInt(list, 10, 626); // Hill Forts
+    xsArraySetInt(list, 11, 576); // Tigui
+    xsArraySetInt(list, 12, 7);   // Citadels
+    xsArraySetInt(list, 13, 28);  // Bimaristan
+    xsArraySetInt(list, 14, 758); // First Crusade
+    xsArraySetInt(list, 15, 455); // Detinets
+    xsArraySetInt(list, 16, 23);  // Inquisition
+    xsArraySetInt(list, 17, 11);  // Crenellations
+    xsArraySetInt(list, 18, 10);  // Artillery
+    return (list);
+}
+
+int set_defend_eco_techs() {
+    int list = xsArrayCreateInt(13, 0, "defend_eco_techs");
+    xsArraySetInt(list, 0, 834);  // Mahayana
+    xsArraySetInt(list, 1, 754);  // Burgundian Vineyards
+    xsArraySetInt(list, 2, 924);  // Aznauri Cavalry
+    xsArraySetInt(list, 3, 835);  // Kshatriyas
+    xsArraySetInt(list, 4, 506);  // Grand Trunk Road
+    xsArraySetInt(list, 5, 499);  // Silk Road
+    xsArraySetInt(list, 6, 625);  // Forced Levy
+    xsArraySetInt(list, 7, 514);  // Nomads
+    xsArraySetInt(list, 8, 488);  // Kamandaran
+    xsArraySetInt(list, 9, 782);  // Szlachta Privileges
+    xsArraySetInt(list, 10, 440); // Supremacy
+    xsArraySetInt(list, 11, 629); // Paper Money
+    xsArraySetInt(list, 12, 1061);// Tuntian
+    return (list);
+}
+
+int set_defend_unit_techs() {
+    int list = xsArrayCreateInt(59, 0, "defend_unit_techs");
+    xsArraySetInt(list, 0, 912);  // Fereters
+    xsArraySetInt(list, 1, 460);  // Atlatl
+    xsArraySetInt(list, 2, 24);   // Garland Wars
+    xsArraySetInt(list, 3, 885);  // Paiks
+    xsArraySetInt(list, 4, 574);  // Maghrebi Camels
+    xsArraySetInt(list, 5, 757);  // Wagenburg Tactics
+    xsArraySetInt(list, 6, 3);    // Yeomen
+    xsArraySetInt(list, 7, 4);    // Warwolf
+    xsArraySetInt(list, 8, 685);  // Stirrups
+    xsArraySetInt(list, 9, 686);  // Bagains
+    xsArraySetInt(list, 10, 755); // Flemish Revolution
+    xsArraySetInt(list, 11, 627); // Manipur Cavalry
+    xsArraySetInt(list, 12, 628); // Howdah
+    xsArraySetInt(list, 13, 5);   // Furor Celtica
+    xsArraySetInt(list, 14, 441); // Rocketry
+    xsArraySetInt(list, 15, 688); // Steppe Husbandry
+    xsArraySetInt(list, 16, 690); // Cuman Mercenaries
+    xsArraySetInt(list, 17, 886); // Medical Corps
+    xsArraySetInt(list, 18, 832); // Wootz Steel
+    xsArraySetInt(list, 19, 483); // Torsion Engines
+    xsArraySetInt(list, 20, 438); // Chivalry
+    xsArraySetInt(list, 21, 6);   // Anarchy
+    xsArraySetInt(list, 22, 461); // Perfusion
+    xsArraySetInt(list, 23, 1062); // Frontier Guards
+    xsArraySetInt(list, 24, 507); // Shatagni
+    xsArraySetInt(list, 25, 575); // Marauders
+    xsArraySetInt(list, 26, 516); // Andean Sling
+    xsArraySetInt(list, 27, 691); // Fabric Shields
+    xsArraySetInt(list, 28, 494); // Pirotechnia
+    xsArraySetInt(list, 29, 489); // Kataparuto
+    xsArraySetInt(list, 30, 1006); // Lamellar Armor
+    xsArraySetInt(list, 31, 1007); // Ordo Cavalry
+    xsArraySetInt(list, 32, 493); // Tusk Swords
+    xsArraySetInt(list, 33, 692); // Tower Shields
+    xsArraySetInt(list, 34, 515); // Recurve Bow
+    xsArraySetInt(list, 35, 577); // Farimba
+    xsArraySetInt(list, 36, 485); // Hul'che Javelineers
+    xsArraySetInt(list, 37, 487); // El Dorado
+    xsArraySetInt(list, 38, 512); // Drill
+    xsArraySetInt(list, 39, 783); // Lechitic Legacy
+    xsArraySetInt(list, 40, 573); // Arquebus
+    xsArraySetInt(list, 41, 883); // Ballistas
+    xsArraySetInt(list, 42, 884); // Comitatenses
+    xsArraySetInt(list, 43, 28);  // Bimaristan
+    xsArraySetInt(list, 44, 572); // Counterweights
+    xsArraySetInt(list, 45, 1070); // Coiled Serpent Array
+    xsArraySetInt(list, 46, 1069); // Bolt Magazine
+    xsArraySetInt(list, 47, 758); // Hauberk
+    xsArraySetInt(list, 48, 513); // Druzhina
+    xsArraySetInt(list, 49, 23);  // Inquisition
+    xsArraySetInt(list, 50, 687); // Silk Armor
+    xsArraySetInt(list, 51, 500); // Timurid Siegecraft
+    xsArraySetInt(list, 52, 492); // Ironclad
+    xsArraySetInt(list, 53, 491); // Sipahi
+    xsArraySetInt(list, 54, 490); // Chatras
+    xsArraySetInt(list, 55, 463); // Chieftains
+    xsArraySetInt(list, 56, 49);  // Bogsveigar
+    xsArraySetInt(list, 57, 1062); // Ming Guang Armor
     return (list);
 }
 
