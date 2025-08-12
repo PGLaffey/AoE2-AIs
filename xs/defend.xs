@@ -100,7 +100,7 @@ int set_defend_unique_techs() {
     return (list);
 }
 int set_defend_unique_techs_descriptions() {
-    int list = xsArrayCreateString(54, 0, "defend_unique_techs_desc");
+    int list = xsArrayCreateString(54, "", "defend_unique_techs_desc");
     xsArraySetString(list, 0, "Fereters: Infantry +30 HP"); // Feteters
     xsArraySetString(list, 1, "Atlatl: Skirmishers +1 attack and range"); // Atlatl
     xsArraySetString(list, 2, "Garland Wars: Infantry units: +4 attack"); // Garland Wars
@@ -163,7 +163,7 @@ int set_defend_unique_techs_descriptions() {
 void re_defend_unique_tech(int tech_index = 0, int player = 0) {
     int status = xsArrayGetInt(defend_unique_techs_status, tech_index);
     int tech_id = xsArrayGetInt(defend_unique_techs, tech_index);
-    string tech_desc = xsArrayGetString(defend_unique_techs_desc, int index);
+    string tech_desc = xsArrayGetString(defend_unique_techs_desc, tech_index);
     xsChatData("Player "+player+" researched "+tech_desc);
     switch (player) {
         case 1 : {
@@ -285,32 +285,29 @@ void do_common_neutral_event() {
 }
 
 void do_common_event() {
-    int side = roll_dice(var_side_dice, 3);
-    switch(side) {
-        case 1 : {
-            do_common_attack_event();
-        }
-        case 2 : {
-            do_common_defend_event();
-        }
-        case 3 : {
-            do_common_neutral_event();
-        }
-        default : {
-            xsChatData("Invalid roll "+side+" for Side Dice");
-        }
+    int side = roll_dice(var_side_dice, 11);
+    if (side <= 5) {
+        do_common_attack_event();
+    } else if (side <= 10) {
+        do_common_defend_event();
+    }
+    else {
+        do_common_neutral_event();
     }
 }
 
-void event_roll() {
-    // xsSetTriggerVariable(var_event_dice, -10000); // Event Chance
-    // xsSetTriggerVariable(var_player_dice, -4); // Player select
-    // xsSetTriggerVariable(var_side_dice, -2); // Side select
+void do_uncommon_event() {
+    int side = roll_dice(var_side_dice, 1);
+}
 
-    // roll_dice();
-    int event_type = roll_dice(var_event_type_dice, 100);
-    if (event_type == 100) {
+void event_roll() {
+    int event_type = roll_dice(var_event_type_dice, 1000);
+    if (event_type <= 20) {
+        // 20 in 1000 or 1 in 50 or 2%
         do_common_event();
+    } else if (event_type <= 5) {
+        // 5 in 1000 or 1 in 200 or 0.5%
+        do_uncommon_event();
     }
     roll_dice_unused(4);
     roll_dice_unused(5);
@@ -320,9 +317,15 @@ void event_roll() {
     roll_dice_unused(9);
 }
 
+int set_defend_defense_techs() {
+    int list = xsArrayCreateInt(54, 0, "defend_defense_techs");
+    xsArraySetInt(list, 0, int tech);
+    return (list);
+}
+
 void main() {
     test = xsArrayCreateInt(5, 0, "test");
     defend_unique_techs = set_defend_unique_techs();
     defend_unique_techs_desc = set_defend_unique_techs_descriptions();
-    defend_unique_techs_status = xsArrayCreateInt(xsArrayGetSize(attack_unique_techs), 0, "attack_unique_tech_status");
+    defend_unique_techs_status = xsArrayCreateInt(xsArrayGetSize(defend_unique_techs), 0, "defend_unique_tech_status");
 }
