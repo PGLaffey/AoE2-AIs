@@ -26,6 +26,7 @@ xs_manager.add_script(xs_file_path='../xs/defend.xs', validate=True)
 
 players = [PlayerId.ONE.value, PlayerId.TWO.value, PlayerId.THREE.value]
 
+la_hire_voiceline_var = t_man.add_variable('La Hire Voiceline', 11)
 
 for player in players:
     # Reset Hero Tree
@@ -126,6 +127,34 @@ for player in players:
                                                               technology=TechInfo.BLANK_TECHNOLOGY_3.ID,
                                                               enabled=True)
     do_eco_tech_trigger.new_effect.script_call(message=f'p{player}_research_defend_eco_tech();')
+
+# La Hire Voicelines
+# Play_j6g
+# La Hire's sword is not bloody enough.
+# Play_j6i
+# It is a good day for La Hire to die!
+# Play_j3j
+# Do your worst, you English fop!
+# Play_j3h
+# The blood on La Hire's sword is almost dry.
+# Play_j3i
+# Them English can't make a castle stronger than La Hire!
+# Play_j3m
+# La Hire wishes to kill something.
+la_hire_voicelines = ['Play_j6g', 'Play_j6i', 'Play_j3j', 'Play_j3h', 'Play_j3i', 'Play_j3m']
+for player in players:
+    la_hire_roll_voice_trigger = t_man.add_trigger(f'La Hire Roll Voiceline (p{player})')
+    for voiceline_i in range(len(la_hire_voicelines)):
+        la_hire_voice_trigger = t_man.add_trigger(f'La Hire Voiceline {voiceline_i + 1} (p{player})')
+        la_hire_voice_trigger.new_condition.own_objects(source_player=player, object_list=HeroInfo.LA_HIRE.ID,
+                                                        quantity=1)
+        la_hire_voice_trigger.new_condition.variable_value(variable=la_hire_voiceline_var.variable_id,
+                                                           comparison=Comparison.EQUAL, quantity=voiceline_i)
+        la_hire_voice_trigger.new_effect.display_instructions(source_player=player, display_time=10,
+                                                              sound_name=la_hire_voicelines[voiceline_i])
+        la_hire_voice_trigger.new_effect.activate_trigger(la_hire_roll_voice_trigger.trigger_id)
+
+        la_hire_roll_voice_trigger.new_effect.deactivate_trigger(la_hire_voice_trigger.trigger_id)
 
 
 
