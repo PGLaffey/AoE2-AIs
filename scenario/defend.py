@@ -64,11 +64,11 @@ for player in players:
     defense_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID,
                                                               enabled=True)
 
-    do_defense_tech_trigger = t_man.add_trigger(f'Do Defense Tech (p{player})', looping=True)
+    do_defense_tech_trigger = t_man.add_trigger(f'Research Defense Tech (p{player})', looping=True)
     do_defense_tech_trigger.new_condition.research_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID)
     do_defense_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID,
                                                               enabled=True)
-    do_defense_tech_trigger.new_effect.send_chat(source_player=player, message=f'Do Defense Tech')
+    do_defense_tech_trigger.new_effect.script_call(message=f'p{player}_research_defend_defense_tech();')
 
 
     # Research Unit Tech
@@ -91,6 +91,14 @@ for player in players:
     unit_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_2.ID,
                                                               enabled=True)
 
+    do_unit_tech_trigger = t_man.add_trigger(f'Research Unit Tech (p{player})', looping=True)
+    do_unit_tech_trigger.new_condition.research_technology(source_player=player,
+                                                              technology=TechInfo.BLANK_TECHNOLOGY_2.ID)
+    do_unit_tech_trigger.new_effect.enable_disable_technology(source_player=player,
+                                                                 technology=TechInfo.BLANK_TECHNOLOGY_2.ID,
+                                                                 enabled=True)
+    do_unit_tech_trigger.new_effect.script_call(message=f'p{player}_research_defend_unit_tech();')
+
     # Research Eco Tech
     eco_tech_count = 10
     eco_tech_trigger = t_man.add_trigger(f'Setup Eco Tech (p{player})')
@@ -111,6 +119,13 @@ for player in players:
     eco_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_3.ID,
                                                               enabled=True)
 
+    do_eco_tech_trigger = t_man.add_trigger(f'Research Eco Tech (p{player})', looping=True)
+    do_eco_tech_trigger.new_condition.research_technology(source_player=player,
+                                                           technology=TechInfo.BLANK_TECHNOLOGY_3.ID)
+    do_eco_tech_trigger.new_effect.enable_disable_technology(source_player=player,
+                                                              technology=TechInfo.BLANK_TECHNOLOGY_3.ID,
+                                                              enabled=True)
+    do_eco_tech_trigger.new_effect.script_call(message=f'p{player}_research_defend_eco_tech();')
 
 
 
