@@ -3,7 +3,8 @@ from AoE2ScenarioParser.datasets.other import OtherInfo
 from AoE2ScenarioParser.datasets.players import PlayerId
 from AoE2ScenarioParser.datasets.heroes import HeroInfo
 from AoE2ScenarioParser.datasets.techs import TechInfo
-from AoE2ScenarioParser.datasets.trigger_lists import Comparison, Operation, ButtonLocation
+from AoE2ScenarioParser.datasets.trigger_lists import Comparison, Operation, ButtonLocation, ObjectAttribute
+from AoE2ScenarioParser.datasets.units import UnitInfo
 from AoE2ScenarioParser.objects.data_objects.variable import Variable
 from AoE2ScenarioParser.objects.support.enums.group_by import GroupBy
 from AoE2ScenarioParser.objects.support.trigger_select import TriggerSelect
@@ -18,7 +19,7 @@ scenario = AoE2DEScenario.from_file(input_path)
 t_man = scenario.trigger_manager
 
 xs_manager = scenario.xs_manager
-xs_manager.xs_check.raise_on_error = True
+xs_manager.xs_check.raise_on_error = False
 xs_manager.xs_check.ignores.add('DiscardedFn')
 xs_manager.xs_check.ignores.add('NoNumPromo')
 xs_manager.initialise_xs_trigger(insert_index=0)
@@ -26,48 +27,46 @@ xs_manager.add_script(xs_file_path='../xs/defend.xs', validate=True)
 
 players = [PlayerId.ONE.value, PlayerId.TWO.value, PlayerId.THREE.value]
 
-la_hire_voiceline_var = t_man.add_variable('La Hire Voiceline', 11)
-
 for player in players:
     # Reset Hero Tree
     reset_hero_trigger = t_man.add_trigger(f'Reset Heroes (p{player})')
-    reset_hero_trigger.new_effect.change_technology_location(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_0.ID,
+    reset_hero_trigger.new_effect.change_technology_location(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_10.ID,
                                                              object_list_unit_id_2=BuildingInfo.HALL_OF_HEROES.ID,
                                                              button_location=ButtonLocation.r3c1)
-    reset_hero_trigger.new_effect.change_technology_icon(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_0.ID,
+    reset_hero_trigger.new_effect.change_technology_icon(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_10.ID,
                                                          quantity=TechInfo.ILLUMINATION.ICON_ID)
-    reset_hero_trigger.new_effect.change_technology_name(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_0.ID,
+    reset_hero_trigger.new_effect.change_technology_name(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_10.ID,
                                                          message='Reset Hero Tree')
-    reset_hero_trigger.new_effect.change_technology_description(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_0.ID,
+    reset_hero_trigger.new_effect.change_technology_description(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_10.ID,
                                                                 message='Reset Hero Tree <cost>')
-    reset_hero_trigger.new_effect.enable_technology_stacking(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_0.ID,
+    reset_hero_trigger.new_effect.enable_technology_stacking(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_10.ID,
                                                              quantity=1000)
-    reset_hero_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_0.ID,
+    reset_hero_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_10.ID,
                                                             enabled=True)
 
     # Research Defense Tech
     defense_tech_count = 10
     defense_tech_trigger = t_man.add_trigger(f'Setup Defense Tech (p{player})')
-    defense_tech_trigger.new_effect.change_technology_location(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID,
+    defense_tech_trigger.new_effect.change_technology_location(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_11.ID,
                                                                object_list_unit_id_2=BuildingInfo.HALL_OF_HEROES.ID,
                                                                button_location=ButtonLocation.r2c1)
-    defense_tech_trigger.new_effect.change_technology_cost(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID,
+    defense_tech_trigger.new_effect.change_technology_cost(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_11.ID,
                                                            resource_1=Attribute.STONE_STORAGE, resource_1_quantity=500,
                                                            resource_2=Attribute.WOOD_STORAGE, resource_2_quantity=500)
-    defense_tech_trigger.new_effect.change_technology_icon(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID,
+    defense_tech_trigger.new_effect.change_technology_icon(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_11.ID,
                                                            quantity=TechInfo.MURDER_HOLES.ICON_ID)
-    defense_tech_trigger.new_effect.change_technology_name(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID,
+    defense_tech_trigger.new_effect.change_technology_name(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_11.ID,
                                                            message='Research Defense Technology')
-    defense_tech_trigger.new_effect.change_technology_description(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID,
+    defense_tech_trigger.new_effect.change_technology_description(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_11.ID,
                                                                   message='Research Defense Technology <cost>')
-    defense_tech_trigger.new_effect.enable_technology_stacking(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID,
+    defense_tech_trigger.new_effect.enable_technology_stacking(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_11.ID,
                                                                quantity=defense_tech_count)
-    defense_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID,
+    defense_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_11.ID,
                                                               enabled=True)
 
     do_defense_tech_trigger = t_man.add_trigger(f'Research Defense Tech (p{player})', looping=True)
-    do_defense_tech_trigger.new_condition.research_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID)
-    do_defense_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_1.ID,
+    do_defense_tech_trigger.new_condition.research_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_11.ID)
+    do_defense_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_11.ID,
                                                               enabled=True)
     do_defense_tech_trigger.new_effect.script_call(message=f'p{player}_research_defend_defense_tech();')
 
@@ -75,56 +74,56 @@ for player in players:
     # Research Unit Tech
     unit_tech_count = 10
     unit_tech_trigger = t_man.add_trigger(f'Setup unit Tech (p{player})')
-    unit_tech_trigger.new_effect.change_technology_location(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_2.ID,
+    unit_tech_trigger.new_effect.change_technology_location(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
                                                                object_list_unit_id_2=BuildingInfo.HALL_OF_HEROES.ID,
                                                                button_location=ButtonLocation.r2c2)
-    unit_tech_trigger.new_effect.change_technology_cost(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_2.ID,
+    unit_tech_trigger.new_effect.change_technology_cost(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
                                                            resource_1=Attribute.FOOD_STORAGE, resource_1_quantity=500,
                                                            resource_2=Attribute.GOLD_STORAGE, resource_2_quantity=500)
-    unit_tech_trigger.new_effect.change_technology_icon(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_2.ID,
+    unit_tech_trigger.new_effect.change_technology_icon(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
                                                            quantity=TechInfo.HAND_CANNON.ICON_ID)
-    unit_tech_trigger.new_effect.change_technology_name(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_2.ID,
+    unit_tech_trigger.new_effect.change_technology_name(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
                                                            message='Research Unit Technology')
-    unit_tech_trigger.new_effect.change_technology_description(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_2.ID,
+    unit_tech_trigger.new_effect.change_technology_description(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
                                                                   message='Research Unit Technology <cost>')
-    unit_tech_trigger.new_effect.enable_technology_stacking(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_2.ID,
+    unit_tech_trigger.new_effect.enable_technology_stacking(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
                                                                quantity=unit_tech_count)
-    unit_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_2.ID,
+    unit_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
                                                               enabled=True)
 
     do_unit_tech_trigger = t_man.add_trigger(f'Research Unit Tech (p{player})', looping=True)
     do_unit_tech_trigger.new_condition.research_technology(source_player=player,
-                                                              technology=TechInfo.BLANK_TECHNOLOGY_2.ID)
+                                                              technology=TechInfo.BLANK_TECHNOLOGY_12.ID)
     do_unit_tech_trigger.new_effect.enable_disable_technology(source_player=player,
-                                                                 technology=TechInfo.BLANK_TECHNOLOGY_2.ID,
+                                                                 technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
                                                                  enabled=True)
     do_unit_tech_trigger.new_effect.script_call(message=f'p{player}_research_defend_unit_tech();')
 
     # Research Eco Tech
     eco_tech_count = 10
     eco_tech_trigger = t_man.add_trigger(f'Setup Eco Tech (p{player})')
-    eco_tech_trigger.new_effect.change_technology_location(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_3.ID,
+    eco_tech_trigger.new_effect.change_technology_location(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_13.ID,
                                                                object_list_unit_id_2=BuildingInfo.HALL_OF_HEROES.ID,
                                                                button_location=ButtonLocation.r2c3)
-    eco_tech_trigger.new_effect.change_technology_cost(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_3.ID,
+    eco_tech_trigger.new_effect.change_technology_cost(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_13.ID,
                                                            resource_1=Attribute.FOOD_STORAGE, resource_1_quantity=500,
                                                            resource_2=Attribute.WOOD_STORAGE, resource_2_quantity=500)
-    eco_tech_trigger.new_effect.change_technology_icon(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_3.ID,
+    eco_tech_trigger.new_effect.change_technology_icon(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_13.ID,
                                                            quantity=TechInfo.HERBAL_MEDICINE.ICON_ID)
-    eco_tech_trigger.new_effect.change_technology_name(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_3.ID,
+    eco_tech_trigger.new_effect.change_technology_name(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_13.ID,
                                                            message='Research Eco Technology')
-    eco_tech_trigger.new_effect.change_technology_description(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_3.ID,
+    eco_tech_trigger.new_effect.change_technology_description(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_13.ID,
                                                                   message='Research eco Technology <cost>')
-    eco_tech_trigger.new_effect.enable_technology_stacking(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_3.ID,
+    eco_tech_trigger.new_effect.enable_technology_stacking(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_13.ID,
                                                                quantity=eco_tech_count)
-    eco_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_3.ID,
+    eco_tech_trigger.new_effect.enable_disable_technology(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_13.ID,
                                                               enabled=True)
 
     do_eco_tech_trigger = t_man.add_trigger(f'Research Eco Tech (p{player})', looping=True)
     do_eco_tech_trigger.new_condition.research_technology(source_player=player,
-                                                           technology=TechInfo.BLANK_TECHNOLOGY_3.ID)
+                                                           technology=TechInfo.BLANK_TECHNOLOGY_13.ID)
     do_eco_tech_trigger.new_effect.enable_disable_technology(source_player=player,
-                                                              technology=TechInfo.BLANK_TECHNOLOGY_3.ID,
+                                                              technology=TechInfo.BLANK_TECHNOLOGY_13.ID,
                                                               enabled=True)
     do_eco_tech_trigger.new_effect.script_call(message=f'p{player}_research_defend_eco_tech();')
 
@@ -143,19 +142,57 @@ for player in players:
 # La Hire wishes to kill something.
 la_hire_voicelines = ['Play_j6g', 'Play_j6i', 'Play_j3j', 'Play_j3h', 'Play_j3i', 'Play_j3m']
 for player in players:
-    la_hire_roll_voice_trigger = t_man.add_trigger(f'La Hire Roll Voiceline (p{player})')
+    la_hire_voiceline_var = t_man.add_variable(f'La Hire Voiceline (p{player})', 20 + player)
+    la_hire_roll_voice_trigger = t_man.add_trigger(f'La Hire Roll Voiceline (p{player})', looping=True)
+    la_hire_roll_voice_trigger.new_condition.timer(20)
+    la_hire_roll_voice_trigger.new_condition.own_objects(source_player=player, object_list=HeroInfo.LA_HIRE.ID,
+                                                         quantity=1)
+    la_hire_roll_voice_trigger.new_effect.script_call(message=f'la_hire_roll_voiceline_p{player}();')
     for voiceline_i in range(len(la_hire_voicelines)):
-        la_hire_voice_trigger = t_man.add_trigger(f'La Hire Voiceline {voiceline_i + 1} (p{player})')
+        la_hire_voice_trigger = t_man.add_trigger(f'La Hire Voiceline {voiceline_i + 1} (p{player})', enabled=False)
         la_hire_voice_trigger.new_condition.own_objects(source_player=player, object_list=HeroInfo.LA_HIRE.ID,
                                                         quantity=1)
+        la_hire_voice_trigger.new_condition.timer(20)
         la_hire_voice_trigger.new_condition.variable_value(variable=la_hire_voiceline_var.variable_id,
                                                            comparison=Comparison.EQUAL, quantity=voiceline_i)
-        la_hire_voice_trigger.new_effect.display_instructions(source_player=player, display_time=10,
+        la_hire_voice_trigger.new_effect.display_instructions(source_player=player, display_time=10, message='La Hire',
                                                               sound_name=la_hire_voicelines[voiceline_i])
-        la_hire_voice_trigger.new_effect.activate_trigger(la_hire_roll_voice_trigger.trigger_id)
+        # la_hire_voice_trigger.new_effect.activate_trigger(la_hire_roll_voice_trigger.trigger_id)
+        #
+        la_hire_roll_voice_trigger.new_effect.activate_trigger(la_hire_voice_trigger.trigger_id)
 
-        la_hire_roll_voice_trigger.new_effect.deactivate_trigger(la_hire_voice_trigger.trigger_id)
 
+
+# Set Hero Stats
+PIERCE_ARMOR = 3
+MELEE_ARMOR = 4
+heroes = {
+    HeroInfo.LA_HIRE, # God
+    HeroInfo.WILLIAM_WALLACE, # T1 Sword
+    HeroInfo.ROBIN_HOOD, # T1 Bow
+    HeroInfo.HROLF_THE_GANGER, # T1 Axe
+    UnitInfo.ROYAL_JANISSARY, # T1 Gun
+    HeroInfo.BAYINNAUNG, # T2 Sword Elephant
+    HeroInfo.DAGNAJAN, # T2 Bow Elephant
+    HeroInfo.ABRAHA_ELEPHANT, # T2 Axe Elephant
+    HeroInfo.SUN_QUAN, # T2 Gun Elephant
+    HeroInfo.ULRICH_VON_JUNGINGEN, # T2 Sword Horse
+    HeroInfo.GENGHIS_KHAN, # T2 Bow Horse
+    HeroInfo.BOHEMOND, # T2 Axe Horse
+    HeroInfo.FRANCISCO_DE_ORELLANA, # T2 Gun Horse
+    HeroInfo.DARIUS, # T2 Sword Cart
+    HeroInfo.LIU_BIAO, # T2 Bow Cart
+    HeroInfo.TSAR_KONSTANTIN, # T2 Axe Cart
+    HeroInfo.JEAN_DE_LORRAIN, # T2 Gun Cart
+    HeroInfo.MINAMOTO, # T2 Sword Cape
+    HeroInfo.SU_DINGFANG, # T2 Bow Cape
+    HeroInfo.HARALD_HARDRADA: {ObjectAttribute.HIT_POINTS: 300, ObjectAttribute.ATTACK_RELOAD_TIME: 0.25,
+                               MELEE_ARMOR: 5, PIERCE_ARMOR: 5, }, # T2 Axe Cape
+    HeroInfo.MUSTAFA_PASHA: {ObjectAttribute.HIT_POINTS: 300, ObjectAttribute.ATTACK_RELOAD_TIME: 1,
+                             PIERCE_ARMOR: 2} # T2 Gun Cape
+}
+for player in players:
+    setup_heroes = t_man.add_trigger(f'Setup Heroes p({player})')
 
 
 print(t_man.get_summary_as_string())

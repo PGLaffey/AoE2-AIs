@@ -6,6 +6,10 @@ const int var_quantity_dice = 4;
 
 const int var_trigger_event = 10;
 
+const int var_la_hire_voice_p1 = 21;
+const int var_la_hire_voice_p2 = 22;
+const int var_la_hire_voice_p3 = 23;
+
 int test = 0;
 int defend_unique_techs = 0;
 int defend_unique_techs_desc = 0;
@@ -116,29 +120,29 @@ int set_defend_unique_techs_descriptions() {
     xsArraySetString(list, 0, "Fereters: Infantry +30 HP"); // Feteters
     xsArraySetString(list, 1, "Atlatl: Skirmishers +1 attack and range"); // Atlatl
     xsArraySetString(list, 2, "Garland Wars: Infantry units: +4 attack"); // Garland Wars
-    xsArraySetString(list, 3, "Mahayana: Villagers and Monks take -10% Population space"); // Mahayana
-    xsArraySetString(list, 4, "Kasbah: Castles: +25% team work speed"); // Kabash
+    xsArraySetString(list, 3, "Mahayana: Villagers and Monks take -10\% Population space"); // Mahayana
+    xsArraySetString(list, 4, "Kasbah: Castles: +25\% team work speed"); // Kabash
     xsArraySetString(list, 5, "Yeomen	Foot archers: +1 range and Towers: +2 attack"); // Yeomen
-    xsArraySetString(list, 6, "Stirrups	Cavalry units: +33% attack speed"); // Stirrups
+    xsArraySetString(list, 6, "Stirrups	Cavalry units: +33\% attack speed"); // Stirrups
     xsArraySetString(list, 7, "Bagains	Two-Handed Swordsman: +5 melee armor"); // Bagains
     xsArraySetString(list, 8, "Burgundian Vineyards	Villagers generate 0.017 gold per second while working on Farms"); // Burgundian Vineyards
     xsArraySetString(list, 9, "Manipur Cavalry	Cavalry units: +4 attack against archers"); // Manipur Cavalry
-    xsArraySetString(list, 10, "Stronghold	Castles and Towers: +33% attack speed and Castles heal 30 hit points per minute for allied infantry in a 7 tile radius"); // Stronghold
-    xsArraySetString(list, 11, "Furor Celtica	Siege Workshop units: +40% hit points"); // Furor Celtica
-    xsArraySetString(list, 12, "Great Wall	Walls and towers: +30% hit points"); // Great Wall
+    xsArraySetString(list, 10, "Stronghold	Castles and Towers: +33\% attack speed and Castles heal 30 hit points per minute for allied infantry in a 7 tile radius"); // Stronghold
+    xsArraySetString(list, 11, "Furor Celtica	Siege Workshop units: +40\% hit points"); // Furor Celtica
+    xsArraySetString(list, 12, "Great Wall	Walls and towers: +30\% hit points"); // Great Wall
     xsArraySetString(list, 13, "Cuman Mercenaries	Allied players can train up to 5 free Elite Kipchaks per Castle"); // Cuman Mercenaries
     xsArraySetString(list, 14, "Wootz Steel	Infantry and cavalry units ignore armor"); // Wootz Steel
     xsArraySetString(list, 15, "Svan Towers	Defensive buildings +2 attack; Towers fire arrows that pierce multiple units"); // Svan Towers
-    xsArraySetString(list, 16, "Aznauri Cavalry	Cavalry units take 15% less population space"); // Aznauri Cavalry
-    xsArraySetString(list, 17, "Kshatriyas	Military units cost -25% food"); // Kshatriyas
-    xsArraySetString(list, 18, "Grand Trunk Road	+10% gold gather speed from all sources (Gold Mines, trade, and Relics) and Trading fee reduced to 10%"); // Grant Trunk Road
+    xsArraySetString(list, 16, "Aznauri Cavalry	Cavalry units take 15\% less population space"); // Aznauri Cavalry
+    xsArraySetString(list, 17, "Kshatriyas	Military units cost -25\% food"); // Kshatriyas
+    xsArraySetString(list, 18, "Grand Trunk Road	+10\% gold gather speed from all sources (Gold Mines, trade, and Relics) and Trading fee reduced to 10\%"); // Grant Trunk Road
     xsArraySetString(list, 19, "Shatagni	Hand Cannoneers: +2 range"); // Shatangi
     xsArraySetString(list, 20, "Andean Sling	Minimum range of Skirmishers and Slingers removed and Slingers: +1 attack"); // Andean Sling
-    xsArraySetString(list, 21, "Silk Road	Trade Cart and Trade Cog cost -50%"); // Silk Road
-    xsArraySetString(list, 22, "Pirotechnia	Hand Cannoneer: +15% pass-through damage, 90% accurate"); // Pirotechnia
+    xsArraySetString(list, 21, "Silk Road	Trade Cart and Trade Cog cost -50\%"); // Silk Road
+    xsArraySetString(list, 22, "Pirotechnia	Hand Cannoneer: +15\% pass-through damage, 90\% accurate"); // Pirotechnia
     xsArraySetString(list, 23, "Yasama	Towers fire 2 additional arrows"); // Yasama
     xsArraySetString(list, 24, "Fortified Bastions	Castles, Town Centers, walls, gates, and towers to regenerate 500 hit points per minute."); // Fortified Bastions
-    xsArraySetString(list, 25, "Lamellar Armor	Infantry and Skirmishers reflect 25% melee damage back to the attacker"); // Lamellar Armor
+    xsArraySetString(list, 25, "Lamellar Armor	Infantry and Skirmishers reflect 25\% melee damage back to the attacker"); // Lamellar Armor
     xsArraySetString(list, 26, "Ordo Cavalry	Cavalry regenerates HP in combat"); // Ordo Cavalry
     xsArraySetString(list, 27, "Eupseong	Watch Tower-line: +2 range"); // Eupseong
     xsArraySetString(list, 28, "Tower Shields	Spearman-line and Skirmishers: +2 pierce armor"); // Tower Shields
@@ -146,16 +150,16 @@ int set_defend_unique_techs_descriptions() {
     xsArraySetString(list, 30, "Forced Levy	Militia-line costs +20 food, -20 gold"); // Forced Levy
     xsArraySetString(list, 31, "Farimba	Cavalry units: +5 attack"); // Farimba
     xsArraySetString(list, 32, "Hul'che Javelineers	Skirmishers throw extra spear that deals 1 damage"); // Hulche Javelineers
-    xsArraySetString(list, 33, "Citadels	Castles +4 pierce attack, +3 attack vs rams, +3 attack vs infantry, receive -25% bonus damage"); // Citadels
-    xsArraySetString(list, 34, "Lechitic Legacy	Scout-line have +0.5 blast radius [33% effect]"); // Lechitic Legacy
+    xsArraySetString(list, 33, "Citadels	Castles +4 pierce attack, +3 attack vs rams, +3 attack vs infantry, receive -25\% bonus damage"); // Citadels
+    xsArraySetString(list, 34, "Lechitic Legacy	Scout-line have +0.5 blast radius [33\% effect]"); // Lechitic Legacy
     xsArraySetString(list, 35, "Arquebus	Improved gunpowder unit accuracy against moving targets and +0.5 gunpowder projectile speed, +0.2 for Bombard Cannon and Bombard Tower"); // Arquebus
-    xsArraySetString(list, 36, "Ballistas	Scorpions: +33% attack speed and Galley-line: +2 attack"); // Ballistas
-    xsArraySetString(list, 37, "Comitatenses	Militia-line, Knight-line, and Centurions train 50% faster and receive +5 charge attack."); // Comitatenses
+    xsArraySetString(list, 36, "Ballistas	Scorpions: +33\% attack speed and Galley-line: +2 attack"); // Ballistas
+    xsArraySetString(list, 37, "Comitatenses	Militia-line, Knight-line, and Centurions train 50\% faster and receive +5 charge attack."); // Comitatenses
     xsArraySetString(list, 38, "Bimaristan	Monks automatically heal multiple nearby units."); // Birmaristan
     xsArraySetString(list, 39, "Coiled Serpent Array	Spearman-line and White Feather Guards gain additional HP when near each other."); // Coiled Serpent Array
     xsArraySetString(list, 40, "Bolt Magazine	Archer-line, War Chariots and Lou Chuans fire additional projectiles"); // Bolt Magazine
     xsArraySetString(list, 41, "Hauberk	Knight-line: +1/+2 armor"); // Hauberk
-    xsArraySetString(list, 42, "Detinets	Replaces 40% of Castles' and towers' stone cost with wood"); // Detinets
+    xsArraySetString(list, 42, "Detinets	Replaces 40\% of Castles' and towers' stone cost with wood"); // Detinets
     xsArraySetString(list, 43, "Druzhina	Infantry units have +0.5 blast radius [+5 effect]"); // Druzhina
     xsArraySetString(list, 44, "Supremacy	Villagers: +6 attack, +2/+2 armor, and +40 hit points"); // Supremacy
     xsArraySetString(list, 45, "Silk Armor	Scout-line, Steppe Lancer, and mounted archers: +1/+1 armor"); // Silk Armor
@@ -168,7 +172,7 @@ int set_defend_unique_techs_descriptions() {
     xsArraySetString(list, 52, "Tuntian	Soldiers passively produce food"); // Tuntian
     xsArraySetString(list, 53, "Ming Guang Armor	Cavalry +2 attack vs. Siege Weapons"); // Ming Guang Armor
     xsArraySetString(list, 54, "Kamandaran	Archer-line costs 60 wood instead of 25 wood, 45 gold"); // Kamandaran
-    xsArraySetString(list, 55, "Szlachta Privileges	Knight-line costs -60% gold"); // Szlachta Privileges
+    xsArraySetString(list, 55, "Szlachta Privileges	Knight-line costs -60\% gold"); // Szlachta Privileges
     return (list);
 }
 
@@ -177,13 +181,13 @@ void re_defend_unique_tech(int tech_index = 0, int player = 0) {
     int tech_id = xsArrayGetInt(defend_unique_techs, tech_index);
     string tech_desc = xsArrayGetString(defend_unique_techs_desc, tech_index);
     xsChatData("Player "+player+" researched "+tech_desc);
-    switch (player) {
+    switch (player) { 
         case 1 : {
             if (status % 2 < 1) {
                 xsResearchTechnology(tech_id, true, false, player);
                 xsArraySetInt(defend_unique_techs_status, tech_index, status + 1);
             }
-        }
+        } 
         case 2 : {
             if (status / 2 % 2 < 1) {
                 xsResearchTechnology(tech_id, true, false, player);
@@ -203,6 +207,64 @@ void re_defend_unique_tech(int tech_index = 0, int player = 0) {
             }
         }
     }
+}
+
+bool check_research_status(int status_list = 0, int index = 0, int player = 0) {
+    int status = xsArrayGetInt(status_list, index);
+    bool available = false;
+    switch (player) {
+        case 1 : {
+            available = status % 2 < 1;
+        }
+        case 2 : {
+            available = status / 2 % 2 < 1;
+        }
+        case 3 : {
+            available = status / 2 / 2 % 2 < 1;
+        }
+        case 4 : {
+            available = status / 2 / 2 / 2 % 2 < 1;
+        }
+    }
+    return (available);
+}
+
+void research_defend_tech(int list = 0, int status_list = 0, int description_list = 0, int player = 0) {
+    int i = xsGetRandomNumberMax(xsArrayGetSize(list));
+    if (check_research_status(status_list, i, player)) {
+        xsResearchTechnology(xsArrayGetInt(list, i), true, false, player);
+        string colour = "";
+        int status_binary = 0;
+        switch(player) {
+            case 1 : {
+                colour = "<blue>";
+                status_binary = 1;
+            }
+            case 2 : {
+                colour = "<red>";
+                status_binary = 2;
+            }
+            default : {
+                colour = "<green>";
+                status_binary = 4;
+            }
+        }
+        xsChatData(colour + "Player " + player + " Researched " + xsArrayGetString(description_list, i));
+        xsArraySetInt(status_list, i, xsArrayGetInt(status_list, i) + status_binary);
+    } else {
+        xsChatData("Player " + player + " Already Researched " + xsArrayGetString(description_list, i) + " Retrying");
+        research_defend_tech(list, status_list, description_list, player);
+    }
+}
+
+void research_defend_defense_tech(int player = 0) {
+    research_defend_tech(defend_defense_techs, defend_defense_techs_status, defend_defense_techs_desc, player);
+}
+void research_defend_eco_tech(int player = 0) {
+    research_defend_tech(defend_eco_techs, defend_eco_techs_status, defend_eco_techs_desc, player);
+}
+void research_defend_unit_tech(int player = 0) {
+    research_defend_tech(defend_unit_techs, defend_unit_techs_status, defend_unit_techs_desc, player);
 }
 // ===== (END) Common Defend Events =====
 
@@ -242,7 +304,7 @@ void re_melee_attack (int player = 0) {
 void spawn_deer() {
     int quantity = roll_dice(var_quantity_dice, 50);
     xsEffectAmount(cGaiaModResource, cAttributeSpawnCap, cAttributeSet, 15);
-    xsEffectAmount(cGaiaSpawnUnit, 65, 109, quantity);
+    xsEffectAmount(cGaiaSpawnUnit, 65, 1082, quantity);
     xsChatData("Spring has come and the deer flourish");
 }
 // ===== (END) Common Neutral Events =====
@@ -271,14 +333,20 @@ void do_common_attack_event() {
 
 void do_common_defend_event() {
     int player = roll_dice(var_player_dice, 3);
-    int event = roll_dice(var_event_dice, 57);
-    if (event <= xsArrayGetSize(defend_unique_techs)) {
-        re_defend_unique_tech(event, player);
-    } else {
-        switch(event - xsArrayGetSize(defend_unique_techs)) {
-            case 1 : {
-                xsChatData("Event 55");
-            }
+    int event = roll_dice(var_event_dice, 4);
+    switch(event) {
+        case 1 : {
+            research_defend_defense_tech(player);
+        }
+        case 2 : {
+            research_defend_eco_tech(player);
+        }
+        case 3 : {
+            research_defend_unit_tech(player);
+        }
+        case 4 : {
+            xsEffectAmount(cModResource, cAttributeSpawnCap, cAttributeSet, 1, player); // Set number of buildings that should create units from Spawn Unit command to 1
+            xsEffectAmount(cSpawnUnit, 640, 109, 1, player); // Spawn La Hire (640) from Town Center (109) quantity 1
         }
     }
 }
@@ -329,63 +397,16 @@ void event_roll() {
     roll_dice_unused(9);
 }
 
-bool check_research_status(int status_list = 0, int index = 0, int player = 0) {
-    int status = xsArrayGetInt(status_list, index);
-    bool available = false;
-    switch (player) {
-        case 1 : {
-            available = status % 2 < 1;
-        }
-        case 2 : {
-            available = status / 2 % 2 < 1;
-        }
-        case 3 : {
-            available = status / 2 / 2 % 2 < 1;
-        }
-        case 4 : {
-            available = status / 2 / 2 / 2 % 2 < 1;
-        }
-    }
-    return (available);
+void la_hire_roll_voiceline_p1() {
+    xsSetTriggerVariable(var_la_hire_voice_p1, xsGetRandomNumberMax(6));
+}
+void la_hire_roll_voiceline_p2() {
+    xsSetTriggerVariable(var_la_hire_voice_p2, xsGetRandomNumberMax(6));
+}
+void la_hire_roll_voiceline_p3() {
+    xsSetTriggerVariable(var_la_hire_voice_p3, xsGetRandomNumberMax(6));
 }
 
-void research_defend_tech(int list = 0, int status_list = 0, int description_list = 0, int player = 0) {
-    int i = xsGetRandomNumberMax(xsArrayGetSize(list));
-    if check_research_status(status_list, i, player) {
-        xsResearchTechnology(xsArrayGetInt(list, i), true, false, player);
-        string colour = "";
-        int status_binary = 0
-        switch(player) {
-            case 1 : {
-                colour = "<blue>";
-                status_binary = 1;
-            }
-            case 2 : {
-                colour = "<red>";
-                status_binary = 2;
-            }
-            default : {
-                colour = "<green>";
-                status_binary = 4;
-            }
-        }
-        xsChatData(colour + "Player " + player + " Researched " + xsArrayGetString(description_list, i));
-        xsArraySetInt(status_list, i, xsArrayGetInt(status_list, i) + status_binary);
-    } else {
-        xsChatData("Player " + player + " Already Researched " + xsArrayGetString(description_list, i) + " Retrying");
-        research_defend_tech(list, status_list, description_list, player);
-    }
-}
-
-void research_defend_defense_tech(int player = 0) {
-    research_defend_tech(defend_defense_techs, defend_defense_techs_status, defend_defense_techs_desc, player);
-}
-void research_defend_eco_tech(int player = 0) {
-    research_defend_tech(defend_eco_techs, defend_eco_techs_status, defend_eco_techs_desc, player);
-}
-void research_defend_unit_tech(int player = 0) {
-    research_defend_tech(defend_unit_techs, defend_unit_techs_status, defend_unit_techs_desc, player);
-}
 
 // Player research techs entrypoints
 void p1_research_defend_defense_tech() {
@@ -449,18 +470,18 @@ int set_defend_defense_techs_descriptions() {
     xsArraySetString(list, 1, "Yeomen: Foot archers +1 range, Towers +2 attack.");
     xsArraySetString(list, 2, "Flemish Revolution: Upgrades all Villagers to Flemish Militia and allows their training at Town Centers.");
     xsArraySetString(list, 3, "Greek Fire: Fire Ships +1 range.");
-    xsArraySetString(list, 4, "Stronghold: Castles and Towers +33% attack speed and heal nearby allied infantry.");
-    xsArraySetString(list, 5, "Great Wall: Walls and towers +30% hit points.");
+    xsArraySetString(list, 4, "Stronghold: Castles and Towers +33\% attack speed and heal nearby allied infantry.");
+    xsArraySetString(list, 5, "Great Wall: Walls and towers +30\% hit points.");
     xsArraySetString(list, 6, "Svan Towers: Defensive buildings +2 attack; Towers fire arrows that pierce multiple units.");
     xsArraySetString(list, 7, "Yasama: Towers fire 2 additional arrows.");
     xsArraySetString(list, 8, "Fortified Bastions: Castles, Town Centers, walls, gates, and towers regenerate HP.");
     xsArraySetString(list, 9, "Eupseong: Watch Tower-line +2 range.");
     xsArraySetString(list, 10, "Hill Forts: Town Centers +10 garrison space and fire arrows without garrison.");
     xsArraySetString(list, 11, "Tigui: Town Centers fire arrows without garrison.");
-    xsArraySetString(list, 12, "Citadels: Castles +4 pierce attack, +3 attack vs rams, +3 attack vs infantry, receive -25% bonus damage.");
+    xsArraySetString(list, 12, "Citadels: Castles +4 pierce attack, +3 attack vs rams, +3 attack vs infantry, receive -25\% bonus damage.");
     xsArraySetString(list, 13, "Bimaristan: Monks automatically heal multiple nearby units.");
     xsArraySetString(list, 14, "First Crusade: Spawns Sergeants from Town Centers and allows allies to train them.");
-    xsArraySetString(list, 15, "Detinets: Replaces 40% of Castles' and towers' stone cost with wood.");
+    xsArraySetString(list, 15, "Detinets: Replaces 40\% of Castles' and towers' stone cost with wood.");
     xsArraySetString(list, 16, "Inquisition: Monks +1 conversion range and improved conversion speed.");
     xsArraySetString(list, 17, "Crenellations: Castles +3 range; Garrisoned infantry fire arrows.");
     xsArraySetString(list, 18, "Artillery: Bombard Tower, Bombard Cannon, and Cannon Galleon +2 range.");
@@ -487,16 +508,16 @@ int set_defend_eco_techs() {
 
 int set_defend_eco_techs_descriptions() {
     int list = xsArrayCreateString(13, "", "defend_eco_techs_desc");
-    xsArraySetString(list, 0, "Mahayana: Villagers and Monks take -10% Population space.");
+    xsArraySetString(list, 0, "Mahayana: Villagers and Monks take -10\% Population space.");
     xsArraySetString(list, 1, "Burgundian Vineyards: Villagers generate gold from Farms.");
-    xsArraySetString(list, 2, "Aznauri Cavalry: Cavalry units take 15% less population space.");
-    xsArraySetString(list, 3, "Kshatriyas: Military units cost -25% food.");
-    xsArraySetString(list, 4, "Grand Trunk Road: +10% gold gather speed and reduced trading fee.");
-    xsArraySetString(list, 5, "Silk Road: Trade units cost -50%.");
+    xsArraySetString(list, 2, "Aznauri Cavalry: Cavalry units take 15\% less population space.");
+    xsArraySetString(list, 3, "Kshatriyas: Military units cost -25\% food.");
+    xsArraySetString(list, 4, "Grand Trunk Road: +10\% gold gather speed and reduced trading fee.");
+    xsArraySetString(list, 5, "Silk Road: Trade units cost -50\%.");
     xsArraySetString(list, 6, "Forced Levy: Militia-line costs no gold.");
     xsArraySetString(list, 7, "Nomads: Houses do not cost population space.");
     xsArraySetString(list, 8, "Kamandaran: Archer-line costs no gold.");
-    xsArraySetString(list, 9, "Szlachta Privileges: Knight-line costs -60% gold.");
+    xsArraySetString(list, 9, "Szlachta Privileges: Knight-line costs -60\% gold.");
     xsArraySetString(list, 10, "Supremacy: Villagers become much stronger fighters.");
     xsArraySetString(list, 11, "Paper Money: Villagers generate gold from gathering wood.");
     xsArraySetString(list, 12, "Tuntian: Soldiers passively produce food.");
@@ -568,32 +589,32 @@ int set_defend_unit_techs_descriptions() {
     xsArraySetString(list, 0, "Fereters: Infantry +30 HP.");
     xsArraySetString(list, 1, "Atlatl: Skirmishers +1 attack and range.");
     xsArraySetString(list, 2, "Garland Wars: Infantry +4 attack.");
-    xsArraySetString(list, 3, "Paiks: Battle Elephants and Rathas attack 20% faster.");
+    xsArraySetString(list, 3, "Paiks: Battle Elephants and Rathas attack 20\% faster.");
     xsArraySetString(list, 4, "Maghrebi Camels: Camel units and Camel Archers regenerate HP.");
-    xsArraySetString(list, 5, "Wagenburg Tactics: Gunpowder units move 15% faster.");
-    xsArraySetString(list, 6, "Warwolf: Trebuchets do blast damage and are 100% accurate against stationary targets.");
-    xsArraySetString(list, 7, "Stirrups: Cavalry +33% attack speed.");
+    xsArraySetString(list, 5, "Wagenburg Tactics: Gunpowder units move 15\% faster.");
+    xsArraySetString(list, 6, "Warwolf: Trebuchets do blast damage and are 100\% accurate against stationary targets.");
+    xsArraySetString(list, 7, "Stirrups: Cavalry +33\% attack speed.");
     xsArraySetString(list, 8, "Bagains: Two-Handed Swordsman +5 melee armor.");
     xsArraySetString(list, 9, "Manipur Cavalry: Cavalry +4 attack against archers.");
     xsArraySetString(list, 10, "Howdah: Battle Elephants +1/+2 armor.");
-    xsArraySetString(list, 11, "Furor Celtica: Siege Workshop units +40% HP.");
+    xsArraySetString(list, 11, "Furor Celtica: Siege Workshop units +40\% HP.");
     xsArraySetString(list, 12, "Rocketry: Chu Ko Nu +2 attack, Scorpions +4 attack.");
-    xsArraySetString(list, 13, "Steppe Husbandry: Scout-line and Steppe Lancers train 100% faster.");
+    xsArraySetString(list, 13, "Steppe Husbandry: Scout-line and Steppe Lancers train 100\% faster.");
     xsArraySetString(list, 14, "Cuman Mercenaries: Team can create 10 free Elite Kipchaks at the Castle.");
     xsArraySetString(list, 15, "Medical Corps: Elephants regenerate HP.");
     xsArraySetString(list, 16, "Wootz Steel: Infantry and cavalry attacks ignore melee armor.");
     xsArraySetString(list, 17, "Torsion Engines: Siege Workshop units' blast radius increased.");
-    xsArraySetString(list, 18, "Chivalry: Stables work 40% faster.");
+    xsArraySetString(list, 18, "Chivalry: Stables work 40\% faster.");
     xsArraySetString(list, 19, "Anarchy: Huskarls can be created at the Barracks.");
-    xsArraySetString(list, 20, "Perfusion: Barracks units are created 100% faster.");
+    xsArraySetString(list, 20, "Perfusion: Barracks units are created 100\% faster.");
     xsArraySetString(list, 21, "Ming Guang Armor: Cavalry +2 attack vs. Siege Weapons.");
     xsArraySetString(list, 22, "Shatagni: Hand Cannoneers +2 range.");
     xsArraySetString(list, 23, "Marauders: Create Keshiks at the Stable.");
     xsArraySetString(list, 24, "Andean Sling: Skirmishers and Slingers have no minimum range.");
     xsArraySetString(list, 25, "Fabric Shields: Kamayuks, Slingers, and Eagle Warriors +1/+2 armor.");
     xsArraySetString(list, 26, "Pavise: Archer-line and Condottieri +1/+1 armor.");
-    xsArraySetString(list, 27, "Kataparuto: Trebuchets fire 33% faster.");
-    xsArraySetString(list, 28, "Lamellar Armor: Infantry and Skirmishers reflect 25% melee damage back to the attacker.");
+    xsArraySetString(list, 27, "Kataparuto: Trebuchets fire 33\% faster.");
+    xsArraySetString(list, 28, "Lamellar Armor: Infantry and Skirmishers reflect 25\% melee damage back to the attacker.");
     xsArraySetString(list, 29, "Ordo Cavalry: Cavalry regenerates HP in combat.");
     xsArraySetString(list, 30, "Tusk Swords: Battle Elephants +3 attack.");
     xsArraySetString(list, 31, "Tower Shields: Spearman-line and Skirmishers +2 pierce armor.");
@@ -601,13 +622,13 @@ int set_defend_unit_techs_descriptions() {
     xsArraySetString(list, 33, "Farimba: Cavalry +5 attack.");
     xsArraySetString(list, 34, "Hul'che Javelineers: Skirmishers fire a second projectile.");
     xsArraySetString(list, 35, "El Dorado: Eagle Warriors +40 HP.");
-    xsArraySetString(list, 36, "Drill: Siege units move 50% faster.");
+    xsArraySetString(list, 36, "Drill: Siege units move 50\% faster.");
     xsArraySetString(list, 37, "Lechitic Legacy: Light Cavalry deals trample damage.");
     xsArraySetString(list, 38, "Arquebus: Gunpowder units benefit from Ballistics and are more accurate.");
     xsArraySetString(list, 39, "Ballistas: Scorpions and Galley-line +2 attack.");
-    xsArraySetString(list, 40, "Comitatenses: Militia-line, Knight-line, and Centurions train 50% faster and receive +5 charge attack.");
+    xsArraySetString(list, 40, "Comitatenses: Militia-line, Knight-line, and Centurions train 50\% faster and receive +5 charge attack.");
     xsArraySetString(list, 41, "Bimaristan: Monks automatically heal multiple nearby units.");
-    xsArraySetString(list, 42, "Counterweights: Trebuchets and Mangonel-line +15% attack.");
+    xsArraySetString(list, 42, "Counterweights: Trebuchets and Mangonel-line +15\% attack.");
     xsArraySetString(list, 43, "Coiled Serpent Array: Spearman-line and White Feather Guards gain additional HP when near each other.");
     xsArraySetString(list, 44, "Bolt Magazine: Archer-line, War Chariots and Lou Chuans fire additional projectiles.");
     xsArraySetString(list, 45, "First Crusade: Spawns Sergeants from Town Centers and allows allies to train them.");
