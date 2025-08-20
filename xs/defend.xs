@@ -347,6 +347,7 @@ void do_common_defend_event() {
         case 4 : {
             xsEffectAmount(cModResource, cAttributeSpawnCap, cAttributeSet, 1, player); // Set number of buildings that should create units from Spawn Unit command to 1
             xsEffectAmount(cSpawnUnit, 640, 109, 1, player); // Spawn La Hire (640) from Town Center (109) quantity 1
+            xsChatData("*****La Hire Spawn*****");
         }
     }
 }

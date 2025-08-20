@@ -3,7 +3,7 @@ from AoE2ScenarioParser.datasets.other import OtherInfo
 from AoE2ScenarioParser.datasets.players import PlayerId
 from AoE2ScenarioParser.datasets.heroes import HeroInfo
 from AoE2ScenarioParser.datasets.techs import TechInfo
-from AoE2ScenarioParser.datasets.trigger_lists import Comparison, Operation, ButtonLocation, ObjectAttribute
+from AoE2ScenarioParser.datasets.trigger_lists import Comparison, Operation, ButtonLocation, ObjectAttribute, ActionType
 from AoE2ScenarioParser.datasets.units import UnitInfo
 from AoE2ScenarioParser.objects.data_objects.variable import Variable
 from AoE2ScenarioParser.objects.support.enums.group_by import GroupBy
@@ -31,7 +31,7 @@ trigger_objects = trigger_data.objects
 
 ATTACK_CASTLES = [trigger_objects.P4CASTLE, trigger_objects.P5CASTLE, trigger_objects.P6CASTLE, trigger_objects.P7CASTLE]
 
-
+attacker_ais = [PlayerId.FOUR.value, PlayerId.FIVE.value, PlayerId.SIX.value, PlayerId.SEVEN.value]
 players = [PlayerId.ONE.value, PlayerId.TWO.value, PlayerId.THREE.value]
 
 for player in players:
@@ -228,6 +228,18 @@ for player in players:
                     source_player=player, object_list_unit_id=hero.ID, object_attributes=attribute,
                     operation=Operation.SET, quantity=value)
 
+# AI Player Setup
+for ai in attacker_ais:
+    setup_ai_trigger = t_man.add_trigger(f'Setup P{ai}')
+    setup_ai_trigger.new_effect.modify_attribute(source_player=ai, object_list_unit_id=BuildingInfo.CASTLE.ID,
+                                                 object_attributes=ObjectAttribute.GARRISON_TYPE,
+                                                 operation=Operation.SET, quantity=127)
+    setup_ai_trigger.new_effect.modify_attribute(source_player=ai, object_list_unit_id=BuildingInfo.CASTLE.ID,
+                                                 object_attributes=ObjectAttribute.GARRISON_CAPACITY,
+                                                 operation=Operation.SET, quantity=500)
+
+
+# In game events
 TRIGGER_EVENT_VAR_ID = 10
 EVENT_NUMBER_LIST = [
     'Zero Index',
@@ -241,6 +253,13 @@ event_flaming_camels.new_condition.variable_value(variable=TRIGGER_EVENT_VAR_ID,
                                                   quantity=EVENT_NUMBER_LIST.index(event_flaming_camels.name))
 event_flaming_camels.new_effect.change_variable(variable=TRIGGER_EVENT_VAR_ID, operation=Operation.SET,
                                                 quantity=0)
+for ai in attacker_ais:
+    castle = ATTACK_CASTLES[attacker_ais.index(ai)]
+    for i in range(33):
+        event_flaming_camels.new_effect.create_garrisoned_object(source_player=ai, object_list_unit_id=UnitInfo.FLAMING_CAMEL.ID,
+                                                                 object_list_unit_id_2=BuildingInfo.CASTLE.ID, max_units_affected=3)
+        event_flaming_camels.new_effect.task_object(source_player=ai, object_list_unit_id=BuildingInfo.CASTLE.ID,
+                                                    action_type=ActionType.UNGARRISON)
 
 
 print(t_man.get_summary_as_string())
