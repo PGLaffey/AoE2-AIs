@@ -81,7 +81,7 @@ for player in players:
                                                            resource_1=Attribute.FOOD_STORAGE, resource_1_quantity=500,
                                                            resource_2=Attribute.GOLD_STORAGE, resource_2_quantity=500)
     unit_tech_trigger.new_effect.change_technology_icon(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
-                                                           quantity=TechInfo.HAND_CANNON.ICON_ID)
+                                                           quantity=TechInfo.SQUIRES.ICON_ID)
     unit_tech_trigger.new_effect.change_technology_name(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
                                                            message='Research Unit Technology')
     unit_tech_trigger.new_effect.change_technology_description(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
@@ -164,35 +164,62 @@ for player in players:
 
 
 # Set Hero Stats
-PIERCE_ARMOR = 3
-MELEE_ARMOR = 4
+PIERCE_ARMOR = (ObjectAttribute.ARMOR, 3)
+MELEE_ARMOR = (ObjectAttribute.ARMOR, 4)
+PIERCE_ATTACK = (ObjectAttribute.ATTACK, 3)
+MELEE_ATTACK = (ObjectAttribute.ATTACK, 4)
 heroes = {
-    HeroInfo.LA_HIRE, # God
-    HeroInfo.WILLIAM_WALLACE, # T1 Sword
-    HeroInfo.ROBIN_HOOD, # T1 Bow
-    HeroInfo.HROLF_THE_GANGER, # T1 Axe
-    UnitInfo.ROYAL_JANISSARY, # T1 Gun
-    HeroInfo.BAYINNAUNG, # T2 Sword Elephant
-    HeroInfo.DAGNAJAN, # T2 Bow Elephant
-    HeroInfo.ABRAHA_ELEPHANT, # T2 Axe Elephant
-    HeroInfo.SUN_QUAN, # T2 Gun Elephant
-    HeroInfo.ULRICH_VON_JUNGINGEN, # T2 Sword Horse
-    HeroInfo.GENGHIS_KHAN, # T2 Bow Horse
-    HeroInfo.BOHEMOND, # T2 Axe Horse
-    HeroInfo.FRANCISCO_DE_ORELLANA, # T2 Gun Horse
-    HeroInfo.DARIUS, # T2 Sword Cart
-    HeroInfo.LIU_BIAO, # T2 Bow Cart
-    HeroInfo.TSAR_KONSTANTIN, # T2 Axe Cart
-    HeroInfo.JEAN_DE_LORRAIN, # T2 Gun Cart
-    HeroInfo.MINAMOTO, # T2 Sword Cape
-    HeroInfo.SU_DINGFANG, # T2 Bow Cape
+    HeroInfo.LA_HIRE: {ObjectAttribute.HIT_POINTS: 1500, ObjectAttribute.ATTACK_RELOAD_TIME: 0.5,
+                       MELEE_ARMOR: 5, PIERCE_ARMOR: 5, ObjectAttribute.BLAST_WIDTH: 1,
+                       ObjectAttribute.BLAST_ATTACK_LEVEL: 4, MELEE_ATTACK: 20}, # God
+    HeroInfo.WILLIAM_WALLACE: {}, # T1 Sword
+    HeroInfo.ROBIN_HOOD: {ObjectAttribute.HIT_POINTS: 200, ObjectAttribute.MAX_RANGE: 10}, # T1 Bow
+    HeroInfo.HROLF_THE_GANGER: {ObjectAttribute.HIT_POINTS: 250}, # T1 Axe
+    UnitInfo.ROYAL_JANISSARY: {ObjectAttribute.HIT_POINTS: 200, ObjectAttribute.ATTACK_RELOAD_TIME: 3,
+                               ObjectAttribute.HERO_STATUS: 1}, # T1 Gun
+    HeroInfo.BAYINNAUNG: {ObjectAttribute.HIT_POINTS: 1000, MELEE_ARMOR: 5, PIERCE_ARMOR: 5}, # T2 Sword Elephant
+    HeroInfo.DAGNAJAN: {ObjectAttribute.HIT_POINTS: 1000, ObjectAttribute.ATTACK_RELOAD_TIME: 2}, # T2 Bow Elephant
+    HeroInfo.ABRAHA_ELEPHANT: {ObjectAttribute.HIT_POINTS: 1000, ObjectAttribute.ATTACK_RELOAD_TIME: 1}, # T2 Axe Elephant
+    HeroInfo.SUN_QUAN: {ObjectAttribute.HIT_POINTS: 750}, # T2 Gun Elephant
+    HeroInfo.ULRICH_VON_JUNGINGEN: {ObjectAttribute.HIT_POINTS: 750}, # T2 Sword Horse
+    HeroInfo.GENGHIS_KHAN: {ObjectAttribute.HIT_POINTS: 500, ObjectAttribute.ATTACK_RELOAD_TIME: 1}, # T2 Bow Horse
+    HeroInfo.BOHEMOND: {ObjectAttribute.HIT_POINTS: 750, ObjectAttribute.ATTACK_RELOAD_TIME: 1,
+                        MELEE_ARMOR: 4, PIERCE_ARMOR: 4}, # T2 Axe Horse
+    HeroInfo.FRANCISCO_DE_ORELLANA: {ObjectAttribute.HIT_POINTS: 500, ObjectAttribute.ATTACK_RELOAD_TIME: 2,
+                                     PIERCE_ATTACK: 50}, # T2 Gun Horse
+    HeroInfo.DARIUS: {ObjectAttribute.HIT_POINTS: 750, ObjectAttribute.ATTACK_RELOAD_TIME: 1,
+                      MELEE_ARMOR: 4, PIERCE_ARMOR: 4, ObjectAttribute.BLAST_WIDTH: 2}, # T2 Sword Cart
+    HeroInfo.LIU_BIAO: {ObjectAttribute.HIT_POINTS: 500, ObjectAttribute.ATTACK_RELOAD_TIME: 2}, # T2 Bow Cart
+    HeroInfo.TSAR_KONSTANTIN: {ObjectAttribute.HIT_POINTS: 750, ObjectAttribute.ATTACK_RELOAD_TIME: 1,
+                               MELEE_ARMOR: 8}, # T2 Axe Cart
+    HeroInfo.JEAN_DE_LORRAIN: {ObjectAttribute.HIT_POINTS: 200, ObjectAttribute.TOTAL_MISSILES: 10,
+                               ObjectAttribute.ATTACK_RELOAD_TIME: 3, ObjectAttribute.ATTACK_DISPERSION: 0.5,
+                               ObjectAttribute.ACCURACY_PERCENT: 10, ObjectAttribute.MAX_TOTAL_MISSILES: 10}, # T2 Gun Cart
+    HeroInfo.MINAMOTO: {ObjectAttribute.HIT_POINTS: 500, ObjectAttribute.ATTACK_RELOAD_TIME: 0.25,
+                        MELEE_ARMOR: 5, PIERCE_ARMOR: 5}, # T2 Sword Cape
+    HeroInfo.SU_DINGFANG: {ObjectAttribute.ATTACK_RELOAD_TIME: 1, ObjectAttribute.MAX_RANGE: 10}, # T2 Bow Cape
     HeroInfo.HARALD_HARDRADA: {ObjectAttribute.HIT_POINTS: 300, ObjectAttribute.ATTACK_RELOAD_TIME: 0.25,
-                               MELEE_ARMOR: 5, PIERCE_ARMOR: 5, }, # T2 Axe Cape
+                               MELEE_ARMOR: 5, PIERCE_ARMOR: 5}, # T2 Axe Cape
     HeroInfo.MUSTAFA_PASHA: {ObjectAttribute.HIT_POINTS: 300, ObjectAttribute.ATTACK_RELOAD_TIME: 1,
                              PIERCE_ARMOR: 2} # T2 Gun Cape
 }
 for player in players:
     setup_heroes = t_man.add_trigger(f'Setup Heroes p({player})')
+    for hero, attributes in heroes.items():
+        attributes[ObjectAttribute.REGENERATION_RATE] = 100
+        for attribute, value in attributes.items():
+            if isinstance(attribute, tuple):
+                setup_heroes.new_effect.modify_attribute(
+                    source_player=player, object_list_unit_id=hero.ID, object_attributes=attribute[0],
+                    operation=Operation.SET, armour_attack_class=attribute[1], armour_attack_quantity=value)
+            elif isinstance(value, str):
+                setup_heroes.new_effect.modify_attribute(
+                    source_player=player, object_list_unit_id=hero.ID, object_attributes=attribute,
+                    operation=Operation.SET, message=value)
+            else:
+                setup_heroes.new_effect.modify_attribute(
+                    source_player=player, object_list_unit_id=hero.ID, object_attributes=attribute,
+                    operation=Operation.SET, quantity=value)
 
 
 print(t_man.get_summary_as_string())
