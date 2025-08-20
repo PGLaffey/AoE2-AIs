@@ -25,6 +25,13 @@ xs_manager.xs_check.ignores.add('NoNumPromo')
 xs_manager.initialise_xs_trigger(insert_index=0)
 xs_manager.add_script(xs_file_path='../xs/defend.xs', validate=True)
 
+
+trigger_data = scenario.actions.load_data_triggers()
+trigger_objects = trigger_data.objects
+
+ATTACK_CASTLES = [trigger_objects.P4CASTLE, trigger_objects.P5CASTLE, trigger_objects.P6CASTLE, trigger_objects.P7CASTLE]
+
+
 players = [PlayerId.ONE.value, PlayerId.TWO.value, PlayerId.THREE.value]
 
 for player in players:
@@ -220,6 +227,20 @@ for player in players:
                 setup_heroes.new_effect.modify_attribute(
                     source_player=player, object_list_unit_id=hero.ID, object_attributes=attribute,
                     operation=Operation.SET, quantity=value)
+
+TRIGGER_EVENT_VAR_ID = 10
+EVENT_NUMBER_LIST = [
+    'Zero Index',
+    'Neutral Event - Wolves',
+    'Attack Event - Flaming Camels'
+]
+
+# Attack Event - Flaming Camels
+event_flaming_camels = t_man.add_trigger(f'Attack Event - Flaming Camels', looping=True)
+event_flaming_camels.new_condition.variable_value(variable=TRIGGER_EVENT_VAR_ID, comparison=Comparison.EQUAL,
+                                                  quantity=EVENT_NUMBER_LIST.index(event_flaming_camels.name))
+event_flaming_camels.new_effect.change_variable(variable=TRIGGER_EVENT_VAR_ID, operation=Operation.SET,
+                                                quantity=0)
 
 
 print(t_man.get_summary_as_string())
