@@ -233,23 +233,19 @@ void research_defend_tech(int list = 0, int status_list = 0, int description_lis
     int i = xsGetRandomNumberMax(xsArrayGetSize(list));
     if (check_research_status(status_list, i, player)) {
         xsResearchTechnology(xsArrayGetInt(list, i), true, false, player);
-        string colour = "";
         int status_binary = 0;
         switch(player) {
             case 1 : {
-                colour = "<blue>";
                 status_binary = 1;
             }
             case 2 : {
-                colour = "<red>";
                 status_binary = 2;
             }
             default : {
-                colour = "<green>";
                 status_binary = 4;
             }
         }
-        xsChatData(colour + "Player " + player + " Researched " + xsArrayGetString(description_list, i));
+        xsChatData("Player " + player + " Researched " + xsArrayGetString(description_list, i));
         xsArraySetInt(status_list, i, xsArrayGetInt(status_list, i) + status_binary);
     } else {
         xsChatData("Player " + player + " Already Researched " + xsArrayGetString(description_list, i) + " Retrying");

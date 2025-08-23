@@ -1,6 +1,6 @@
 ; --- Timers ---
-(defconst ATTACK_TIME 30)
-(defconst RETREAT_TIME 120)
+(defconst ATTACK_TIME 300)
+(defconst RETREAT_TIME 180)
 (defconst TIMER_ATTACK 1)
 (defconst TIMER_RETREAT 3)
 ; (defconst TIMER_POP_LIMIT 2)
@@ -45,6 +45,8 @@
 
 ; ===== Event IDs =====
 (defconst e-decrease-pop 1)
+(defconst e-force-attack 2)
+(defconst e-force-retreat 3)
 
 ; ===== Civ Constants =====
 (defconst ACHAEMENIDS 46)
@@ -157,6 +159,7 @@
     (up-chat-data-to-all "New difficulty is %d percent" g: g-difficulty-modifier)
 )
 
+
 ; ===== Event Trigger ======
 (defrule ; Change phase 
     (game-time >= 6120)
@@ -176,30 +179,54 @@
     (up-modify-goal g-pop-cap c:- 50)
 )
 
+(defrule ; Force Attack
+    (event-detected trigger e-force-attack)
+    =>
+    (acknowledge-event trigger e-force-attack)
+    (disable-timer TIMER_RETREAT)
+    (disable-timer TIMER_ATTACK)
+    (up-set-timer c: TIMER_ATTACK c: 1)
+)
+
+(defrule ; Force Retreat
+    (event-detected trigger e-force-retreat)
+    =>
+    (acknowledge-event trigger e-force-retreat)
+    (disable-timer TIMER_RETREAT)
+    (disable-timer TIMER_ATTACK)
+    (up-set-timer c: TIMER_RETREAT c: 1)
+)
+
 
 ; ===== Attack Logic: Attack then Retreat =====
 (defrule ; Retreat
     (timer-triggered TIMER_RETREAT)
     =>
     (disable-timer TIMER_RETREAT)
-    (set-strategic-number sn-number-attack-groups 0)
-    (set-strategic-number sn-percent-attack-soldiers 0)
+    (set-strategic-number sn-target-player-number -1)
+    ; (set-strategic-number sn-number-attack-groups 0)
+    ; (set-strategic-number sn-percent-attack-soldiers 0)
+    (up-reset-unit c: -1)
+    (up-reset-attack-now)
+    (up-update-targets)
+    (up-retreat-now)
     (generate-random-number RETREAT_TIME)
     (up-get-fact random-number 0 g-retreat-time)
     (up-modify-goal g-retreat-time c:+ RETREAT_TIME)
-    ; (up-chat-data-to-all "Retreating for %d seconds" g: g-retreat-time)
+    (up-chat-data-to-all "Retreating for %d seconds" g: g-retreat-time)
     (up-set-timer c: TIMER_ATTACK g: g-retreat-time)
 )
 (defrule ; Attack
     (timer-triggered TIMER_ATTACK)
     =>
     (disable-timer TIMER_ATTACK)
+    (set-strategic-number sn-target-player-number 0)
     (set-strategic-number sn-number-attack-groups 500)
     (set-strategic-number sn-percent-attack-soldiers 100)
     (generate-random-number ATTACK_TIME)
     (up-get-fact random-number 0 g-attack-time)
     (up-modify-goal g-attack-time c:+ ATTACK_TIME)
-    ; (up-chat-data-to-all "Attacking for %d seconds" g: g-attack-time)
+    (up-chat-data-to-all "Attacking for %d seconds" g: g-attack-time)
     (up-set-timer c: TIMER_RETREAT g: g-attack-time)
 )
 
@@ -210,7 +237,7 @@
     => 
     (up-modify-goal g-pop-cap g:* g-pop-cap-multiplier)
     (up-modify-goal g-pop-cap c:/ 100)
-    (up-chat-data-to-all "New pop cap %d" g: g-pop-cap)
+    ; (up-chat-data-to-all "New pop cap %d" g: g-pop-cap)
 
     (up-modify-goal g-max-barracks-units g:= g-max-barracks-units-perc)
     (up-modify-goal g-max-barracks-units g:* g-pop-cap)

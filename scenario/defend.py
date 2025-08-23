@@ -1,3 +1,5 @@
+import shutil
+
 from AoE2ScenarioParser.datasets.buildings import BuildingInfo
 from AoE2ScenarioParser.datasets.other import OtherInfo
 from AoE2ScenarioParser.datasets.players import PlayerId
@@ -33,6 +35,11 @@ ATTACK_CASTLES = [trigger_objects.P4CASTLE, trigger_objects.P5CASTLE, trigger_ob
 
 attacker_ais = [PlayerId.FOUR.value, PlayerId.FIVE.value, PlayerId.SIX.value, PlayerId.SEVEN.value]
 players = [PlayerId.ONE.value, PlayerId.TWO.value, PlayerId.THREE.value]
+
+class AIScriptGoals:
+    ATTACK = 2
+    DEFEND = 3
+
 
 for player in players:
     # Reset Hero Tree
@@ -162,7 +169,7 @@ for player in players:
         la_hire_voice_trigger.new_condition.timer(20)
         la_hire_voice_trigger.new_condition.variable_value(variable=la_hire_voiceline_var.variable_id,
                                                            comparison=Comparison.EQUAL, quantity=voiceline_i)
-        la_hire_voice_trigger.new_effect.display_instructions(source_player=player, display_time=10, message='La Hire',
+        la_hire_voice_trigger.new_effect.display_instructions(source_player=player, display_time=10,
                                                               sound_name=la_hire_voicelines[voiceline_i])
         # la_hire_voice_trigger.new_effect.activate_trigger(la_hire_roll_voice_trigger.trigger_id)
         #
@@ -247,22 +254,46 @@ EVENT_NUMBER_LIST = [
     'Attack Event - Flaming Camels'
 ]
 
+# # TODO Remove
+# TEST = t_man.add_trigger(f'TEST')
+# TEST.new_condition.timer(10)
+# TEST.new_effect.change_variable(variable=TRIGGER_EVENT_VAR_ID, operation=Operation.SET, quantity=2)
+
+
 # Attack Event - Flaming Camels
-event_flaming_camels = t_man.add_trigger(f'Attack Event - Flaming Camels', looping=True)
+event_flaming_camels = t_man.add_trigger(f'Attack Event - Flaming Camels')
 event_flaming_camels.new_condition.variable_value(variable=TRIGGER_EVENT_VAR_ID, comparison=Comparison.EQUAL,
                                                   quantity=EVENT_NUMBER_LIST.index(event_flaming_camels.name))
 event_flaming_camels.new_effect.change_variable(variable=TRIGGER_EVENT_VAR_ID, operation=Operation.SET,
                                                 quantity=0)
+
+for player in players:
+    event_flaming_camels.new_effect.display_instructions(source_player=player, message='Send forth the flaming camels!',
+                                                         sound_name='Play_71213', display_time=5,
+                                                         object_list_unit_id=HeroInfo.TAMERLANE.ID)
 for ai in attacker_ais:
     castle = ATTACK_CASTLES[attacker_ais.index(ai)]
-    for i in range(33):
-        event_flaming_camels.new_effect.create_garrisoned_object(source_player=ai, object_list_unit_id=UnitInfo.FLAMING_CAMEL.ID,
-                                                                 object_list_unit_id_2=BuildingInfo.CASTLE.ID, max_units_affected=3)
+    event_flaming_camels.new_effect.modify_attribute(source_player=ai, object_list_unit_id=UnitInfo.FLAMING_CAMEL.ID,
+                                                     object_attributes=ObjectAttribute.UNIT_SIZE_Z,
+                                                     operation=Operation.SET, quantity=0)
+    for j in range(5):
+        for i in range(20):
+            event_flaming_camels.new_effect.create_garrisoned_object(source_player=ai, object_list_unit_id=BuildingInfo.CASTLE.ID,
+                                                                     object_list_unit_id_2=UnitInfo.FLAMING_CAMEL.ID)
         event_flaming_camels.new_effect.task_object(source_player=ai, object_list_unit_id=BuildingInfo.CASTLE.ID,
                                                     action_type=ActionType.UNGARRISON)
+    event_flaming_camels.new_effect.modify_attribute(source_player=ai, object_list_unit_id=UnitInfo.FLAMING_CAMEL.ID,
+                                                     object_attributes=ObjectAttribute.UNIT_SIZE_Z,
+                                                     operation=Operation.SET, quantity=1)
+event_flaming_camels.new_effect.ai_script_goal(AIScriptGoals.ATTACK)
+event_flaming_camels.new_effect.activate_trigger(event_flaming_camels.trigger_id)
 
 
 print(t_man.get_summary_as_string())
 q = input('Save?')
 if q.lower() == 'y' or q.lower() == 'yes':
     scenario.write_to_file(output_path)
+
+    ai_path = 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\AoE2DE\\resources\\_common\\ai'
+    shutil.copy('../ai/mydefend.per', f'{ai_path}\\mydefend.per')
+    shutil.copytree('../ai/mydefend', f'{ai_path}\\mydefend', dirs_exist_ok=True)
