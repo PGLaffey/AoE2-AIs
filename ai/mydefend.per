@@ -43,6 +43,22 @@
 (defconst s-creation-speed-increase 0)
 (defconst s-creation-speed-decrease 1)
 
+; P1 Bank
+(defconst s-bank-p1-food 100)
+(defconst s-bank-p1-wood 101)
+(defconst s-bank-p1-gold 102)
+(defconst s-bank-p1-stone 103)
+; P2 Bank
+(defconst s-bank-p2-food 104)
+(defconst s-bank-p2-wood 105)
+(defconst s-bank-p2-gold 106)
+(defconst s-bank-p2-stone 107)
+; P3 Bank
+(defconst s-bank-p3-food 108)
+(defconst s-bank-p3-wood 109)
+(defconst s-bank-p3-gold 110)
+(defconst s-bank-p3-stone 111)
+
 ; ===== Event IDs =====
 (defconst e-decrease-pop 1)
 (defconst e-force-attack 2)
@@ -119,6 +135,83 @@
     =>
     (set-strategic-number sn-target-player-number 0)  
     (disable-self)  
+)
+
+; ===== Player Chat Triggers =====
+; ----- p1 Cashin Bank -----
+(defrule ; Food
+    (taunt-detected 1 3)
+    => 
+    (acknowledge-taunt 1 3)
+    (fe-set-signal c: s-bank-p1-food c: 1)
+)
+(defrule ; Food
+    (taunt-detected 1 4)
+    => 
+    (acknowledge-taunt 1 4)
+    (fe-set-signal c: s-bank-p1-wood c: 1)
+)
+(defrule ; Food
+    (taunt-detected 1 5)
+    => 
+    (acknowledge-taunt 1 5)
+    (fe-set-signal c: s-bank-p1-gold c: 1)
+)
+(defrule ; Food
+    (taunt-detected 1 6)
+    => 
+    (acknowledge-taunt 1 6)
+    (fe-set-signal c: s-bank-p1-stone c: 1)
+)
+; ----- p2 Cashin Bank -----
+(defrule ; Food
+    (taunt-detected 2 3)
+    =>
+    (acknowledge-taunt 2 3)
+    (fe-set-signal c: s-bank-p2-food c: 1)
+)
+(defrule ; Wood
+    (taunt-detected 2 4)
+    =>
+    (acknowledge-taunt 2 4)
+    (fe-set-signal c: s-bank-p2-wood c: 1)
+)
+(defrule ; Gold
+    (taunt-detected 2 5)
+    =>
+    (acknowledge-taunt 2 5)
+    (fe-set-signal c: s-bank-p2-gold c: 1)
+)
+(defrule ; Stone
+    (taunt-detected 2 6)
+    =>
+    (acknowledge-taunt 2 6)
+    (fe-set-signal c: s-bank-p2-stone c: 1)
+)
+; ----- p3 Cashin Bank -----
+(defrule ; Food
+    (taunt-detected 3 3)
+    =>
+    (acknowledge-taunt 3 3)
+    (fe-set-signal c: s-bank-p3-food c: 1)
+)
+(defrule ; Wood
+    (taunt-detected 3 4)
+    =>
+    (acknowledge-taunt 3 4)
+    (fe-set-signal c: s-bank-p3-wood c: 1)
+)
+(defrule ; Gold
+    (taunt-detected 3 5)
+    =>
+    (acknowledge-taunt 3 5)
+    (fe-set-signal c: s-bank-p3-gold c: 1)
+)
+(defrule ; Stone
+    (taunt-detected 3 6)
+    =>
+    (acknowledge-taunt 3 6)
+    (fe-set-signal c: s-bank-p3-stone c: 1)
 )
 
 ; ----- Difficulty Mutliplier ----- 

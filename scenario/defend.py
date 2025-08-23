@@ -289,6 +289,45 @@ event_flaming_camels.new_effect.ai_script_goal(AIScriptGoals.ATTACK)
 event_flaming_camels.new_effect.activate_trigger(event_flaming_camels.trigger_id)
 
 
+
+# Vil pop space
+vil_pop_trigger = t_man.add_trigger(f'Set Villager Work Speed')
+for player in players:
+    for unit in UnitInfo.vils():
+        vil_pop_trigger.new_effect.modify_attribute(source_player=player, object_list_unit_id=unit.ID,
+                                                    object_attributes=ObjectAttribute.WORK_RATE,
+                                                    operation=Operation.MULTIPLY, quantity=1.25)
+
+# Show bank values
+display_bank = t_man.add_trigger(
+    f'Bank Instructions', display_on_screen=True,
+    short_description=f'\nGet $1 for each enemy killed. Use *3, *4, *5, or *6 to cash in')
+display_bank.new_condition.player_defeated(source_player=PlayerId.GAIA)
+
+# Cash-in Bank
+reses = [Attribute.FOOD_STORAGE, Attribute.WOOD_STORAGE, Attribute.GOLD_STORAGE, Attribute.STONE_STORAGE]
+base_signal_id = 100
+for player in players:
+    bank_amount_var = t_man.add_variable(name=f'Bank Amount (p{player})', variable_id=11 + player)
+    for i in range(len(reses)):
+        res = reses[i]
+        bank_trigger = t_man.add_trigger(f'Cash-in Bank - {res.name} (p{player}', looping=True)
+        signal_id = base_signal_id + ((player - 1) * len(reses)) + i
+        bank_trigger.new_condition.ai_signal_multiplayer(ai_signal=signal_id)
+        bank_trigger.new_effect.acknowledge_multiplayer_ai_signal(ai_signal_value=signal_id)
+        bank_trigger.new_effect.change_variable(variable=bank_amount_var.variable_id, operation=Operation.SET,
+                                                quantity=0)
+        for ai_kills in [Attribute.KILLED_P4, Attribute.KILLED_P5, Attribute.KILLED_P6, Attribute.KILLED_P7]:
+            bank_trigger.new_effect.modify_variable_by_resource(variable=bank_amount_var.variable_id,
+                                                                operation=Operation.ADD, source_player=player,
+                                                                tribute_list=ai_kills)
+            bank_trigger.new_effect.modify_resource(source_player=player, tribute_list=ai_kills,
+                                                    operation=Operation.SET, quantity=0)
+        bank_trigger.new_effect.display_instructions(source_player=player, message=f'<{bank_amount_var.name}> {res.name} added')
+        bank_trigger.new_effect.modify_resource_by_variable(source_player=player, tribute_list=res,
+                                                            operation=Operation.ADD, variable=bank_amount_var.variable_id)
+
+
 print(t_man.get_summary_as_string())
 q = input('Save?')
 if q.lower() == 'y' or q.lower() == 'yes':
