@@ -7,3 +7,5 @@ Make enemy upgrades more common
 Make more enemy Civs (random civs on each side)
 More hills (interesting environment)
 
+
+# TODO La Hire no voicelines in multiplayer

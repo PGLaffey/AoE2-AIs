@@ -5,7 +5,8 @@ from AoE2ScenarioParser.datasets.other import OtherInfo
 from AoE2ScenarioParser.datasets.players import PlayerId
 from AoE2ScenarioParser.datasets.heroes import HeroInfo
 from AoE2ScenarioParser.datasets.techs import TechInfo
-from AoE2ScenarioParser.datasets.trigger_lists import Comparison, Operation, ButtonLocation, ObjectAttribute, ActionType
+from AoE2ScenarioParser.datasets.trigger_lists import Comparison, Operation, ButtonLocation, ObjectAttribute, \
+    ActionType, ColorMood
 from AoE2ScenarioParser.datasets.units import UnitInfo
 from AoE2ScenarioParser.objects.data_objects.variable import Variable
 from AoE2ScenarioParser.objects.support.enums.group_by import GroupBy
@@ -35,6 +36,7 @@ ATTACK_CASTLES = [trigger_objects.P4CASTLE, trigger_objects.P5CASTLE, trigger_ob
 
 attacker_ais = [PlayerId.FOUR.value, PlayerId.FIVE.value, PlayerId.SIX.value, PlayerId.SEVEN.value]
 players = [PlayerId.ONE.value, PlayerId.TWO.value, PlayerId.THREE.value]
+player_colours = ['BLUE', 'RED', 'GREEN']
 
 class AIScriptGoals:
     ATTACK = 2
@@ -59,7 +61,7 @@ for player in players:
                                                             enabled=True)
 
     # Research Defense Tech
-    defense_tech_count = 10
+    defense_tech_count = 19
     defense_tech_trigger = t_man.add_trigger(f'Setup Defense Tech (p{player})')
     defense_tech_trigger.new_effect.change_technology_location(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_11.ID,
                                                                object_list_unit_id_2=BuildingInfo.HALL_OF_HEROES.ID,
@@ -86,7 +88,7 @@ for player in players:
 
 
     # Research Unit Tech
-    unit_tech_count = 10
+    unit_tech_count = 55
     unit_tech_trigger = t_man.add_trigger(f'Setup unit Tech (p{player})')
     unit_tech_trigger.new_effect.change_technology_location(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_12.ID,
                                                                object_list_unit_id_2=BuildingInfo.HALL_OF_HEROES.ID,
@@ -114,7 +116,7 @@ for player in players:
     do_unit_tech_trigger.new_effect.script_call(message=f'p{player}_research_defend_unit_tech();')
 
     # Research Eco Tech
-    eco_tech_count = 10
+    eco_tech_count = 13
     eco_tech_trigger = t_man.add_trigger(f'Setup Eco Tech (p{player})')
     eco_tech_trigger.new_effect.change_technology_location(source_player=player, technology=TechInfo.BLANK_TECHNOLOGY_13.ID,
                                                                object_list_unit_id_2=BuildingInfo.HALL_OF_HEROES.ID,
@@ -142,19 +144,13 @@ for player in players:
     do_eco_tech_trigger.new_effect.script_call(message=f'p{player}_research_defend_eco_tech();')
 
 # La Hire Voicelines
-# Play_j6g
-# La Hire's sword is not bloody enough.
-# Play_j6i
-# It is a good day for La Hire to die!
-# Play_j3j
-# Do your worst, you English fop!
-# Play_j3h
-# The blood on La Hire's sword is almost dry.
-# Play_j3i
-# Them English can't make a castle stronger than La Hire!
-# Play_j3m
-# La Hire wishes to kill something.
-la_hire_voicelines = ['Play_j6g', 'Play_j6i', 'Play_j3j', 'Play_j3h', 'Play_j3i', 'Play_j3m']
+la_hire_voicelines = {'Play_j6g': "La Hire's sword is not bloody enough.",
+                      'Play_j6i': "It is a good day for La Hire to die!",
+                      'Play_j3j': "Do your worst, you English fop!",
+                      'Play_j3h': "The blood on La Hire's sword is almost dry.",
+                      'Play_j3i': "Them English can't make a castle stronger than La Hire!",
+                      'Play_j3m': "La Hire wishes to kill something."
+                      }
 for player in players:
     la_hire_voiceline_var = t_man.add_variable(f'La Hire Voiceline (p{player})', 20 + player)
     la_hire_roll_voice_trigger = t_man.add_trigger(f'La Hire Roll Voiceline (p{player})', looping=True)
@@ -162,15 +158,17 @@ for player in players:
     la_hire_roll_voice_trigger.new_condition.own_objects(source_player=player, object_list=HeroInfo.LA_HIRE.ID,
                                                          quantity=1)
     la_hire_roll_voice_trigger.new_effect.script_call(message=f'la_hire_roll_voiceline_p{player}();')
-    for voiceline_i in range(len(la_hire_voicelines)):
+    for voiceline_i in range(len(la_hire_voicelines.keys())):
+        voiceline = list(la_hire_voicelines.keys())[voiceline_i]
         la_hire_voice_trigger = t_man.add_trigger(f'La Hire Voiceline {voiceline_i + 1} (p{player})', enabled=False)
         la_hire_voice_trigger.new_condition.own_objects(source_player=player, object_list=HeroInfo.LA_HIRE.ID,
                                                         quantity=1)
-        la_hire_voice_trigger.new_condition.timer(20)
+        la_hire_voice_trigger.new_condition.timer(30)
         la_hire_voice_trigger.new_condition.variable_value(variable=la_hire_voiceline_var.variable_id,
                                                            comparison=Comparison.EQUAL, quantity=voiceline_i)
         la_hire_voice_trigger.new_effect.display_instructions(source_player=player, display_time=10,
-                                                              sound_name=la_hire_voicelines[voiceline_i])
+                                                              sound_name=voiceline, object_list_unit_id=HeroInfo.LA_HIRE.ID,
+                                                              message=f'<{player_colours[player-1]}>{la_hire_voicelines[voiceline]}')
         # la_hire_voice_trigger.new_effect.activate_trigger(la_hire_roll_voice_trigger.trigger_id)
         #
         la_hire_roll_voice_trigger.new_effect.activate_trigger(la_hire_voice_trigger.trigger_id)
@@ -251,7 +249,13 @@ TRIGGER_EVENT_VAR_ID = 10
 EVENT_NUMBER_LIST = [
     'Zero Index',
     'Neutral Event - Wolves',
-    'Attack Event - Flaming Camels'
+    'Attack Event - Flaming Camels',
+    'Neutral Event - Set Mood DEFAULT',
+    'Neutral Event - Set Mood WINTER',
+    'Neutral Event - Set Mood DARKNESS',
+    'Neutral Event - Set Mood MISTY',
+    'Neutral Event - Set Mood MURKY',
+    'Neutral Event - Set Mood SPRING'
 ]
 
 # # TODO Remove
@@ -261,7 +265,8 @@ EVENT_NUMBER_LIST = [
 
 
 # Attack Event - Flaming Camels
-event_flaming_camels = t_man.add_trigger(f'Attack Event - Flaming Camels')
+event_flaming_camels = t_man.add_trigger(f'Attack Event - Flaming Camels', looping=True)
+event_flaming_camels.new_condition.timer(timer=1200)
 event_flaming_camels.new_condition.variable_value(variable=TRIGGER_EVENT_VAR_ID, comparison=Comparison.EQUAL,
                                                   quantity=EVENT_NUMBER_LIST.index(event_flaming_camels.name))
 event_flaming_camels.new_effect.change_variable(variable=TRIGGER_EVENT_VAR_ID, operation=Operation.SET,
@@ -288,7 +293,13 @@ for ai in attacker_ais:
 event_flaming_camels.new_effect.ai_script_goal(AIScriptGoals.ATTACK)
 event_flaming_camels.new_effect.activate_trigger(event_flaming_camels.trigger_id)
 
-
+# Neutral Event - Colour Mood
+for mood in [ColorMood.DEFAULT, ColorMood.WINTER, ColorMood.DARKNESS, ColorMood.MISTY, ColorMood.MURKY, ColorMood.SPRING]:
+    event_mood_trigger = t_man.add_trigger(f'Neutral Event - Set Mood {mood.name}', looping=True)
+    event_mood_trigger.new_condition.variable_value(variable=TRIGGER_EVENT_VAR_ID, comparison=Comparison.EQUAL,
+                                                    quantity=EVENT_NUMBER_LIST.index(event_mood_trigger.name))
+    event_mood_trigger.new_effect.change_variable(variable=TRIGGER_EVENT_VAR_ID, operation=Operation.SET, quantity=0)
+    event_mood_trigger.new_effect.change_color_mood(color_mood=mood, quantity=1)
 
 # Vil pop space
 vil_pop_trigger = t_man.add_trigger(f'Set Villager Work Speed')
@@ -327,6 +338,14 @@ for player in players:
         bank_trigger.new_effect.modify_resource_by_variable(source_player=player, tribute_list=res,
                                                             operation=Operation.ADD, variable=bank_amount_var.variable_id)
 
+
+# Disable Destroying Hut A
+gaia_hut_a_trigger = t_man.add_trigger(f'Gaia Hut A')
+gaia_hut_a_trigger.new_effect.disable_unit_attackable(source_player=PlayerId.GAIA, object_list_unit_id=BuildingInfo.HUT_A.ID)
+gaia_hut_a_trigger.new_effect.disable_object_selection(source_player=PlayerId.GAIA, object_list_unit_id=BuildingInfo.HUT_A.ID)
+gaia_hut_a_trigger.new_effect.change_object_hp(source_player=PlayerId.GAIA, object_list_unit_id=BuildingInfo.HUT_A.ID,
+                                               operation=Operation.ADD, quantity=10000)
+# TODO Create Quary that allows you to purchase stone piles
 
 print(t_man.get_summary_as_string())
 q = input('Save?')
