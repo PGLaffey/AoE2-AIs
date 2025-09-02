@@ -7,8 +7,8 @@ from AoE2ScenarioParser.datasets.trigger_lists import ObjectType, ObjectClass, O
 from AoE2ScenarioParser.datasets.units import UnitInfo
 from AoE2ScenarioParser.scenarios.aoe2_de_scenario import AoE2DEScenario
 
-scenario_folder = 'C:/Users/plaff/Games/Age of Empires 2 DE/76561198138036391/resources/_common/scenario'
-# scenario_folder = 'C:/Users/User/Games/Age of Empires 2 DE/76561198138036391/resources/_common/scenario'
+# scenario_folder = 'C:/Users/plaff/Games/Age of Empires 2 DE/76561198138036391/resources/_common/scenario'
+scenario_folder = 'C:/Users/User/Games/Age of Empires 2 DE/76561198138036391/resources/_common/scenario'
 input_path = f'{scenario_folder}/test.aoe2scenario'
 output_path = f'{scenario_folder}/test - python.aoe2scenario'
 
