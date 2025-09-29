@@ -1,0 +1,89 @@
+; ===== Goal IDs =====
+(defconst g-flare-x 100)
+(defconst g-flare-y 101)
+(defconst g-state-1 102)
+(defconst g-state-2 103)
+(defconst g-state-3 104)
+(defconst g-state-4 105)
+
+(defconst g-respond-message 1)
+(defconst g-stance 2) 
+(defconst g-ally 3)
+
+; ===== Event IDs (trigger Set AI Goal) =====
+
+; ===== Timer IDs =====
+(defconst t-respond-message 1)
+(defconst t-flare-timeout 2)
+(defconst t-delayed-stance 3)
+(defconst t-move-to-flare 4)
+
+; ===== Constants =====
+(defconst c-all-units-class -1)
+(defconst c-attack-now 31)
+(defconst c-retreat-now 45)
+(defconst c-help-defend 48)
+(defconst attack-move 19)
+
+; Unit Consts
+(defconst c-cav-general 680)
+(defconst c-cav-arch-general 731)
+
+; Stance Consts
+(defconst c-stance-follow 1)
+
+; Group Consts
+(defconst c-cav-group 3)
+
+; ===== Init =====
+(defrule
+    (true)
+    =>
+    (set-strategic-number sn-attack-intelligence 1)
+    (set-strategic-number sn-enable-patrol-attack 1)
+    (set-strategic-number sn-percent-attack-soldiers 100)
+    (set-strategic-number sn-wall-targeting-mode 1)
+    (set-strategic-number sn-enable-training-queue 1)
+    (set-strategic-number sn-number-explore-groups 0)
+    (set-strategic-number sn-relic-return-distance 0)
+    (set-strategic-number sn-do-not-scale-for-difficulty-level 1)
+    (set-strategic-number sn-enable-training-queue 5)
+    (set-strategic-number sn-enable-research-queue 1)
+    (set-strategic-number sn-coop-share-attacking 1)
+    (set-strategic-number sn-filter-under-attack 0)
+    (set-strategic-number sn-gather-defense-units 1)
+
+    (set-difficulty-parameter ability-to-maintain-distance 100)
+    (set-difficulty-parameter ability-to-dodge-missiles 100)
+
+    (set-goal g-respond-message 0)
+    (up-find-player ally find-closest g-ally) 
+    (up-modify-sn sn-focus-player-number g:= g-ally)
+
+    (disable-self)
+)
+
+(defrule
+    (up-compare-goal g-stance c:== c-stance-follow)
+    => 
+    (up-find-remote c: c-cav-general c: 1)
+    (up-get-search-state g-state-1)
+)
+(defrule
+    (up-compare-goal g-stance c:== c-stance-follow)
+    (up-compare-goal g-state-3 c:>= 1)
+    =>
+    (up-filter-include cmdid-military -1 orderid-stop -1)
+    ; (up-filter-include cmdid-military -1 orderid-defend -1)
+    (up-filter-distance c: -1 c: 10)
+    (up-find-local c: cavalry-class c: 10)
+    (up-get-search-state g-state-1)
+)
+(defrule
+    (up-compare-goal g-stance c:== c-stance-follow)
+    (up-compare-goal g-state-3 c:>= 1)
+    (up-compare-goal g-state-1 c:>= 1)
+    =>
+    (up-modify-group-flag 1 c: c-cav-group)
+    
+)
