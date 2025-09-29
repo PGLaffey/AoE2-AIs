@@ -345,7 +345,89 @@ gaia_hut_a_trigger.new_effect.disable_unit_attackable(source_player=PlayerId.GAI
 gaia_hut_a_trigger.new_effect.disable_object_selection(source_player=PlayerId.GAIA, object_list_unit_id=BuildingInfo.HUT_A.ID)
 gaia_hut_a_trigger.new_effect.change_object_hp(source_player=PlayerId.GAIA, object_list_unit_id=BuildingInfo.HUT_A.ID,
                                                operation=Operation.ADD, quantity=10000)
+
+
 # TODO Create Quary that allows you to purchase stone piles
+resource_trigger = t_man.add_trigger(f'Resource Trigger', enabled=False, looping=True)
+
+for player in players:
+    resource_trigger.new_effect.change_ownership(source_player=player, target_player=PlayerId.GAIA,
+                                                 object_list_unit_id=UnitInfo.CHICKEN_A.ID)
+    resource_trigger.new_effect.replace_object(source_player=PlayerId.GAIA, object_list_unit_id=UnitInfo.CHICKEN_A.ID,
+                                               target_player=PlayerId.GAIA, object_list_unit_id_2=OtherInfo.TREE_BAOBAB.ID)
+    resource_trigger.new_effect.change_ownership(source_player=player, target_player=PlayerId.GAIA,
+                                                 object_list_unit_id=UnitInfo.CHICKEN_B.ID)
+    resource_trigger.new_effect.replace_object(source_player=PlayerId.GAIA, object_list_unit_id=UnitInfo.CHICKEN_B.ID,
+                                               target_player=PlayerId.GAIA, object_list_unit_id_2=OtherInfo.GOLD_MINE.ID)
+    resource_trigger.new_effect.change_ownership(source_player=player, target_player=PlayerId.GAIA,
+                                                 object_list_unit_id=UnitInfo.CHICKEN_C.ID)
+    resource_trigger.new_effect.replace_object(source_player=PlayerId.GAIA, object_list_unit_id=UnitInfo.CHICKEN_C.ID,
+                                               target_player=PlayerId.GAIA, object_list_unit_id_2=OtherInfo.STONE_MINE.ID)
+
+    donkey_trigger = t_man.add_trigger(f'Donkey Setup (P{player})')
+    donkey_trigger.new_condition.research_technology(source_player=player, technology=TechInfo.IMPERIAL_AGE.ID)
+    donkey_trigger.new_effect.send_chat(source_player=player, message=f'Activate Donkey')
+    donkey_trigger.new_effect.change_train_location(source_player=player, object_list_unit_id=UnitInfo.DONKEY.ID,
+                                                    object_list_unit_id_2=BuildingInfo.TOWN_CENTER.ID, button_location=ButtonLocation.r3c1)
+    donkey_trigger.new_effect.change_object_cost(source_player=player, object_list_unit_id=UnitInfo.DONKEY.ID,
+                                                 resource_1=Attribute.FOOD_STORAGE, resource_1_quantity=500,
+                                                 resource_2=Attribute.WOOD_STORAGE, resource_2_quantity=500)
+    donkey_trigger.new_effect.change_object_description(source_player=player, object_list_unit_id=UnitInfo.DONKEY.ID,
+                                                        message='<cost> Resource Donkey')
+    donkey_trigger.new_effect.enable_disable_object(source_player=player, object_list_unit_id=UnitInfo.DONKEY.ID,
+                                                    enabled=True)
+
+    donkey_trigger.new_effect.modify_attribute(source_player=player, object_list_unit_id=BuildingInfo.CARAVANSERAI.ID,
+                                               object_attributes=ObjectAttribute.UNIT_SIZE_Z, operation=Operation.SET,
+                                               quantity=0)
+    donkey_trigger.new_effect.enable_disable_object(source_player=player,
+                                                    object_list_unit_id=BuildingInfo.CARAVANSERAI.ID,
+                                                    enabled=False)
+    donkey_trigger.new_effect.enable_disable_object(source_player=player, object_list_unit_id=BuildingInfo.CARAVANSERAI.ID,
+                                                    enabled=True)
+    # Flag A = Wood
+    donkey_trigger.new_effect.change_train_location(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_A.ID,
+                                                    object_list_unit_id_2=BuildingInfo.CARAVANSERAI.ID, button_location=ButtonLocation.r1c1)
+    donkey_trigger.new_effect.change_object_icon(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_A.ID,
+                                                 object_list_unit_id_2=UnitInfo.VILLAGER_MALE_LUMBERJACK.ID)
+    donkey_trigger.new_effect.change_object_cost(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_A.ID,
+                                                 resource_1=Attribute.FOOD_STORAGE, resource_1_quantity=100)
+    donkey_trigger.new_effect.change_object_name(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_A.ID,
+                                                 message="Tree")
+    donkey_trigger.new_effect.change_object_description(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_A.ID,
+                                                        message='<cost> Tree')
+    donkey_trigger.new_effect.enable_disable_object(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_A.ID,
+                                                    enabled=True)
+    # Flag B = Gold
+    donkey_trigger.new_effect.change_train_location(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_B.ID,
+                                                    object_list_unit_id_2=BuildingInfo.CARAVANSERAI.ID,
+                                                    button_location=ButtonLocation.r1c2)
+    donkey_trigger.new_effect.change_object_icon(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_B.ID,
+                                                 object_list_unit_id_2=UnitInfo.VILLAGER_MALE_GOLD_MINER.ID)
+    donkey_trigger.new_effect.change_object_cost(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_B.ID,
+                                                 resource_1=Attribute.WOOD_STORAGE, resource_1_quantity=1000)
+    donkey_trigger.new_effect.change_object_name(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_B.ID,
+                                                 message="Gold Mine")
+    donkey_trigger.new_effect.change_object_description(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_B.ID,
+                                                        message='<cost> Gold Mine')
+    donkey_trigger.new_effect.enable_disable_object(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_B.ID,
+                                                    enabled=True)
+    # Flag C = Stone
+    donkey_trigger.new_effect.change_train_location(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_C.ID,
+                                                    object_list_unit_id_2=BuildingInfo.CARAVANSERAI.ID,
+                                                    button_location=ButtonLocation.r1c3)
+    donkey_trigger.new_effect.change_object_icon(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_C.ID,
+                                                 object_list_unit_id_2=UnitInfo.VILLAGER_MALE_STONE_MINER.ID)
+    donkey_trigger.new_effect.change_object_cost(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_C.ID,
+                                                 resource_1=Attribute.WOOD_STORAGE, resource_1_quantity=1000)
+    donkey_trigger.new_effect.change_object_name(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_C.ID,
+                                                 message="Stone Mine")
+    donkey_trigger.new_effect.change_object_description(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_C.ID,
+                                                        message='<cost> Stone Mine')
+    donkey_trigger.new_effect.enable_disable_object(source_player=player, object_list_unit_id=UnitInfo.CHICKEN_C.ID,
+                                                    enabled=True)
+
+    donkey_trigger.new_effect.activate_trigger(resource_trigger.trigger_id)
 
 print(t_man.get_summary_as_string())
 q = input('Save?')

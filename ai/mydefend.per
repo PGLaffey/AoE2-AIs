@@ -94,7 +94,8 @@
     ; (set-goal g-pop-cap 2)
     (set-goal g-pop-cap 10)
     ; (set-goal g-pop-cap-multiplier 132)
-    (set-goal g-pop-cap-multiplier 122)
+    ; (set-goal g-pop-cap-multiplier 122)
+    (set-goal g-pop-cap-multiplier 130)
     (set-goal g-difficulty-modifier 100)
 
     (enable-timer TIMER_RETREAT 0)
@@ -397,6 +398,8 @@
     (research ri-arson)
     (research ri-bloodlines)
     (research ri-conscription)
+    (up-modify-goal g-pop-cap c:* 100)
+    (up-modify-goal g-pop-cap c:/ 150)
     (disable-self)
 )
 
@@ -414,7 +417,8 @@
     (research ri-eagle-warrior)
     (research ri-light-cavalry)
     (research ri-husbandry)
-    
+    (up-modify-goal g-pop-cap c:* 100)
+    (up-modify-goal g-pop-cap c:/ 150)
     (disable-self)
 )
 
@@ -438,6 +442,8 @@
     (research my-unique-unit-upgrade)
     (research my-second-unique-research)
     (research 457) ; Perfusion for Goths
+    (up-modify-goal g-pop-cap c:* 100)
+    (up-modify-goal g-pop-cap c:/ 150)
     (disable-self)
 )
 (defrule
