@@ -9,10 +9,14 @@
 (defconst g-point-x 106)
 (defconst g-point-y 107)
 
+(defconst g-local-iterator 108)
+(defconst g-remote-iterator 109)
+
+(defconst g-general-iterator 110)
+(defconst g-general-class 111)
+(defconst g-swap-general 112)
+
 (defconst g-respond-message 1)
-(defconst g-iterator 110)
-(defconst g-generals-count 111)
-(defconst g-cavalry-count 112)
 
 (defconst g-stance 2) 
 (defconst g-ally 3)
@@ -33,8 +37,10 @@
 (defconst attack-move 19)
 
 ; Unit Consts
-(defconst c-cav-general 680)
-(defconst c-cav-arch-general 731)
+(defconst c-inf-general 432) ; William Wallace
+(defconst c-arch-general 200) ; Robin Hood
+(defconst c-cav-general 680) ; Master of the Templars
+(defconst c-cav-arch-general 731) ; Gengis Khan
 
 ; Stance Consts
 (defconst c-stance-follow 1)
@@ -72,48 +78,104 @@
     (up-find-player ally find-closest g-ally) 
     (up-modify-sn sn-focus-player-number g:= g-ally)
 
+    (set-goal g-swap-general 1)
+    (set-goal g-general-iterator c-cav-arch-general)
+
     (disable-self)
 )
 
+; ===== Follow General Reset =====
 (defrule
     (up-compare-goal g-stance c:== c-stance-follow)
-    (up-group-size c: 1 c:== 0)
-    => 
+    (up-compare-goal g-state-3 g:== g-remote-iterator)
+    =>
     (up-full-reset-search)
-    (up-find-remote c: c-cav-general c: 1)
-    (up-get-search-state g-state-1)
-    (up-set-group search-remote c: 1)
+    (set-goal g-remote-iterator 0)
+    (set-goal g-swap-general 1)
 )
 (defrule
-    (up-compare-goal g-stance c:== c-stance-follow)
-    (up-compare-goal g-state-3 c:>= 1)
-    (up-group-size c: 1 c:> 0)
+    (goal g-stance c-stance-follow)
+    (goal g-swap-general 1)
+    (up-compare-goal g-general-iterator c:== c-cav-arch-general)
     =>
-    (up-set-target-object search-remote c: 0)
-    (up-get-point position-object g-point-x)
-    (up-set-target-point g-point-x)
-    ; (up-filter-include cmdid-military -1 orderid-stop -1)
-    ; (up-filter-exclude cmdid-military -1 orderid-defend -1)
-    (up-filter-distance c: -1 c: 10)
-    (up-find-local c: cavalry-class c: 60)
-    ; Remove non-idle
-    ; (up-remove-objects search-local object-data-hitpoints < 20)
-    (up-remove-objects search-local object-data-idling c:== 0) 
-    ; (up-remove-objects search-local object-data-group-flag c:== c-cav-group)
-    (up-get-search-state g-state-1)
+    (set-goal g-general-iterator c-inf-general)
+    (set-goal g-general-class infantry-class)
+    (set-goal g-swap-general 0)
 )
 (defrule
-    (up-compare-goal g-stance c:== c-stance-follow)
-    (up-compare-goal g-state-3 c:>= 1)
-    (up-compare-goal g-state-1 c:>= 1)
+    (goal g-stance c-stance-follow)
+    (goal g-swap-general 1)
+    (up-compare-goal g-general-iterator c:== c-inf-general)
     =>
-    (up-chat-data-to-player any-human-ally "Found %d Units to Guard" g: g-state-1)
-    (up-set-target-object search-remote c: 0)
-    (up-target-objects 1 action-guard formation-stagger stance-defensive)
-    ; (up-set-group search-local c: c-cav-group)
-    ; (up-modify-group-flag 1 c: c-cav-group)
+    (set-goal g-general-iterator c-arch-general)
+    (set-goal g-general-class archery-class)
+    (set-goal g-swap-general 0)
+)
+(defrule
+    (goal g-stance c-stance-follow)
+    (goal g-swap-general 1)
+    (up-compare-goal g-general-iterator c:== c-arch-general)
+    =>
+    (set-goal g-general-iterator c-cav-general)
+    (set-goal g-general-class cavalry-class)
+    (set-goal g-swap-general 0)
+)
+(defrule
+    (goal g-stance c-stance-follow)
+    (goal g-swap-general 1)
+    (up-compare-goal g-general-iterator c:== c-cav-general)
+    =>
+    (set-goal g-general-iterator c-cav-arch-general)
+    (set-goal g-general-class cavalry-archer-class)
+    (set-goal g-swap-general 0)
 )
 
+; ===== Follow General =====
+(defrule
+    (up-compare-goal g-stance c:== c-stance-follow)
+    (up-compare-goal g-remote-iterator c:<= 0)
+    => 
+    (up-find-remote g: g-general-iterator c: 10) 
+    (up-get-search-state g-state-1)
+)
+(defrule
+    (up-compare-goal g-stance c:== c-stance-follow)
+    (up-compare-goal g-state-3 c:> 0)
+    (up-compare-goal g-remote-iterator g:< g-state-3)
+    =>
+    ; Target the current general in the iteration
+    (up-set-target-object search-remote g: g-remote-iterator)
+    (up-get-point position-object g-point-x)
+
+    ; Find idle local units near the general
+    (up-set-target-point g-point-x)
+    (up-filter-distance c: -1 c: 10)
+    (up-find-local g: g-general-class c: 60)
+    (up-remove-objects search-local object-data-idling c:== 0) 
+    (up-get-search-state g-state-1)
+
+    ; If idle units are found, command them to guard
+    (up-set-target-object search-remote g: g-remote-iterator)
+    (up-target-objects 1 action-guard formation-stagger stance-defensive)
+
+    ; Move to the next general
+    (up-modify-goal g-remote-iterator c:+ 1)
+    (up-reset-search 1 1 0 0)
+)
+
+
+; (defrule
+;     (up-compare-goal g-stance c:== c-stance-follow)
+;     (up-compare-goal g-state-3 c:> 0)
+;     (up-compare-goal g-state-1 c:> 0)
+;     =>
+;     ; (up-chat-data-to-player any-human-ally "Found %d Units to Guard" g: g-state-1)
+;     (up-set-target-object search-remote g: g-remote-iterator)
+;     (up-target-objects 1 action-guard formation-stagger stance-defensive)
+; )
+
+
+; ===== OLD CODE - No Iterator =====
 ; (defrule
 ;     (up-compare-goal g-stance c:== c-stance-follow)
 ;     => 
