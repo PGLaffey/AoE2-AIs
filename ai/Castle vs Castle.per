@@ -10,6 +10,10 @@
 (defconst g-point-y 107)
 
 (defconst g-respond-message 1)
+(defconst g-iterator 110)
+(defconst g-generals-count 111)
+(defconst g-cavalry-count 112)
+
 (defconst g-stance 2) 
 (defconst g-ally 3)
 
@@ -73,21 +77,18 @@
 
 (defrule
     (up-compare-goal g-stance c:== c-stance-follow)
+    (up-group-size c: 1 c:== 0)
     => 
     (up-full-reset-search)
     (up-find-remote c: c-cav-general c: 1)
     (up-get-search-state g-state-1)
-    ; (up-chat-data-to-player any-human-ally "Search for General of P%d" g: g-ally)
-    ; (up-chat-data-to-player any-human-ally "State 1 %d" g: g-state-1)
-    ; (up-chat-data-to-player any-human-ally "State 2 %d" g: g-state-2)
-    ; (up-chat-data-to-player any-human-ally "State 3 %d" g: g-state-3)
-    ; (up-chat-data-to-player any-human-ally "State 4 %d" g: g-state-4)
+    (up-set-group search-remote c: 1)
 )
 (defrule
     (up-compare-goal g-stance c:== c-stance-follow)
     (up-compare-goal g-state-3 c:>= 1)
+    (up-group-size c: 1 c:> 0)
     =>
-    ; (up-chat-data-to-player any-human-ally "Found %d Generals, searching for Units" g: g-state-3)
     (up-set-target-object search-remote c: 0)
     (up-get-point position-object g-point-x)
     (up-set-target-point g-point-x)
@@ -112,3 +113,45 @@
     ; (up-set-group search-local c: c-cav-group)
     ; (up-modify-group-flag 1 c: c-cav-group)
 )
+
+; (defrule
+;     (up-compare-goal g-stance c:== c-stance-follow)
+;     => 
+;     (up-full-reset-search)
+;     (up-find-remote c: c-cav-general c: 1)
+;     (up-get-search-state g-state-1)
+;     ; (up-chat-data-to-player any-human-ally "Search for General of P%d" g: g-ally)
+;     ; (up-chat-data-to-player any-human-ally "State 1 %d" g: g-state-1)
+;     ; (up-chat-data-to-player any-human-ally "State 2 %d" g: g-state-2)
+;     ; (up-chat-data-to-player any-human-ally "State 3 %d" g: g-state-3)
+;     ; (up-chat-data-to-player any-human-ally "State 4 %d" g: g-state-4)
+; )
+; (defrule
+;     (up-compare-goal g-stance c:== c-stance-follow)
+;     (up-compare-goal g-state-3 c:>= 1)
+;     =>
+;     ; (up-chat-data-to-player any-human-ally "Found %d Generals, searching for Units" g: g-state-3)
+;     (up-set-target-object search-remote c: 0)
+;     (up-get-point position-object g-point-x)
+;     (up-set-target-point g-point-x)
+;     ; (up-filter-include cmdid-military -1 orderid-stop -1)
+;     ; (up-filter-exclude cmdid-military -1 orderid-defend -1)
+;     (up-filter-distance c: -1 c: 10)
+;     (up-find-local c: cavalry-class c: 60)
+;     ; Remove non-idle
+;     ; (up-remove-objects search-local object-data-hitpoints < 20)
+;     (up-remove-objects search-local object-data-idling c:== 0) 
+;     ; (up-remove-objects search-local object-data-group-flag c:== c-cav-group)
+;     (up-get-search-state g-state-1)
+; )
+; (defrule
+;     (up-compare-goal g-stance c:== c-stance-follow)
+;     (up-compare-goal g-state-3 c:>= 1)
+;     (up-compare-goal g-state-1 c:>= 1)
+;     =>
+;     (up-chat-data-to-player any-human-ally "Found %d Units to Guard" g: g-state-1)
+;     (up-set-target-object search-remote c: 0)
+;     (up-target-objects 1 action-guard formation-stagger stance-defensive)
+;     ; (up-set-group search-local c: c-cav-group)
+;     ; (up-modify-group-flag 1 c: c-cav-group)
+; )
