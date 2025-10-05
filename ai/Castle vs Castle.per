@@ -83,6 +83,9 @@
 (defconst t-flare-timeout 2)
 (defconst t-delayed-stance 3)
 (defconst t-move-to-flare 4)
+(defconst t-create-unit-1 5)
+(defconst t-create-unit-2 6)
+(defconst t-create-unit-3 7)
 
 ; ===== Constants =====
 (defconst c-all-units-class -1)
@@ -99,6 +102,8 @@
 
 ; Stance Consts
 (defconst c-stance-follow 1)
+(defconst c-stance-attack 2)
+(defconst c-stance-retreat 3)
 
 ; Group Consts
 (defconst c-cav-group 3)
@@ -138,10 +143,38 @@
 
     (load 'castle_vs_castle/default_units')
 
+    (enable-timer t-create-unit-1 1)
+    (enable-timer t-create-unit-2 2)
+    (enable-timer t-create-unit-3 3)
+
     (disable-self)
 )
 
-; ===== Follow General =====
+; Set stance follow
+(defrule
+    (taunt-detected any-human-ally 51)
+    =>
+    (set-goal g-stance c-stance-follow)
+)
+; Set stance attack
+(defrule
+    (taunt-detected any-human-ally 31)
+    =>
+    (set-goal g-stance c-stance-attack)
+)
+; Set stance retreat
+(defrule
+    (taunt-detected any-human-ally 45)
+    =>
+    (set-goal g-stance c-stance-retreat)
+)
+
+
+
+
+; =========================
+; ===== Follow Stance =====
+; =========================
 (defrule
     (up-compare-goal g-stance c:== c-stance-follow)
     (up-compare-goal g-state-3 g:== g-remote-iterator)
@@ -266,15 +299,92 @@
 ;     ; (up-modify-group-flag 1 c: c-cav-group)
 ; )
 
+; ========================
 ; ===== Create Units =====
+; ========================
+; Use timer to create units on schedule to try to spread unit combo
 (defrule
+    (timer-triggered t-create-unit-1)
     (goal g-army-create-swordsman 1)
     =>
     (train g-swordsman-unit)
 )
+(defrule
+    (timer-triggered t-create-unit-2)
+    (goal g-army-create-spearman 1)
+    =>
+    (train g-spearman-unit)
+)
+(defrule
+    (timer-triggered t-create-unit-3)
+    (goal g-army-create-alt-infantry 1)
+    =>
+    (train g-alt-infantry-unit)
+)
+(defrule
+    (timer-triggered t-create-unit-1)
+    (goal g-army-create-archer 1)
+    =>
+    (train g-archer-unit)
+)
+(defrule
+    (timer-triggered t-create-unit-2)
+    (goal g-army-create-skirmisher 1)
+    =>
+    (train g-skirmisher-unit)
+)
+(defrule
+    (timer-triggered t-create-unit-3)
+    (goal g-army-create-cavalry-archer 1)
+    =>
+    (train g-cavalry-archer-unit)
+)
+(defrule
+    (timer-triggered t-create-unit-1)
+    (goal g-army-create-light-cavalry 1)
+    =>
+    (train g-light-cavalry-unit)
+)
+(defrule
+    (timer-triggered t-create-unit-2)
+    (goal g-army-create-heavy-cavalry 1)
+    =>
+    (train g-heavy-cavalry-unit)
+)
+(defrule
+    (timer-triggered t-create-unit-3)
+    (goal g-army-create-alt-cavalry 1)
+    =>
+    (train g-alt-cavalry-unit)
+)
+(defrule
+    (goal g-army-create-unique-unit 1)
+    =>
+    (train g-unique-unit)
+)
 
-
+; Reset unit timers
+(defrule
+    (timer-triggered t-create-unit-1)
+    =>
+    (disable-timer t-create-unit-1)
+    (enable-timer t-create-unit-1 3)
+)
+(defrule
+    (timer-triggered t-create-unit-2)
+    =>
+    (disable-timer t-create-unit-2)
+    (enable-timer t-create-unit-2 3)
+)
+(defrule
+    (timer-triggered t-create-unit-3)
+    =>
+    (disable-timer t-create-unit-3)
+    (enable-timer t-create-unit-3 3)
+)
+; ========================================
 ; ===== (Event) Toggle Unit Creation =====
+; ========================================
 #load-if-defined UP-PLAYER-4
 (defrule
     (event-detected trigger e-p1-army-create-swordsman)
