@@ -1,0 +1,21 @@
+; Units everyone has access to
+(defrule 
+    (true)
+    =>
+    (set-goal g-swordman-unit militiaman-line)
+    (set-goal g-spearman-unit spearman-line)
+    (disable-self)
+)
+
+(defrule
+    (can-train eagle-warrior-line)
+    =>
+    (set-goal g-alt-infantry-unit eagle-warrior-line)
+    (disable-self)
+)
+(defrule
+    (can-train fire-lancer-line)
+    =>
+    (set-goal g-alt-infantry-unit fire-lancer-line)
+    (disable-self)
+)

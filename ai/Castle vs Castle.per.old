@@ -1,0 +1,282 @@
+; ===== Goal IDs =====
+(defconst g-respond-message 1)
+
+(defconst g-stance 2) 
+(defconst g-ally 3)
+
+(defconst g-p1-army-create-swordsman 10)
+(defconst g-p1-army-create-spearman 11)
+(defconst g-p1-army-create-alt-infantry 12)
+(defconst g-p1-army-create-archer 13)
+(defconst g-p1-army-create-skirmisher 14)
+(defconst g-p1-army-create-cavalry-archer 15)
+(defconst g-p1-army-create-light-cavalry 16)
+(defconst g-p1-army-create-heavy-cavalry 17)
+(defconst g-p1-army-create-alt-cavalry 18)
+(defconst g-p1-army-create-unique-unit 19)
+
+(defconst g-p2-army-create-swordsman 20)
+(defconst g-p2-army-create-spearman 21)
+(defconst g-p2-army-create-alt-infantry 22)
+(defconst g-p2-army-create-archer 23)
+(defconst g-p2-army-create-skirmisher 24)
+(defconst g-p2-army-create-cavalry-archer 25)
+(defconst g-p2-army-create-light-cavalry 26)
+(defconst g-p2-army-create-heavy-cavalry 27)
+(defconst g-p2-army-create-alt-cavalry 28)
+(defconst g-p2-army-create-unique-unit 29)
+
+(defconst g-p3-army-create-swordsman 30)
+(defconst g-p3-army-create-spearman 31)
+(defconst g-p3-army-create-alt-infantry 32)
+(defconst g-p3-army-create-archer 33)
+(defconst g-p3-army-create-skirmisher 34)
+(defconst g-p3-army-create-cavalry-archer 35)
+(defconst g-p3-army-create-light-cavalry 36)
+(defconst g-p3-army-create-heavy-cavalry 37)
+(defconst g-p3-army-create-alt-cavalry 38)
+(defconst g-p3-army-create-unique-unit 39)
+
+(defconst g-flare-x 100)
+(defconst g-flare-y 101)
+(defconst g-state-1 102)
+(defconst g-state-2 103)
+(defconst g-state-3 104)
+(defconst g-state-4 105)
+
+(defconst g-point-x 106)
+(defconst g-point-y 107)
+
+(defconst g-local-iterator 108)
+(defconst g-remote-iterator 109)
+
+(defconst g-general-iterator 110)
+(defconst g-general-class 111)
+(defconst g-swap-general 112)
+
+; ===== Event IDs (trigger Set AI Goal) =====
+(defconst e-p1-army-create-swordsman 10)
+(defconst e-p1-army-create-spearman 11)
+(defconst e-p1-army-create-alt-infantry 12)
+(defconst e-p1-army-create-archer 13)
+(defconst e-p1-army-create-skirmisher 14)
+(defconst e-p1-army-create-cavalry-archer 15)
+(defconst e-p1-army-create-light-cavalry 16)
+(defconst e-p1-army-create-heavy-cavalry 17)
+(defconst e-p1-army-create-alt-cavalry 18)
+(defconst e-p1-army-create-unique-unit 19)
+
+(defconst e-p2-army-create-swordsman 20)
+(defconst e-p2-army-create-spearman 21)
+(defconst e-p2-army-create-alt-infantry 22)
+(defconst e-p2-army-create-archer 23)
+(defconst e-p2-army-create-skirmisher 24)
+(defconst e-p2-army-create-cavalry-archer 25)
+(defconst e-p2-army-create-light-cavalry 26)
+(defconst e-p2-army-create-heavy-cavalry 27)
+(defconst e-p2-army-create-alt-cavalry 28)
+(defconst e-p2-army-create-unique-unit 29)
+
+(defconst e-p3-army-create-swordsman 30)
+(defconst e-p3-army-create-spearman 31)
+(defconst e-p3-army-create-alt-infantry 32)
+(defconst e-p3-army-create-archer 33)
+(defconst e-p3-army-create-skirmisher 34)
+(defconst e-p3-army-create-cavalry-archer 35)
+(defconst e-p3-army-create-light-cavalry 36)
+(defconst e-p3-army-create-heavy-cavalry 37)
+(defconst e-p3-army-create-alt-cavalry 38)
+(defconst e-p3-army-create-unique-unit 39)
+
+; ===== Timer IDs =====
+(defconst t-respond-message 1)
+(defconst t-flare-timeout 2)
+(defconst t-delayed-stance 3)
+(defconst t-move-to-flare 4)
+
+; ===== Constants =====
+(defconst c-all-units-class -1)
+(defconst c-attack-now 31)
+(defconst c-retreat-now 45)
+(defconst c-help-defend 48)
+(defconst attack-move 19)
+
+; Unit Consts
+(defconst c-inf-general 432) ; William Wallace
+(defconst c-arch-general 200) ; Robin Hood
+(defconst c-cav-general 680) ; Master of the Templars
+(defconst c-cav-arch-general 731) ; Gengis Khan
+
+; Stance Consts
+(defconst c-stance-follow 1)
+
+; Group Consts
+(defconst c-cav-group 3)
+
+
+(defconst object-data-idling 49)
+(defconst object-data-group-flag 73)
+
+; ===== Init =====
+(defrule
+    (true)
+    =>
+    (set-strategic-number sn-attack-intelligence 1)
+    (set-strategic-number sn-enable-patrol-attack 1)
+    (set-strategic-number sn-percent-attack-soldiers 100)
+    (set-strategic-number sn-wall-targeting-mode 1)
+    (set-strategic-number sn-enable-training-queue 1)
+    (set-strategic-number sn-number-explore-groups 0)
+    (set-strategic-number sn-relic-return-distance 0)
+    (set-strategic-number sn-do-not-scale-for-difficulty-level 1)
+    (set-strategic-number sn-enable-training-queue 5)
+    (set-strategic-number sn-enable-research-queue 1)
+    (set-strategic-number sn-coop-share-attacking 1)
+    (set-strategic-number sn-filter-under-attack 0)
+    (set-strategic-number sn-gather-defense-units 1)
+
+    (set-difficulty-parameter ability-to-maintain-distance 100)
+    (set-difficulty-parameter ability-to-dodge-missiles 100)
+
+    (set-goal g-respond-message 0)
+    (set-goal g-stance c-stance-follow)
+    (up-find-player ally find-closest g-ally) 
+    (up-modify-sn sn-focus-player-number g:= g-ally)
+
+    (set-goal g-swap-general 1)
+    (set-goal g-general-iterator c-cav-arch-general)
+
+    (disable-self)
+)
+
+; ===== Follow General =====
+(defrule
+    (up-compare-goal g-stance c:== c-stance-follow)
+    (up-compare-goal g-state-3 g:== g-remote-iterator)
+    =>
+    (up-full-reset-search)
+    (set-goal g-remote-iterator 0)
+    (set-goal g-swap-general 1)
+)
+(defrule
+    (goal g-stance c-stance-follow)
+    (goal g-swap-general 1)
+    (up-compare-goal g-general-iterator c:== c-cav-arch-general)
+    =>
+    (set-goal g-general-iterator c-inf-general)
+    (set-goal g-general-class infantry-class)
+    (set-goal g-swap-general 0)
+)
+(defrule
+    (goal g-stance c-stance-follow)
+    (goal g-swap-general 1)
+    (up-compare-goal g-general-iterator c:== c-inf-general)
+    =>
+    (set-goal g-general-iterator c-arch-general)
+    (set-goal g-general-class archery-class)
+    (set-goal g-swap-general 0)
+)
+(defrule
+    (goal g-stance c-stance-follow)
+    (goal g-swap-general 1)
+    (up-compare-goal g-general-iterator c:== c-arch-general)
+    =>
+    (set-goal g-general-iterator c-cav-general)
+    (set-goal g-general-class cavalry-class)
+    (set-goal g-swap-general 0)
+)
+(defrule
+    (goal g-stance c-stance-follow)
+    (goal g-swap-general 1)
+    (up-compare-goal g-general-iterator c:== c-cav-general)
+    =>
+    (set-goal g-general-iterator c-cav-arch-general)
+    (set-goal g-general-class cavalry-archer-class)
+    (set-goal g-swap-general 0)
+)
+
+; ===== Follow General =====
+(defrule
+    (up-compare-goal g-stance c:== c-stance-follow)
+    (up-compare-goal g-remote-iterator c:<= 0)
+    => 
+    (up-find-remote g: g-general-iterator c: 10) 
+    (up-get-search-state g-state-1)
+)
+(defrule
+    (up-compare-goal g-stance c:== c-stance-follow)
+    (up-compare-goal g-state-3 c:> 0)
+    (up-compare-goal g-remote-iterator g:< g-state-3)
+    =>
+    ; Target the current general in the iteration
+    (up-set-target-object search-remote g: g-remote-iterator)
+    (up-get-point position-object g-point-x)
+
+    ; Find idle local units near the general
+    (up-set-target-point g-point-x)
+    (up-filter-distance c: -1 c: 10)
+    (up-find-local g: g-general-class c: 60)
+    (up-remove-objects search-local object-data-idling c:== 0) 
+    (up-get-search-state g-state-1)
+
+    ; If idle units are found, command them to guard
+    (up-set-target-object search-remote g: g-remote-iterator)
+    (up-target-objects 1 action-guard formation-stagger stance-defensive)
+
+    ; Move to the next general
+    (up-modify-goal g-remote-iterator c:+ 1)
+    (up-reset-search 1 1 0 0)
+)
+
+
+
+
+; ===== OLD CODE - No Iterator =====
+; (defrule
+;     (up-compare-goal g-stance c:== c-stance-follow)
+;     => 
+;     (up-full-reset-search)
+;     (up-find-remote c: c-cav-general c: 1)
+;     (up-get-search-state g-state-1)
+;     ; (up-chat-data-to-player any-human-ally "Search for General of P%d" g: g-ally)
+;     ; (up-chat-data-to-player any-human-ally "State 1 %d" g: g-state-1)
+;     ; (up-chat-data-to-player any-human-ally "State 2 %d" g: g-state-2)
+;     ; (up-chat-data-to-player any-human-ally "State 3 %d" g: g-state-3)
+;     ; (up-chat-data-to-player any-human-ally "State 4 %d" g: g-state-4)
+; )
+; (defrule
+;     (up-compare-goal g-stance c:== c-stance-follow)
+;     (up-compare-goal g-state-3 c:>= 1)
+;     =>
+;     ; (up-chat-data-to-player any-human-ally "Found %d Generals, searching for Units" g: g-state-3)
+;     (up-set-target-object search-remote c: 0)
+;     (up-get-point position-object g-point-x)
+;     (up-set-target-point g-point-x)
+;     ; (up-filter-include cmdid-military -1 orderid-stop -1)
+;     ; (up-filter-exclude cmdid-military -1 orderid-defend -1)
+;     (up-filter-distance c: -1 c: 10)
+;     (up-find-local c: cavalry-class c: 60)
+;     ; Remove non-idle
+;     ; (up-remove-objects search-local object-data-hitpoints < 20)
+;     (up-remove-objects search-local object-data-idling c:== 0) 
+;     ; (up-remove-objects search-local object-data-group-flag c:== c-cav-group)
+;     (up-get-search-state g-state-1)
+; )
+; (defrule
+;     (up-compare-goal g-stance c:== c-stance-follow)
+;     (up-compare-goal g-state-3 c:>= 1)
+;     (up-compare-goal g-state-1 c:>= 1)
+;     =>
+;     (up-chat-data-to-player any-human-ally "Found %d Units to Guard" g: g-state-1)
+;     (up-set-target-object search-remote c: 0)
+;     (up-target-objects 1 action-guard formation-stagger stance-defensive)
+;     ; (up-set-group search-local c: c-cav-group)
+;     ; (up-modify-group-flag 1 c: c-cav-group)
+; )
+
+
+; ===== (Event) Toggle Unit Creation =====
+#load-if-defined UP-PLAYER-4
+(defrule
+    (event-detected trigger e-p1-army-create-swordsman)
+
