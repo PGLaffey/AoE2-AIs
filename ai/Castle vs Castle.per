@@ -32,6 +32,8 @@
 (defconst g-general-class 111)
 (defconst g-swap-general 112)
 
+(defconst g-group-iterator 113)
+
 ; Goals 200 - 209 reserved for units
 (defconst g-swordsman-unit 200)
 (defconst g-spearman-unit 201)
@@ -118,7 +120,7 @@
     =>
     (set-strategic-number sn-attack-intelligence 1)
     (set-strategic-number sn-enable-patrol-attack 1)
-    (set-strategic-number sn-percent-attack-soldiers 100)
+    (set-strategic-number sn-percent-attack-soldiers 0)
     (set-strategic-number sn-wall-targeting-mode 1)
     (set-strategic-number sn-enable-training-queue 1)
     (set-strategic-number sn-number-explore-groups 0)
@@ -154,24 +156,60 @@
 (defrule
     (taunt-detected any-human-ally 51)
     =>
+    (up-full-reset-search)
+    (set-goal g-remote-iterator 0)
     (set-goal g-stance c-stance-follow)
 )
 ; Set stance attack
 (defrule
     (taunt-detected any-human-ally 31)
     =>
+    (up-full-reset-search)
+    (set-goal g-remote-iterator 0)
     (set-goal g-stance c-stance-attack)
 )
 ; Set stance retreat
 (defrule
     (taunt-detected any-human-ally 45)
     =>
+    (up-full-reset-search)
+    (set-goal g-remote-iterator 0)
     (set-goal g-stance c-stance-retreat)
+)
+; Set stance defend
+(defrule
+    (taunt-detected any-human-ally 48)
+    =>
+    (up-full-reset-search)
+    (set-goal g-remote-iterator 0)
+    (set-goal g-stance c-stance-defend)
 )
 
 ; =========================
 ; ===== Attack Stance =====
 ; =========================
+(defrule
+    (up-compare-goal g-stance c:== c-stance-attack)
+    =>
+    (set-strategic-number sn-percent-attack-soldiers 100)
+    (attack-now)
+)
+
+; ==========================
+; ===== Retreat Stance =====
+; ==========================
+
+; =========================
+; ===== Defend Stance =====
+; =========================
+(defrule
+    (up-compare-goal g-stance c:== c-stance-defend)
+    (up-compare-goal g-state-3 g:== g-remote-iterator)
+    =>
+    (up-full-reset-search)
+    (goal g-remote-iterator 0)
+    (up-find-remote c: outpost c: 10)
+)
 
 
 ; =========================
@@ -182,7 +220,7 @@
     (up-compare-goal g-state-3 g:== g-remote-iterator)
     =>
     (up-full-reset-search)
-    (set-goal g-remote-iterator 0)
+    (set-goal g-general-iterator c-cav-arch-general)
     (set-goal g-swap-general 1)
 )
 (defrule
@@ -190,6 +228,7 @@
     (goal g-swap-general 1)
     (up-compare-goal g-general-iterator c:== c-cav-arch-general)
     =>
+    (set-goal g-group-iterator 0)
     (set-goal g-general-iterator c-inf-general)
     (set-goal g-general-class infantry-class)
     (set-goal g-swap-general 0)
@@ -227,7 +266,7 @@
     (up-compare-goal g-stance c:== c-stance-follow)
     (up-compare-goal g-remote-iterator c:<= 0)
     => 
-    (up-find-remote g: g-general-iterator c: 10) 
+    (up-find-remote g: g-general-class c: 10) 
     (up-get-search-state g-state-1)
 )
 (defrule
