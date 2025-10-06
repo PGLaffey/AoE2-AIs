@@ -207,9 +207,23 @@
     (up-compare-goal g-state-3 g:== g-remote-iterator)
     =>
     (up-full-reset-search)
-    (goal g-remote-iterator 0)
+    (set-goal g-remote-iterator 0)
+    (up-find-local c: town-center c: 1)
     (up-find-remote c: outpost c: 10)
+    (up-get-search-state g-state-1)
 )
+(defrule
+    (up-compare-goal g-stance c:== c-stance-defend)
+    (up-compare-goal g-state-1 c:> 0)
+    (up-compare-goal g-state-3 c:> 0)
+    =>
+    (up-set-target-object search-local c: 0)
+    (up-get-point position-object g-point-x)
+    (up-set-target-point g-point-x)
+    (up-clean-search search-remote object-data-distance search-order-desc)
+)
+
+
 
 
 ; =========================
