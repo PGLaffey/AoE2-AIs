@@ -216,13 +216,20 @@
     (up-compare-goal g-stance c:== c-stance-defend)
     (up-compare-goal g-state-1 c:> 0)
     (up-compare-goal g-state-3 c:> 0)
+    (goal g-remote-iterator 0)
     =>
     (up-set-target-object search-local c: 0)
     (up-get-point position-object g-point-x)
     (up-set-target-point g-point-x)
     (up-clean-search search-remote object-data-distance search-order-desc)
 )
+(defrule
+    (goal g-stance c-stance-defend)
+    (up-compare-goal g-state-3 g:> g-remote-iterator)
+    =>
 
+    (up-modify-goal g-remote-iterator c:+ 1)
+)
 
 
 
