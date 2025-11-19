@@ -70,44 +70,74 @@ for player, army in players:
     vil_died.new_effect.remove_object(source_player=player, object_list_unit_id=OtherInfo.IMPALED_CORPSE.ID, max_units_affected=1)
     vil_died.new_effect.modify_resource(source_player=player, tribute_list=res_villagers, operation=Operation.ADD, quantity=1)
 
-
     # Camp Barracks
+    tech_infantry_time = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_0.ID, name='Infantry Training Time', icon=TechInfo.SQUIRES.ICON_ID,
+        description='Trains Infantry 10% Faster', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)],
+        stacking=100)
+    tech_upgrade_swordsman = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_1.ID, name='Upgrade Swordsman Line', icon=TechInfo.CHAMPION.ICON_ID,
+        description='Improves the Swordsman line', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)],
+        stacking=10)
+    tech_upgrade_spearman = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_2.ID, name='Upgrade Spearman Line', icon=TechInfo.HALBERDIER.ICON_ID,
+        description='Improves the Spearman line', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)],
+        stacking=10)
+    tech_upgrade_alt_infantry = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_3.ID, name='Upgrade Alternative Infantry Line',
+        icon=TechInfo.ELITE_EAGLE_WARRIOR.ICON_ID, description='Improves the Alternative Infantry line',
+        cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)], stacking=True)
+    tech_toggle_swordsman = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_4.ID, name='Create Swordsman Line', icon=TechInfo.INQUISITION.ICON_ID,
+        description='Continuously creates Swordsman line to add to the army', cost=[], stacking=255)
+    tech_toggle_spearman = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_5.ID, name='Create Spearman Line', icon=TechInfo.INQUISITION.ICON_ID,
+        description='Continuously creates Spearman line to add to the army', cost=[], stacking=255)
+    tech_toggle_alt_infantry = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_6.ID, name='Create Alternative Infantry Line', icon=TechInfo.INQUISITION.ICON_ID,
+        description='Continuously creates Alternative Infantry line to add to the army', cost=[], stacking=255)
+    barracks_techs = [(tech_toggle_swordsman, 1), (tech_toggle_spearman, 2), (tech_toggle_alt_infantry, 3),
+                      (tech_upgrade_swordsman, 6), (tech_upgrade_spearman, 7), (tech_upgrade_alt_infantry, 8),
+                      (tech_infantry_time, 15)]
     camp_barracks = t_man.add_trigger(f'Camp Barracks (p{player})', enabled=True, looping=False)
-    tech_infantry_time = TechInfo.BLANK_TECHNOLOGY_0.ID
-    tech_upgrade_swordsman = TechInfo.BLANK_TECHNOLOGY_1.ID
-    tech_upgrade_spearman = TechInfo.BLANK_TECHNOLOGY_2.ID
-    tech_upgrade_alt_infantry = TechInfo.BLANK_TECHNOLOGY_3.ID
-    tech_toggle_swordsman = TechInfo.BLANK_TECHNOLOGY_4.ID
-    tech_toggle_spearman = TechInfo.BLANK_TECHNOLOGY_5.ID
-    tech_toggle_alt_infantry = TechInfo.BLANK_TECHNOLOGY_6.ID
-    barracks_techs = {
-        tech_infantry_time: {'name': 'Infantry Training Time', 'icon': TechInfo.SQUIRES.ICON_ID,
-                             'description': 'Trains Infantry 10% Faster',
-                             'cost': {'resource_1': Attribute.FOOD_STORAGE, 'resource_1_quantity': 250,
-                                     'resource_2': Attribute.GOLD_STORAGE, 'resource_2_quantity': 200},
-                             'location': 1},
-        tech_upgrade_swordsman: {'name': 'Upgrade Swordman Line', 'icon': TechInfo.CHAMPION.ICON_ID,
-                                 'description': 'Improves the Swordsman line',
-                                 'cost': {'resource_1'}},
-        tech_upgrade_spearman: {},
-        tech_upgrade_alt_infantry: {},
-        tech_toggle_swordsman: {},
-        tech_toggle_spearman: {},
-        tech_toggle_alt_infantry: {}
-    }
     building = 2414
-    for tech, attrs in barracks_techs.items():
-        camp_barracks.new_effect.change_technology_name(source_player=player, technology=tech, message=attrs['name'])
-        camp_barracks.new_effect.change_technology_icon(source_player=player, technology=tech, quantity=attrs['icon'])
-        camp_barracks.new_effect.change_technology_research_time(source_player=player, technology=tech, quantity=30)
-        camp_barracks.new_effect.change_technology_description(source_player=player, technology=tech, message=attrs['description'])
-        camp_barracks.new_effect.change_technology_cost(source_player=player, technology=tech, **attrs['cost'])
-        camp_barracks.new_effect.change_technology_location(source_player=player, technology=tech,
-                                                            object_list_unit_id_2=building, button_location=attrs['location'])
-    barracks_units = {
+    for tech, location in barracks_techs:
+        tech.add_to_building(player, building, location, camp_barracks)
 
-    }
-
+    # Camp Archery Range
+    tech_archer_time = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_7.ID, name='Archer Training Time', icon=TechInfo.PARTHIAN_TACTICS.ICON_ID,
+        description='Trains Archers 10% Faster', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)],
+        stacking=100)
+    tech_upgrade_archer = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_8.ID, name='Upgrade Archer Line', icon=TechInfo.ARBALESTER.ICON_ID,
+        description='Improves the Archer line', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)],
+        stacking=10)
+    tech_upgrade_skirmisher = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_9.ID, name='Upgrade Skirmisher Line', icon=TechInfo.IMPERIAL_SKIRMISHER.ICON_ID,
+        description='Improves the Skirmisher line', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)],
+        stacking=10)
+    tech_upgrade_cav_archer = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_10.ID, name='Upgrade Mounted Archer Line',
+        icon=TechInfo.HEAVY_CAVALRY_ARCHER.ICON_ID, description='Improves the Mounted Archer line',
+        cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)], stacking=True)
+    tech_toggle_archer = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_11.ID, name='Create Archer Line', icon=TechInfo.INQUISITION.ICON_ID,
+        description='Continuously creates Archer line to add to the army', cost=[], stacking=255)
+    tech_toggle_skirmisher = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_5.ID, name='Create Skirmisher Line', icon=TechInfo.INQUISITION.ICON_ID,
+        description='Continuously creates Skirmisher line to add to the army', cost=[], stacking=255)
+    tech_toggle_cav_archer = CustomTech(
+        override_tech=TechInfo.BLANK_TECHNOLOGY_6.ID, name='Create Mounted Archer Line',
+        icon=TechInfo.INQUISITION.ICON_ID,
+        description='Continuously creates Mounted Archer line to add to the army', cost=[], stacking=255)
+    archery_techs = [(tech_toggle_archer, 1), (tech_toggle_skirmisher, 2), (tech_toggle_cav_archer, 3),
+                      (tech_upgrade_archer, 6), (tech_upgrade_skirmisher, 7), (tech_upgrade_cav_archer, 8),
+                      (tech_archer_time, 15)]
+    camp_archery = t_man.add_trigger(f'Camp Archery Range (p{player})', enabled=True, looping=False)
+    building = 2414
+    for tech, location in archery_techs:
+        tech.add_to_building(player, building, location, camp_archery)
 
 print(t_man.get_summary_as_string())
 q = input('Save?')
