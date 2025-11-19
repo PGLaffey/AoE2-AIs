@@ -12,12 +12,7 @@ from AoE2ScenarioParser.objects.support.trigger_select import TriggerSelect
 from AoE2ScenarioParser.scenarios.aoe2_de_scenario import AoE2DEScenario
 from AoE2ScenarioParser.datasets.techs import TechInfo
 from AoE2ScenarioParser.datasets.trigger_lists.attribute import Attribute
-
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
+from util import *
 
 class PlayerNum:
     def __init__(self, num: int, army: int):
@@ -78,12 +73,28 @@ for player, army in players:
 
     # Camp Barracks
     camp_barracks = t_man.add_trigger(f'Camp Barracks (p{player})', enabled=True, looping=False)
-    tech_swordsman_time = TechInfo.BLANK_TECHNOLOGY_0.ID
-    barracks_techs = {tech_swordsman_time: {'name': 'Swordsman Training Time', 'icon': TechInfo.SQUIRES.ICON_ID,
-                                            'description': 'Trains Swordsman line 10% Faster',
-                                            'cost': {'resource_1': Attribute.FOOD_STORAGE, 'resource_1_quantity': 250,
-                                                     'resource_2': Attribute.GOLD_STORAGE, 'resource_2_quantity': 200},
-                                            'location': 1}}
+    tech_infantry_time = TechInfo.BLANK_TECHNOLOGY_0.ID
+    tech_upgrade_swordsman = TechInfo.BLANK_TECHNOLOGY_1.ID
+    tech_upgrade_spearman = TechInfo.BLANK_TECHNOLOGY_2.ID
+    tech_upgrade_alt_infantry = TechInfo.BLANK_TECHNOLOGY_3.ID
+    tech_toggle_swordsman = TechInfo.BLANK_TECHNOLOGY_4.ID
+    tech_toggle_spearman = TechInfo.BLANK_TECHNOLOGY_5.ID
+    tech_toggle_alt_infantry = TechInfo.BLANK_TECHNOLOGY_6.ID
+    barracks_techs = {
+        tech_infantry_time: {'name': 'Infantry Training Time', 'icon': TechInfo.SQUIRES.ICON_ID,
+                             'description': 'Trains Infantry 10% Faster',
+                             'cost': {'resource_1': Attribute.FOOD_STORAGE, 'resource_1_quantity': 250,
+                                     'resource_2': Attribute.GOLD_STORAGE, 'resource_2_quantity': 200},
+                             'location': 1},
+        tech_upgrade_swordsman: {'name': 'Upgrade Swordman Line', 'icon': TechInfo.CHAMPION.ICON_ID,
+                                 'description': 'Improves the Swordsman line',
+                                 'cost': {'resource_1'}},
+        tech_upgrade_spearman: {},
+        tech_upgrade_alt_infantry: {},
+        tech_toggle_swordsman: {},
+        tech_toggle_spearman: {},
+        tech_toggle_alt_infantry: {}
+    }
     building = 2414
     for tech, attrs in barracks_techs.items():
         camp_barracks.new_effect.change_technology_name(source_player=player, technology=tech, message=attrs['name'])
@@ -93,7 +104,9 @@ for player, army in players:
         camp_barracks.new_effect.change_technology_cost(source_player=player, technology=tech, **attrs['cost'])
         camp_barracks.new_effect.change_technology_location(source_player=player, technology=tech,
                                                             object_list_unit_id_2=building, button_location=attrs['location'])
+    barracks_units = {
 
+    }
 
 
 print(t_man.get_summary_as_string())
