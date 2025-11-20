@@ -54,6 +54,9 @@ ai_goals = {
 players = [PlayerNum(1, 5), PlayerNum(2, 8), PlayerNum(3, 4), PlayerNum(6, 7)]
 res_villagers = Attribute.UNUSED_RESOURCE_008
 
+silver_crown_icon = TechInfo.INQUISITION.ICON_ID
+gold_crown_icon = TechInfo.SUPREMACY.ICON_ID
+
 for player, army in players:
     setup_res = t_man.add_trigger(f'Setup Resources (p{player})', enabled=True, looping=False)
 
@@ -92,13 +95,13 @@ for player, army in players:
         icon=TechInfo.ELITE_EAGLE_WARRIOR.ICON_ID, description='Improves the Alternative Infantry line',
         cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
     tech_toggle_swordsman = CustomTech(
-        override_tech=TechInfo.BLANK_TECHNOLOGY_4.ID, name='Enable creating Swordsman Line', icon=TechInfo.INQUISITION.ICON_ID,
+        override_tech=TechInfo.BLANK_TECHNOLOGY_4.ID, name='Enable creating Swordsman Line', icon=silver_crown_icon,
         description='Continuously creates Swordsman line to add to the army', cost=[], research_time=5)
     tech_toggle_spearman = CustomTech(
-        override_tech=TechInfo.BLANK_TECHNOLOGY_5.ID, name='Enable creating Spearman Line', icon=TechInfo.INQUISITION.ICON_ID,
+        override_tech=TechInfo.BLANK_TECHNOLOGY_5.ID, name='Enable creating Spearman Line', icon=silver_crown_icon,
         description='Continuously creates Spearman line to add to the army', cost=[], research_time=5)
     tech_toggle_alt_infantry = CustomTech(
-        override_tech=TechInfo.BLANK_TECHNOLOGY_6.ID, name='Enable creating Alternative Infantry Line', icon=TechInfo.INQUISITION.ICON_ID,
+        override_tech=TechInfo.BLANK_TECHNOLOGY_6.ID, name='Enable creating Alternative Infantry Line', icon=silver_crown_icon,
         description='Continuously creates Alternative Infantry line to add to the army', cost=[], research_time=5)
     barracks_techs = [(tech_toggle_swordsman, 1), (tech_toggle_spearman, 2), (tech_toggle_alt_infantry, 3),
                       (tech_upgrade_swordsman, 6), (tech_upgrade_spearman, 7), (tech_upgrade_alt_infantry, 8),
@@ -108,12 +111,32 @@ for player, army in players:
     for tech, location in barracks_techs:
         tech.add_to_building(player, building, location, camp_barracks)
 
+    swordsman_units = [UnitInfo.MILITIA, UnitInfo.MAN_AT_ARMS, UnitInfo.LONG_SWORDSMAN, UnitInfo.TWO_HANDED_SWORDSMAN,
+                       UnitInfo.CHAMPION], 60
+    spearman_units = [UnitInfo.SPEARMAN, UnitInfo.PIKEMAN, UnitInfo.HALBERDIER], 60
+    alt_infantry_1_units = [UnitInfo.EAGLE_SCOUT, UnitInfo.EAGLE_WARRIOR, UnitInfo.ELITE_EAGLE_WARRIOR], 80
+    alt_infantry_2_units = [UnitInfo.FIRE_LANCER, UnitInfo.ELITE_FIRE_LANCER], 80
+    barracks_units = swordsman_units[0] + spearman_units[0] + alt_infantry_1_units[0] + alt_infantry_2_units[0]
+
+    infantry_training_setup = t_man.add_trigger(f'Init Infantry Training Time (p{player})', enabled=True, looping=False)
+    for units, train_time in [swordsman_units, spearman_units, alt_infantry_1_units, alt_infantry_2_units]:
+        for unit in units:
+            infantry_training_setup.new_effect.modify_object_attribute(
+                source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
+                operation=Operation.SET, quantity=train_time
+            )
+
     infantry_training_time = t_man.add_trigger(f'Research Infantry Training Time (p{player})', enabled=True, looping=True)
     infantry_training_time.new_condition.research_technology(source_player=player, technology=tech_infantry_time.ID)
     infantry_training_time.new_effect.enable_disable_technology(source_player=player, technology=tech_infantry_time.ID, enabled=True)
-    ## TODO add reduced training time
+    for unit in barracks_units:
+        infantry_training_time.new_effect.modify_attribute(
+            source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
+            operation=Operation.MULTIPLY, quantity=0.9
+        )
 
     ## TODO upgrades
+
 
     # Toggle Swordsman
     enable_toggle_swordsman = t_man.add_trigger(f'Research Enable Toggle Swordsman (p{player})', enabled=True, looping=False)
@@ -121,12 +144,12 @@ for player, army in players:
     enable_toggle_swordsman.new_condition.research_technology(source_player=player, technology=tech_toggle_swordsman.ID)
     enable_toggle_swordsman.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_swordsman'][player])
     tech_toggle_swordsman.update(player=player, trigger=enable_toggle_swordsman, name='Disable creating Swordsman Line',
-                                 icon=TechInfo.SUPREMACY.ICON_ID, description='Stop creating Swordsman line for the army')
+                                 icon=gold_crown_icon, description='Stop creating Swordsman line for the army')
     enable_toggle_swordsman.new_effect.activate_trigger(disable_toggle_swordsman.trigger_id)
     disable_toggle_swordsman.new_condition.research_technology(source_player=player, technology=tech_toggle_swordsman.ID)
     disable_toggle_swordsman.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_swordsman'][player])
     tech_toggle_swordsman.update(player=player, trigger=disable_toggle_swordsman, name='Enable creating Swordsman Line',
-                                 icon=TechInfo.INQUISITION.ICON_ID,
+                                 icon=silver_crown_icon,
                                  description='Continuously creates Swordsman line to add to the army')
     disable_toggle_swordsman.new_effect.activate_trigger(enable_toggle_swordsman.trigger_id)
     # Toggle Spearman
@@ -135,12 +158,12 @@ for player, army in players:
     enable_toggle_spearman.new_condition.research_technology(source_player=player, technology=tech_toggle_spearman.ID)
     enable_toggle_spearman.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_spearman'][player])
     tech_toggle_spearman.update(player=player, trigger=enable_toggle_spearman, name='Disable creating Spearman Line',
-                                 icon=TechInfo.SUPREMACY.ICON_ID, description='Stop creating Spearman line for the army')
+                                 icon=gold_crown_icon, description='Stop creating Spearman line for the army')
     enable_toggle_spearman.new_effect.activate_trigger(disable_toggle_spearman.trigger_id)
     disable_toggle_spearman.new_condition.research_technology(source_player=player, technology=tech_toggle_spearman.ID)
     disable_toggle_spearman.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_spearman'][player])
     tech_toggle_spearman.update(player=player, trigger=disable_toggle_spearman, name='Enable creating Spearman Line',
-                                 icon=TechInfo.INQUISITION.ICON_ID,
+                                 icon=silver_crown_icon,
                                  description='Continuously creates Spearman line to add to the army')
     disable_toggle_spearman.new_effect.activate_trigger(enable_toggle_spearman.trigger_id)
 
@@ -150,12 +173,12 @@ for player, army in players:
     enable_toggle_alt_infantry.new_condition.research_technology(source_player=player, technology=tech_toggle_alt_infantry.ID)
     enable_toggle_alt_infantry.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_alt_infantry'][player])
     tech_toggle_alt_infantry.update(player=player, trigger=enable_toggle_alt_infantry, name='Disable creating Alternative Infantry Line',
-                                 icon=TechInfo.SUPREMACY.ICON_ID, description='Stop creating Alternative Infantry line for the army')
+                                 icon=gold_crown_icon, description='Stop creating Alternative Infantry line for the army')
     enable_toggle_alt_infantry.new_effect.activate_trigger(disable_toggle_alt_infantry.trigger_id)
     disable_toggle_alt_infantry.new_condition.research_technology(source_player=player, technology=tech_toggle_alt_infantry.ID)
     disable_toggle_alt_infantry.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_alt_infantry'][player])
     tech_toggle_alt_infantry.update(player=player, trigger=disable_toggle_alt_infantry, name='Enable creating Alternative Infantry Line',
-                                 icon=TechInfo.INQUISITION.ICON_ID,
+                                 icon=silver_crown_icon,
                                  description='Continuously creates Alternative Infantry line to add to the army')
     disable_toggle_alt_infantry.new_effect.activate_trigger(enable_toggle_alt_infantry.trigger_id)
 
@@ -174,13 +197,13 @@ for player, army in players:
         icon=TechInfo.HEAVY_CAVALRY_ARCHER.ICON_ID, description='Improves the Mounted Archer line',
         cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
     tech_toggle_archer = CustomTech(
-        override_tech=TechInfo.BLANK_TECHNOLOGY_11.ID, name='Enable creating Archer Line', icon=TechInfo.INQUISITION.ICON_ID,
+        override_tech=TechInfo.BLANK_TECHNOLOGY_11.ID, name='Enable creating Archer Line', icon=silver_crown_icon,
         description='Continuously creates Archer line to add to the army', cost=[], research_time=5)
     tech_toggle_skirmisher = CustomTech(
-        override_tech=TechInfo.BLANK_TECHNOLOGY_12.ID, name='Enable creating Skirmisher Line', icon=TechInfo.INQUISITION.ICON_ID,
+        override_tech=TechInfo.BLANK_TECHNOLOGY_12.ID, name='Enable creating Skirmisher Line', icon=silver_crown_icon,
         description='Continuously creates Skirmisher line to add to the army', cost=[], research_time=5)
     tech_toggle_cav_archer = CustomTech(
-        override_tech=TechInfo.BLANK_TECHNOLOGY_13.ID, name='Enable creating Mounted Archer Line', icon=TechInfo.INQUISITION.ICON_ID,
+        override_tech=TechInfo.BLANK_TECHNOLOGY_13.ID, name='Enable creating Mounted Archer Line', icon=silver_crown_icon,
         description='Continuously creates Mounted Archer line to add to the army', cost=[], research_time=5)
     archery_techs = [(tech_toggle_archer, 1), (tech_toggle_skirmisher, 2), (tech_toggle_cav_archer, 3),
                       (tech_upgrade_archer, 6), (tech_upgrade_skirmisher, 7), (tech_upgrade_cav_archer, 8),
@@ -209,15 +232,15 @@ for player, army in players:
         icon=TechInfo.HEAVY_CAVALRY_ARCHER.ICON_ID, description='Improves the Alternative Cavalry line',
         cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
     tech_toggle_light_cav = CustomTech(
-        override_tech=TechInfo.BLANK_TECHNOLOGY_18.ID, name='Enable creating Light Cavalry Line', icon=TechInfo.INQUISITION.ICON_ID,
+        override_tech=TechInfo.BLANK_TECHNOLOGY_18.ID, name='Enable creating Light Cavalry Line', icon=silver_crown_icon,
         description='Continuously creates Light Cavalry line to add to the army', cost=[], research_time=5)
     tech_toggle_heavy_cav = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_19.ID, name='Enable creating Heavy Cavalry Line',
-        icon=TechInfo.INQUISITION.ICON_ID,
+        icon=silver_crown_icon,
         description='Continuously creates Heavy Cavalry line to add to the army', cost=[], research_time=5)
     tech_toggle_alt_cav = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_20.ID, name='Enable creating Alternative Cavalry Line',
-        icon=TechInfo.INQUISITION.ICON_ID,
+        icon=silver_crown_icon,
         description='Continuously creates Alternative Cavalry line to add to the army', cost=[], research_time=5)
     stable_techs = [(tech_toggle_archer, 1), (tech_toggle_skirmisher, 2), (tech_toggle_cav_archer, 3),
                      (tech_upgrade_archer, 6), (tech_upgrade_skirmisher, 7), (tech_upgrade_cav_archer, 8),
