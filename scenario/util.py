@@ -1,6 +1,7 @@
 from AoE2ScenarioParser.datasets.buildings import BuildingInfo
 from AoE2ScenarioParser.datasets.techs import TechInfo
-from AoE2ScenarioParser.datasets.trigger_lists import Attribute
+from AoE2ScenarioParser.datasets.trigger_lists import Attribute, ObjectAttribute, Operation
+from AoE2ScenarioParser.datasets.units import UnitInfo
 from AoE2ScenarioParser.objects.data_objects.trigger import Trigger
 
 
@@ -8,6 +9,20 @@ class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
+class A_TYPE:
+    MELEE = 4
+    PIERCE = 3
+    INFANTRY = 1
+    CAVALRY = 8
+    ARCHER = 15
+    BUILDING = 11
+
+class AttackArmor:
+    def __init__(self, attribute: ObjectAttribute, a_type: int):
+        self.attribute = attribute
+        self.a_type = a_type
+
 
 class CustomTech:
     def __init__(self, override_tech: TechInfo.ID, name: str = None, icon: TechInfo.ICON_ID = None,
@@ -58,3 +73,18 @@ class CustomTech:
             print(building, location)
             self.add_to_building(player, building, location, trigger)
 
+
+def adjust_unit(trigger: Trigger, player: int, units: list[UnitInfo] | UnitInfo, attribute: ObjectAttribute | AttackArmor,
+                quantity: int):
+    params = {'operation': Operation.ADD if quantity > 0 else Operation.SUBTRACT}
+    if attribute is AttackArmor:
+        params['object_attributes'] = attribute.attribute
+        params['armor_attack_class'] = attribute.a_type
+        params['armor_attack_quantity'] = attribute
+    else:
+        params['object_attributes'] = attribute
+        params['quantity'] = quantity
+    if type(units) == UnitInfo:
+        units = [units]
+    for unit in units:
+        trigger.new_effect.modify_attribute(source_player=player, object_list_unit_id=unit.ID, **params)

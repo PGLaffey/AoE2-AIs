@@ -50,6 +50,11 @@ ai_goals = {
     'toggle_spearman': {1: 11, 2: 21, 3: 31, 6: 41},
     'toggle_alt_infantry': {1: 12, 2: 22, 3: 32, 6: 42}
 }
+variables = {
+    'Swordsman Level': {1: 10, 2: 20, 3: 30, 6: 40},
+    'Spearman Level': {1: 11, 2: 21, 3: 31, 6: 41},
+    'Alt Infantry Level': {1: 12, 2: 22, 3: 32, 6: 42}
+}
 
 players = [PlayerNum(1, 5), PlayerNum(2, 8), PlayerNum(3, 4), PlayerNum(6, 7)]
 res_villagers = Attribute.UNUSED_RESOURCE_008
@@ -58,6 +63,9 @@ silver_crown_icon = TechInfo.INQUISITION.ICON_ID
 gold_crown_icon = TechInfo.SUPREMACY.ICON_ID
 
 for player, army in players:
+    for name, var_ids in variables.items():
+        t_man.add_variable(f'{name} (p{player})', var_ids[player])
+
     setup_res = t_man.add_trigger(f'Setup Resources (p{player})', enabled=True, looping=False)
 
     setup_res.new_effect.modify_resource(source_player=player, tribute_list=res_villagers, operation=Operation.SET, quantity=50)
@@ -121,7 +129,7 @@ for player, army in players:
     infantry_training_setup = t_man.add_trigger(f'Init Infantry Training Time (p{player})', enabled=True, looping=False)
     for units, train_time in [swordsman_units, spearman_units, alt_infantry_1_units, alt_infantry_2_units]:
         for unit in units:
-            infantry_training_setup.new_effect.modify_object_attribute(
+            infantry_training_setup.new_effect.modify_attribute(
                 source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
                 operation=Operation.SET, quantity=train_time
             )
@@ -136,6 +144,29 @@ for player, army in players:
         )
 
     ## TODO upgrades
+    swordman_upgrades = [
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
+        [TechInfo.MAN_AT_ARMS, (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [],
+        [TechInfo.LONG_SWORDSMAN],
+        [],
+        [TechInfo.TWO_HANDED_SWORDSMAN],
+        [],
+        [TechInfo.CHAMPION],
+        [],
+        [TechInfo.LEGIONARY]
+    ]
+    next_upgrade = None
+    for i, upgrades in enumerate(reversed(swordman_upgrades)):
+        level = 10 - i
+        up_trigger = t_man.add_trigger(f'Upgrade Swordman Level {level} (p{player})', enabled=level == 1, looping=False)
+        up_trigger.new_condition.research_technology(source_player=player, technology=tech_upgrade_swordsman.ID)
+        for upgrade in upgrades:
+            if type(upgrade) == TechInfo:
+                up_trigger.new_effect.research_technology(source_player=player, technology=upgrade.ID, force_research_technology=True)
+            else:
+                upgrade, quantity = upgrade
+                adjust_unit(up_trigger, army, swordsman_units[0], upgrade, quantity)
 
 
     # Toggle Swordsman
