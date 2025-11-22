@@ -121,9 +121,10 @@ for player, army in players:
 
     swordsman_units = [UnitInfo.MILITIA, UnitInfo.MAN_AT_ARMS, UnitInfo.LONG_SWORDSMAN, UnitInfo.TWO_HANDED_SWORDSMAN,
                        UnitInfo.CHAMPION], 60
-    spearman_units = [UnitInfo.SPEARMAN, UnitInfo.PIKEMAN, UnitInfo.HALBERDIER], 60
+    spearman_units = [UnitInfo.SPEARMAN, UnitInfo.PIKEMAN, UnitInfo.HALBERDIER, UnitInfo.HEAVY_PIKEMAN], 60
     alt_infantry_1_units = [UnitInfo.EAGLE_SCOUT, UnitInfo.EAGLE_WARRIOR, UnitInfo.ELITE_EAGLE_WARRIOR], 80
     alt_infantry_2_units = [UnitInfo.FIRE_LANCER, UnitInfo.ELITE_FIRE_LANCER], 80
+    alt_infantry_units = (alt_infantry_1_units[0] + alt_infantry_2_units[0],)
     barracks_units = swordsman_units[0] + spearman_units[0] + alt_infantry_1_units[0] + alt_infantry_2_units[0]
 
     infantry_training_setup = t_man.add_trigger(f'Init Infantry Training Time (p{player})', enabled=True, looping=False)
@@ -147,26 +148,69 @@ for player, army in players:
     swordman_upgrades = [
         [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
         [TechInfo.MAN_AT_ARMS, (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
-        [],
-        [TechInfo.LONG_SWORDSMAN],
-        [],
-        [TechInfo.TWO_HANDED_SWORDSMAN],
-        [],
-        [TechInfo.CHAMPION],
-        [],
-        [TechInfo.LEGIONARY]
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.BUILDING), 3)],
+        [TechInfo.LONG_SWORDSMAN, (ObjectAttribute.MOVEMENT_SPEED, 1.1)],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1), (ObjectAttribute.HIT_POINTS, 10)],
+        [TechInfo.TWO_HANDED_SWORDSMAN, (ObjectAttribute.MOVEMENT_SPEED, 1.1)],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 2), (ObjectAttribute.ATTACK_RELOAD_TIME, 0.75)],
+        [TechInfo.CHAMPION, (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.BUILDING), 5)],
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.INFANTRY), 4), (ObjectAttribute.BLAST_ATTACK_LEVEL, 2),
+         (ObjectAttribute.AREA_DAMAGE, -5), (ObjectAttribute.BLAST_WIDTH, 0.5)],
+        [TechInfo.LEGIONARY, (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 3)]
     ]
-    next_upgrade = None
-    for i, upgrades in enumerate(reversed(swordman_upgrades)):
-        level = 10 - i
-        up_trigger = t_man.add_trigger(f'Upgrade Swordman Level {level} (p{player})', enabled=level == 1, looping=False)
-        up_trigger.new_condition.research_technology(source_player=player, technology=tech_upgrade_swordsman.ID)
-        for upgrade in upgrades:
-            if type(upgrade) == TechInfo:
-                up_trigger.new_effect.research_technology(source_player=player, technology=upgrade.ID, force_research_technology=True)
-            else:
-                upgrade, quantity = upgrade
-                adjust_unit(up_trigger, army, swordsman_units[0], upgrade, quantity)
+    spearman_upgrades = [
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1), (ObjectAttribute.MOVEMENT_SPEED, 1.1)],
+        [TechInfo.PIKEMAN, (ObjectAttribute.MAXIMUM_RANGE, 0.5)],
+        [(ObjectAttribute.HIT_POINTS, 10), (ObjectAttribute.ATTACK_RELOAD_TIME, 0.75)],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [TechInfo.HALBERDIER],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [(ObjectAttribute.MOVEMENT_SPEED, 1.1), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1)],
+        [(UnitInfo.HEAVY_PIKEMAN, UnitInfo.HALBERDIER, BuildingInfo.BARRACKS, 2),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.CAVALRY), 28), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.CAMEL), 12),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.ELEPHANT), 10), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 3),
+         (ObjectAttribute.ATTACK_RELOAD_TIME, 0.75)],
+        [(ObjectAttribute.MAXIMUM_RANGE, 1), (ObjectAttribute.HIT_POINTS, 10)]
+    ]
+    alt_infantry_upgrades = [
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.CAVALRY), 3)],
+        [(ObjectAttribute.MOVEMENT_SPEED, 1.1), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.ARCHER), 3),
+         (ObjectAttribute.HIT_POINTS, 10)],
+        [TechInfo.EAGLE_WARRIOR, (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.BUILDING), 5)],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1), (ObjectAttribute.ATTACK_RELOAD_TIME, 0.75)],
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.ARCHER), 3), (ObjectAttribute.HIT_POINTS, 10),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.CAVALRY), 3)],
+        [(ObjectAttribute.MOVEMENT_SPEED, 1.1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
+        [TechInfo.ELITE_EAGLE_WARRIOR, TechInfo.ELITE_FIRE_LANCER, (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [(ObjectAttribute.ATTACK_RELOAD_TIME, 0.75), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.BUILDING), 5)],
+        [(ObjectAttribute.MOVEMENT_SPEED, 1.1), (ObjectAttribute.HIT_POINTS, 10)]
+    ]
+    infantry_upgrades = [('Swordsman', tech_upgrade_swordsman, swordman_upgrades, swordsman_units),
+                         ('Spearman', tech_upgrade_spearman, spearman_upgrades, spearman_units),
+                         ('Alt Infantry', tech_upgrade_alt_infantry, alt_infantry_upgrades, alt_infantry_units)]
+    for name, upgrade_tech, unit_upgrades, units in infantry_upgrades:
+        next_upgrade: Trigger = None
+        for i, upgrades in enumerate(reversed(unit_upgrades)):
+            level = 10 - i
+            up_trigger = t_man.add_trigger(f'Upgrade {name} Level {level} (p{player})', enabled=level == 1, looping=False)
+            up_trigger.new_condition.research_technology(source_player=player, technology=upgrade_tech.ID)
+            for upgrade in upgrades:
+                if type(upgrade) == TechInfo:
+                    up_trigger.new_effect.research_technology(source_player=player, technology=upgrade.ID,
+                                                              force_research_technology=True)
+                elif type(upgrade[0]) == UnitInfo:
+                    new_unit, old_unit, building, location = upgrade
+                    replace_unit(trigger=up_trigger, player=army, new_unit=new_unit, old_unit=old_unit, building=building,
+                                 location=location)
+                else:
+                    upgrade, quantity = upgrade
+                    adjust_unit(trigger=up_trigger, player=army, units=units[0], attribute=upgrade, quantity=quantity)
+            if next_upgrade is not None:
+                upgrade_tech.update(player=player, trigger=up_trigger, cost=1.25)
+                up_trigger.new_effect.activate_trigger(next_upgrade.trigger_id)
 
 
     # Toggle Swordsman
@@ -240,9 +284,8 @@ for player, army in players:
                       (tech_upgrade_archer, 6), (tech_upgrade_skirmisher, 7), (tech_upgrade_cav_archer, 8),
                       (tech_archer_time, 15)]
     camp_archery = t_man.add_trigger(f'Camp Archery Range (p{player})', enabled=True, looping=False)
-    building = BuildingInfo.CAMP_ARCHERY_RANGE.ID
     for tech, location in archery_techs:
-        tech.add_to_building(player, building, location, camp_archery)
+        tech.add_to_building(player, BuildingInfo.CAMP_ARCHERY_RANGE.ID, location, camp_archery)
 
     # -----------------------
     # ----- Army Stable -----
@@ -277,9 +320,8 @@ for player, army in players:
                      (tech_upgrade_archer, 6), (tech_upgrade_skirmisher, 7), (tech_upgrade_cav_archer, 8),
                      (tech_archer_time, 15)]
     camp_stable = t_man.add_trigger(f'Camp Stable (p{player})', enabled=True, looping=False)
-    building = BuildingInfo.CAMP_STABLE.ID
     for tech, location in stable_techs:
-        tech.add_to_building(player, building, location, camp_stable)
+        tech.add_to_building(player, BuildingInfo.CAMP_STABLE.ID, location, camp_stable)
 
 
 

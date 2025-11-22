@@ -17,6 +17,8 @@ class A_TYPE:
     CAVALRY = 8
     ARCHER = 15
     BUILDING = 11
+    ELEPHANT = 5
+    CAMEL = 30
 
 class AttackArmor:
     def __init__(self, attribute: ObjectAttribute, a_type: int):
@@ -60,13 +62,16 @@ class CustomTech:
         trigger.new_effect.enable_disable_technology(**params, enabled=True)
 
     def update(self, player: int, trigger: Trigger, name: str = None, icon: TechInfo.ICON_ID = None,
-               description: str = None, cost: list[tuple[Attribute, int]] = None, research_time: int = None,
+               description: str = None, cost: list[tuple[Attribute, int]] | float = None, research_time: int = None,
                stacking: int = None):
         self.name = name or self.name
         self.icon = icon or self.icon
         if description:
             self.description = f'<cost> {description}'
-        self.cost = cost or self.cost
+        if type(cost) == float:
+            self.cost = [(res, int(amount * cost)) for res, amount in self.cost]
+        else:
+            self.cost = cost or self.cost
         self.research_time = research_time or self.research_time
         self.stacking = stacking or self.stacking
         for building, location in self._applications[player]:
@@ -75,7 +80,7 @@ class CustomTech:
 
 
 def adjust_unit(trigger: Trigger, player: int, units: list[UnitInfo] | UnitInfo, attribute: ObjectAttribute | AttackArmor,
-                quantity: int):
+                quantity: int | float):
     params = {'operation': Operation.ADD if quantity > 0 else Operation.SUBTRACT}
     if attribute is AttackArmor:
         params['object_attributes'] = attribute.attribute
@@ -84,7 +89,17 @@ def adjust_unit(trigger: Trigger, player: int, units: list[UnitInfo] | UnitInfo,
     else:
         params['object_attributes'] = attribute
         params['quantity'] = quantity
+        if attribute in [ObjectAttribute.MOVEMENT_SPEED, ObjectAttribute.ATTACK_RELOAD_TIME]:
+            params['operation'] = Operation.MULTIPLY
+        elif attribute in [ObjectAttribute.BLAST_ATTACK_LEVEL, ObjectAttribute.AREA_DAMAGE, ObjectAttribute.BLAST_WIDTH]:
+            params['operation'] = Operation.SET
     if type(units) == UnitInfo:
         units = [units]
     for unit in units:
         trigger.new_effect.modify_attribute(source_player=player, object_list_unit_id=unit.ID, **params)
+
+def replace_unit(trigger: Trigger, player: int, new_unit: UnitInfo, old_unit: UnitInfo, building: BuildingInfo, location: int):
+    trigger.new_effect.enable_disable_object(source_player=player, object_list_unit_id=old_unit.ID, enabled=False)
+    trigger.new_effect.change_train_location(source_player=player, object_list_unit_id=new_unit.ID,
+                                             object_list_unit_id_2=building.ID, button_location=location)
+    trigger.new_effect.enable_disable_object(source_player=player, object_list_unit_id=new_unit.ID, enabled=True)
