@@ -48,12 +48,14 @@ map_x, map_y = scenario.map_manager.map_width, scenario.map_manager.map_height
 ai_goals = {
     'toggle_swordsman': {1: 10, 2: 20, 3: 30, 6: 40},
     'toggle_spearman': {1: 11, 2: 21, 3: 31, 6: 41},
-    'toggle_alt_infantry': {1: 12, 2: 22, 3: 32, 6: 42}
-}
-variables = {
-    'Swordsman Level': {1: 10, 2: 20, 3: 30, 6: 40},
-    'Spearman Level': {1: 11, 2: 21, 3: 31, 6: 41},
-    'Alt Infantry Level': {1: 12, 2: 22, 3: 32, 6: 42}
+    'toggle_alt_infantry': {1: 12, 2: 22, 3: 32, 6: 42},
+    'toggle_archer': {1: 13, 2: 23, 3: 33, 6: 43},
+    'toggle_skirmisher': {1: 14, 2: 24, 3: 34, 6: 44},
+    'toggle_cav_archer': {1: 15, 2: 25, 3: 35, 6: 45},
+    'toggle_light_cav': {1: 16, 2: 26, 3: 36, 6: 46},
+    'toggle_heavy_cav': {1: 17, 2: 27, 3: 37, 6: 47},
+    'toggle_alt_cav': {1: 18, 2: 28, 3: 38, 6: 48},
+    'toggle_unique_unit': {1: 19, 2: 29, 3: 39, 6: 49}
 }
 
 players = [PlayerNum(1, 5), PlayerNum(2, 8), PlayerNum(3, 4), PlayerNum(6, 7)]
@@ -63,9 +65,6 @@ silver_crown_icon = TechInfo.INQUISITION.ICON_ID
 gold_crown_icon = TechInfo.SUPREMACY.ICON_ID
 
 for player, army in players:
-    for name, var_ids in variables.items():
-        t_man.add_variable(f'{name} (p{player})', var_ids[player])
-
     setup_res = t_man.add_trigger(f'Setup Resources (p{player})', enabled=True, looping=False)
 
     setup_res.new_effect.modify_resource(source_player=player, tribute_list=res_villagers, operation=Operation.SET, quantity=50)
@@ -137,14 +136,14 @@ for player, army in players:
 
     infantry_training_time = t_man.add_trigger(f'Research Infantry Training Time (p{player})', enabled=True, looping=True)
     infantry_training_time.new_condition.research_technology(source_player=player, technology=tech_infantry_time.ID)
-    infantry_training_time.new_effect.enable_disable_technology(source_player=player, technology=tech_infantry_time.ID, enabled=True)
+    tech_infantry_time.update(trigger=infantry_training_time, player=player, cost=1.15)
     for unit in barracks_units:
         infantry_training_time.new_effect.modify_attribute(
             source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
             operation=Operation.MULTIPLY, quantity=0.9
         )
 
-    ## TODO upgrades
+    # Infantry Upgrades
     swordman_upgrades = [
         [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
         [TechInfo.MAN_AT_ARMS, (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
@@ -191,35 +190,6 @@ for player, army in players:
     infantry_upgrades = [('Swordsman', tech_upgrade_swordsman, swordman_upgrades, swordsman_units),
                          ('Spearman', tech_upgrade_spearman, spearman_upgrades, spearman_units),
                          ('Alt Infantry', tech_upgrade_alt_infantry, alt_infantry_upgrades, alt_infantry_units)]
-    for name, upgrade_tech, unit_upgrades, units in infantry_upgrades:
-        next_upgrade: Trigger = None
-        for i, upgrades in enumerate(reversed(unit_upgrades)):
-            level = 10 - i
-            up_trigger = t_man.add_trigger(f'Upgrade {name} Level {level} (p{player})', enabled=level == 1, looping=False)
-            up_trigger.new_condition.research_technology(source_player=player, technology=upgrade_tech.ID)
-            for upgrade in upgrades:
-                if type(upgrade) == TechInfo:
-                    up_trigger.new_effect.research_technology(source_player=army, technology=upgrade.ID,
-                                                              force_research_technology=True)
-                elif type(upgrade[0]) == UnitInfo:
-                    new_unit, old_unit, building, location = upgrade
-                    replace_unit(trigger=up_trigger, player=army, new_unit=new_unit, old_unit=old_unit, building=building,
-                                 location=location)
-                else:
-                    upgrade, quantity = upgrade
-                    adjust_unit(trigger=up_trigger, player=army, units=units[0], attribute=upgrade, quantity=quantity)
-            if next_upgrade is not None:
-                cost = 50 + (50 * level)
-                if level > 3:
-                    cost += 50 * (level - 3)
-                if level > 6:
-                    cost += 50 * (level - 6)
-                if level > 8:
-                    cost += 50 * (level - 8)
-                upgrade_tech.update(player=player, trigger=up_trigger, cost=cost)
-                up_trigger.new_effect.activate_trigger(next_upgrade.trigger_id)
-            next_upgrade = up_trigger
-
 
     # Toggle Swordsman
     enable_toggle_swordsman = t_man.add_trigger(f'Research Enable Toggle Swordsman (p{player})', enabled=True, looping=False)
@@ -295,6 +265,81 @@ for player, army in players:
     for tech, location in archery_techs:
         tech.add_to_building(player, BuildingInfo.CAMP_ARCHERY_RANGE.ID, location, camp_archery)
 
+    archer_units = [UnitInfo.ARCHER, UnitInfo.CROSSBOWMAN, UnitInfo.ARBALESTER], 70
+    skirmisher_units = [UnitInfo.SKIRMISHER, UnitInfo.ELITE_SKIRMISHER, UnitInfo.IMPERIAL_SKIRMISHER], 60
+    cav_archer_1_units = [UnitInfo.CAVALRY_ARCHER, UnitInfo.HEAVY_CAVALRY_ARCHER], 80
+    cav_archer_2_units = [UnitInfo.ELEPHANT_ARCHER, UnitInfo.ELITE_ELEPHANT_ARCHER], 90
+    cav_archer_units = (cav_archer_1_units[0] + cav_archer_2_units[0],)
+    archery_range_units = archer_units[0] + skirmisher_units[0] + cav_archer_1_units[0] + cav_archer_2_units[0]
+
+    archer_training_setup = t_man.add_trigger(f'Init Archer Training Time (p{player})', enabled=True, looping=False)
+    for units, train_time in [archer_units, skirmisher_units, cav_archer_1_units, cav_archer_2_units]:
+        for unit in units:
+            archer_training_setup.new_effect.modify_attribute(
+                source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
+                operation=Operation.SET, quantity=train_time
+            )
+
+    archer_training_time = t_man.add_trigger(f'Research Archer Training Time (p{player})', enabled=True, looping=True)
+    archer_training_time.new_condition.research_technology(source_player=player, technology=tech_archer_time.ID)
+    tech_archer_time.update(trigger=archer_training_time, player=player, cost=1.15)
+    for unit in archery_range_units:
+        archer_training_time.new_effect.modify_attribute(
+            source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
+            operation=Operation.MULTIPLY, quantity=0.9
+        )
+
+    archer_upgrades = []
+    skirmisher_upgrades = []
+    cav_archer_upgrades = []
+    archery_unit_upgrade = [('Archer', tech_upgrade_archer, archer_upgrades, archer_units),
+                            ('Skirmisher', tech_upgrade_skirmisher, skirmisher_upgrades, skirmisher_units),
+                            ('Cav Archer', tech_upgrade_cav_archer, cav_archer_upgrades, cav_archer_units)]
+
+    # Toggle Archer
+    enable_toggle_archer = t_man.add_trigger(f'Research Enable Toggle Archer (p{player})', enabled=True, looping=False)
+    disable_toggle_archer = t_man.add_trigger(f'Research Disable Toggle Archer (p{player})', enabled=False, looping=False)
+    enable_toggle_archer.new_condition.research_technology(source_player=player, technology=tech_toggle_archer.ID)
+    enable_toggle_archer.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_archer'][player])
+    tech_toggle_archer.update(player=player, trigger=enable_toggle_archer, name='Disable creating Archer Line',
+                                 icon=gold_crown_icon, description='Stop creating Archer line for the army')
+    enable_toggle_archer.new_effect.activate_trigger(disable_toggle_archer.trigger_id)
+    disable_toggle_archer.new_condition.research_technology(source_player=player, technology=tech_toggle_archer.ID)
+    disable_toggle_archer.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_archer'][player])
+    tech_toggle_archer.update(player=player, trigger=disable_toggle_archer, name='Enable creating Archer Line',
+                                 icon=silver_crown_icon,
+                                 description='Continuously creates Archer line to add to the army')
+    disable_toggle_archer.new_effect.activate_trigger(enable_toggle_archer.trigger_id)
+    # Toggle Skirmisher
+    enable_toggle_skirmisher = t_man.add_trigger(f'Research Enable Toggle Skirmisher (p{player})', enabled=True, looping=False)
+    disable_toggle_skirmisher = t_man.add_trigger(f'Research Disable Toggle Skirmisher (p{player})', enabled=False, looping=False)
+    enable_toggle_skirmisher.new_condition.research_technology(source_player=player, technology=tech_toggle_skirmisher.ID)
+    enable_toggle_skirmisher.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_skirmisher'][player])
+    tech_toggle_skirmisher.update(player=player, trigger=enable_toggle_skirmisher, name='Disable creating Skirmisher Line',
+                                icon=gold_crown_icon, description='Stop creating Skirmisher line for the army')
+    enable_toggle_skirmisher.new_effect.activate_trigger(disable_toggle_skirmisher.trigger_id)
+    disable_toggle_skirmisher.new_condition.research_technology(source_player=player, technology=tech_toggle_skirmisher.ID)
+    disable_toggle_skirmisher.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_skirmisher'][player])
+    tech_toggle_skirmisher.update(player=player, trigger=disable_toggle_skirmisher, name='Enable creating Skirmisher Line',
+                                icon=silver_crown_icon,
+                                description='Continuously creates Skirmisher line to add to the army')
+    disable_toggle_skirmisher.new_effect.activate_trigger(enable_toggle_skirmisher.trigger_id)
+
+    # Toggle Cav Archer
+    enable_toggle_cav_archer = t_man.add_trigger(f'Research Enable Toggle Cav Archer (p{player})', enabled=True, looping=False)
+    disable_toggle_cav_archer = t_man.add_trigger(f'Research Disable Toggle Cav Archer (p{player})', enabled=False, looping=False)
+    enable_toggle_cav_archer.new_condition.research_technology(source_player=player, technology=tech_toggle_cav_archer.ID)
+    enable_toggle_cav_archer.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_cav_archer'][player])
+    tech_toggle_cav_archer.update(player=player, trigger=enable_toggle_cav_archer, name='Disable creating Mounted Archer Line',
+                                 icon=gold_crown_icon, description='Stop creating Mounted Archer line for the army')
+    enable_toggle_cav_archer.new_effect.activate_trigger(disable_toggle_cav_archer.trigger_id)
+    disable_toggle_cav_archer.new_condition.research_technology(source_player=player, technology=tech_toggle_cav_archer.ID)
+    disable_toggle_cav_archer.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_cav_archer'][player])
+    tech_toggle_cav_archer.update(player=player, trigger=disable_toggle_cav_archer, name='Enable creating Mounted Archer Line',
+                                 icon=silver_crown_icon,
+                                 description='Continuously creates Mounted Archer line to add to the army')
+    disable_toggle_cav_archer.new_effect.activate_trigger(enable_toggle_cav_archer.trigger_id)
+
     # -----------------------
     # ----- Army Stable -----
     # -----------------------
@@ -331,6 +376,115 @@ for player, army in players:
     for tech, location in stable_techs:
         tech.add_to_building(player, BuildingInfo.CAMP_STABLE.ID, location, camp_stable)
 
+    light_cav_units = [UnitInfo.SCOUT_CAVALRY, UnitInfo.LIGHT_CAVALRY, UnitInfo.HUSSAR, UnitInfo.WINGED_HUSSAR], 60
+    heavy_cav_1_units = [UnitInfo.KNIGHT, UnitInfo.CAVALIER, UnitInfo.PALADIN], 70
+    heavy_cav_2_units = [UnitInfo.BATTLE_ELEPHANT, UnitInfo.ELITE_BATTLE_ELEPHANT], 80
+    heavy_cav_3_units = [UnitInfo.STEPPE_LANCER, UnitInfo.ELITE_STEPPE_LANCER], 60
+    heavy_cav_4_units = [UnitInfo.SHRIVAMSHA_RIDER, UnitInfo.ELITE_SHRIVAMSHA_RIDER], 60
+    heavy_cav_5_units = [UnitInfo.HEI_GUANG_CAVALRY, UnitInfo.HEAVY_HEI_GUANG_CAVALRY], 70
+    heavy_cav_units = (heavy_cav_1_units[0] + heavy_cav_2_units[0] + heavy_cav_3_units[0] + heavy_cav_4_units[0] + heavy_cav_5_units[0],)
+    alt_cav_1_units = [UnitInfo.CAMEL_SCOUT, UnitInfo.CAMEL_RIDER, UnitInfo.HEAVY_CAMEL_RIDER, UnitInfo.IMPERIAL_CAMEL_RIDER], 60
+    alt_cav_2_units = [UnitInfo.BATTLE_ELEPHANT, UnitInfo.ELITE_BATTLE_ELEPHANT], 80
+    alt_cav_3_units = [UnitInfo.STEPPE_LANCER, UnitInfo.ELITE_STEPPE_LANCER], 60
+    alt_cav_units = (alt_cav_1_units[0] + alt_cav_2_units[0] + alt_cav_3_units[0],)
+    stable_units = light_cav_units[0] + heavy_cav_units[0] + alt_cav_units[0]
+
+    cavalry_training_setup = t_man.add_trigger(f'Init Cavalry Training Time (p{player})', enabled=True, looping=False)
+    for units, train_time in [light_cav_units, heavy_cav_1_units, heavy_cav_2_units, heavy_cav_3_units, heavy_cav_4_units, heavy_cav_5_units, alt_cav_1_units]:
+        for unit in units:
+            cavalry_training_setup.new_effect.modify_attribute(
+                source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
+                operation=Operation.SET, quantity=train_time
+            )
+
+    cavalry_training_time = t_man.add_trigger(f'Research Cavalry Training Time (p{player})', enabled=True, looping=True)
+    cavalry_training_time.new_condition.research_technology(source_player=player, technology=tech_cavalry_time.ID)
+    tech_cavalry_time.update(trigger=cavalry_training_time, player=player, cost=1.15)
+    for unit in stable_units:
+        cavalry_training_time.new_effect.modify_attribute(
+            source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
+            operation=Operation.MULTIPLY, quantity=0.9
+        )
+
+    light_cav_upgrades = []
+    heavy_cav_upgrades = []
+    alt_cav_upgrades = []
+    cavalry_unit_upgrades = [('Light Cavalry', tech_upgrade_light_cav, light_cav_upgrades, light_cav_units),
+                             ('Heavy Cavalry', tech_upgrade_heavy_cav, heavy_cav_upgrades, heavy_cav_units),
+                             ('Alt Cavalry', tech_upgrade_alt_cav, alt_cav_upgrades, alt_cav_units)]
+
+    # Toggle Light Cavalry
+    enable_toggle_light_cav = t_man.add_trigger(f'Research Enable Toggle Light Cavalry (p{player})', enabled=True, looping=False)
+    disable_toggle_light_cav = t_man.add_trigger(f'Research Disable Toggle Light Cavalry (p{player})', enabled=False, looping=False)
+    enable_toggle_light_cav.new_condition.research_technology(source_player=player, technology=tech_toggle_light_cav.ID)
+    enable_toggle_light_cav.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_light_cav'][player])
+    tech_toggle_light_cav.update(player=player, trigger=enable_toggle_light_cav, name='Disable creating Light Cavalry Line',
+                                 icon=gold_crown_icon, description='Stop creating Light Cavalry line for the army')
+    enable_toggle_light_cav.new_effect.activate_trigger(disable_toggle_light_cav.trigger_id)
+    disable_toggle_light_cav.new_condition.research_technology(source_player=player, technology=tech_toggle_light_cav.ID)
+    disable_toggle_light_cav.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_light_cav'][player])
+    tech_toggle_light_cav.update(player=player, trigger=disable_toggle_light_cav, name='Enable creating Light Cavalry Line',
+                                 icon=silver_crown_icon,
+                                 description='Continuously creates Light Cavalry line to add to the army')
+    disable_toggle_light_cav.new_effect.activate_trigger(enable_toggle_light_cav.trigger_id)
+    # Toggle Heavy Cavalry
+    enable_toggle_heavy_cav = t_man.add_trigger(f'Research Enable Toggle Heavy Cavalry (p{player})', enabled=True, looping=False)
+    disable_toggle_heavy_cav = t_man.add_trigger(f'Research Disable Toggle Heavy Cavalry (p{player})', enabled=False, looping=False)
+    enable_toggle_heavy_cav.new_condition.research_technology(source_player=player, technology=tech_toggle_heavy_cav.ID)
+    enable_toggle_heavy_cav.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_heavy_cav'][player])
+    tech_toggle_heavy_cav.update(player=player, trigger=enable_toggle_heavy_cav, name='Disable creating Heavy Cavalry Line',
+                                 icon=gold_crown_icon, description='Stop creating Heavy Cavalry line for the army')
+    enable_toggle_heavy_cav.new_effect.activate_trigger(disable_toggle_heavy_cav.trigger_id)
+    disable_toggle_heavy_cav.new_condition.research_technology(source_player=player, technology=tech_toggle_heavy_cav.ID)
+    disable_toggle_heavy_cav.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_heavy_cav'][player])
+    tech_toggle_heavy_cav.update(player=player, trigger=disable_toggle_heavy_cav, name='Enable creating Heavy Cavalry Line',
+                                 icon=silver_crown_icon,
+                                 description='Continuously creates Heavy Cavalry line to add to the army')
+    disable_toggle_heavy_cav.new_effect.activate_trigger(enable_toggle_heavy_cav.trigger_id)
+    # Toggle Alt Cavalry
+    enable_toggle_alt_cav = t_man.add_trigger(f'Research Enable Toggle Alt Cavalry (p{player})', enabled=True, looping=False)
+    disable_toggle_alt_cav = t_man.add_trigger(f'Research Disable Toggle Alt Cavalry (p{player})', enabled=False, looping=False)
+    enable_toggle_alt_cav.new_condition.research_technology(source_player=player, technology=tech_toggle_alt_cav.ID)
+    enable_toggle_alt_cav.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_alt_cav'][player])
+    tech_toggle_alt_cav.update(player=player, trigger=enable_toggle_alt_cav, name='Disable creating Alt Cavalry Line',
+                               icon=gold_crown_icon, description='Stop creating Alt Cavalry line for the army')
+    enable_toggle_alt_cav.new_effect.activate_trigger(disable_toggle_alt_cav.trigger_id)
+    disable_toggle_alt_cav.new_condition.research_technology(source_player=player, technology=tech_toggle_alt_cav.ID)
+    disable_toggle_alt_cav.new_effect.ai_script_goal(ai_script_goal=ai_goals['toggle_alt_cav'][player])
+    tech_toggle_alt_cav.update(player=player, trigger=disable_toggle_alt_cav, name='Enable creating Alt Cavalry Line',
+                               icon=silver_crown_icon,
+                               description='Continuously creates Alt Cavalry line to add to the army')
+    disable_toggle_alt_cav.new_effect.activate_trigger(enable_toggle_alt_cav.trigger_id)
+
+    all_unit_upgrades = infantry_upgrades + archery_unit_upgrade + cavalry_unit_upgrades
+    for name, upgrade_tech, unit_upgrades, units in infantry_upgrades:
+        next_upgrade = None
+        for i, upgrades in enumerate(reversed(unit_upgrades)):
+            level = 10 - i
+            up_trigger = t_man.add_trigger(f'Upgrade {name} Level {level} (p{player})', enabled=level == 1, looping=False)
+            up_trigger.new_condition.research_technology(source_player=player, technology=upgrade_tech.ID)
+            for upgrade in upgrades:
+                if type(upgrade) == TechInfo:
+                    up_trigger.new_effect.research_technology(source_player=army, technology=upgrade.ID,
+                                                              force_research_technology=True)
+                elif type(upgrade[0]) == UnitInfo:
+                    new_unit, old_unit, building, location = upgrade
+                    replace_unit(trigger=up_trigger, player=army, new_unit=new_unit, old_unit=old_unit, building=building,
+                                 location=location)
+                else:
+                    upgrade, quantity = upgrade
+                    adjust_unit(trigger=up_trigger, player=army, units=units[0], attribute=upgrade, quantity=quantity)
+            if next_upgrade is not None:
+                cost = 50 + (50 * level)
+                if level > 3:
+                    cost += 50 * (level - 3)
+                if level > 6:
+                    cost += 50 * (level - 6)
+                if level > 8:
+                    cost += 50 * (level - 8)
+                upgrade_tech.update(player=player, trigger=up_trigger, cost=cost)
+                up_trigger.new_effect.activate_trigger(next_upgrade.trigger_id)
+            next_upgrade = up_trigger
 
 
 print(t_man.get_summary_as_string())
