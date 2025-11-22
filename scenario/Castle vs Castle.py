@@ -120,7 +120,7 @@ for player, army in players:
         tech.add_to_building(player, building, location, camp_barracks)
 
     swordsman_units = [UnitInfo.MILITIA, UnitInfo.MAN_AT_ARMS, UnitInfo.LONG_SWORDSMAN, UnitInfo.TWO_HANDED_SWORDSMAN,
-                       UnitInfo.CHAMPION], 60
+                       UnitInfo.CHAMPION, UnitInfo.LEGIONARY], 60
     spearman_units = [UnitInfo.SPEARMAN, UnitInfo.PIKEMAN, UnitInfo.HALBERDIER, UnitInfo.HEAVY_PIKEMAN], 60
     alt_infantry_1_units = [UnitInfo.EAGLE_SCOUT, UnitInfo.EAGLE_WARRIOR, UnitInfo.ELITE_EAGLE_WARRIOR], 80
     alt_infantry_2_units = [UnitInfo.FIRE_LANCER, UnitInfo.ELITE_FIRE_LANCER], 80
@@ -199,7 +199,7 @@ for player, army in players:
             up_trigger.new_condition.research_technology(source_player=player, technology=upgrade_tech.ID)
             for upgrade in upgrades:
                 if type(upgrade) == TechInfo:
-                    up_trigger.new_effect.research_technology(source_player=player, technology=upgrade.ID,
+                    up_trigger.new_effect.research_technology(source_player=army, technology=upgrade.ID,
                                                               force_research_technology=True)
                 elif type(upgrade[0]) == UnitInfo:
                     new_unit, old_unit, building, location = upgrade
@@ -209,8 +209,16 @@ for player, army in players:
                     upgrade, quantity = upgrade
                     adjust_unit(trigger=up_trigger, player=army, units=units[0], attribute=upgrade, quantity=quantity)
             if next_upgrade is not None:
-                upgrade_tech.update(player=player, trigger=up_trigger, cost=1.25)
+                cost = 50 + (50 * level)
+                if level > 3:
+                    cost += 50 * (level - 3)
+                if level > 6:
+                    cost += 50 * (level - 6)
+                if level > 8:
+                    cost += 50 * (level - 8)
+                upgrade_tech.update(player=player, trigger=up_trigger, cost=cost)
                 up_trigger.new_effect.activate_trigger(next_upgrade.trigger_id)
+            next_upgrade = up_trigger
 
 
     # Toggle Swordsman
@@ -316,9 +324,9 @@ for player, army in players:
         override_tech=TechInfo.BLANK_TECHNOLOGY_20.ID, name='Enable creating Alternative Cavalry Line',
         icon=silver_crown_icon,
         description='Continuously creates Alternative Cavalry line to add to the army', cost=[], research_time=5)
-    stable_techs = [(tech_toggle_archer, 1), (tech_toggle_skirmisher, 2), (tech_toggle_cav_archer, 3),
-                     (tech_upgrade_archer, 6), (tech_upgrade_skirmisher, 7), (tech_upgrade_cav_archer, 8),
-                     (tech_archer_time, 15)]
+    stable_techs = [(tech_toggle_light_cav, 1), (tech_toggle_heavy_cav, 2), (tech_toggle_alt_cav, 3),
+                     (tech_upgrade_light_cav, 6), (tech_upgrade_heavy_cav, 7), (tech_upgrade_alt_cav, 8),
+                     (tech_cavalry_time, 15)]
     camp_stable = t_man.add_trigger(f'Camp Stable (p{player})', enabled=True, looping=False)
     for tech, location in stable_techs:
         tech.add_to_building(player, BuildingInfo.CAMP_STABLE.ID, location, camp_stable)

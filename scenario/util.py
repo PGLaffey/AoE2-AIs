@@ -70,6 +70,8 @@ class CustomTech:
             self.description = f'<cost> {description}'
         if type(cost) == float:
             self.cost = [(res, int(amount * cost)) for res, amount in self.cost]
+        elif type(cost) == int:
+            self.cost = [(res, cost) for res, _ in self.cost]
         else:
             self.cost = cost or self.cost
         self.research_time = research_time or self.research_time
@@ -82,10 +84,10 @@ class CustomTech:
 def adjust_unit(trigger: Trigger, player: int, units: list[UnitInfo] | UnitInfo, attribute: ObjectAttribute | AttackArmor,
                 quantity: int | float):
     params = {'operation': Operation.ADD if quantity > 0 else Operation.SUBTRACT}
-    if attribute is AttackArmor:
+    if type(attribute) == AttackArmor:
         params['object_attributes'] = attribute.attribute
-        params['armor_attack_class'] = attribute.a_type
-        params['armor_attack_quantity'] = attribute
+        params['armour_attack_class'] = attribute.a_type
+        params['armour_attack_quantity'] = quantity
     else:
         params['object_attributes'] = attribute
         params['quantity'] = quantity
