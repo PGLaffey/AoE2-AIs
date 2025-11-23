@@ -1,3 +1,5 @@
+import shutil
+
 from AoE2ScenarioParser.datasets.buildings import BuildingInfo
 from AoE2ScenarioParser.datasets.heroes import HeroInfo
 from AoE2ScenarioParser.datasets.other import OtherInfo
@@ -491,3 +493,6 @@ print(t_man.get_summary_as_string())
 q = input('Save?')
 if q.lower() == 'y' or q.lower() == 'yes':
     scenario.write_to_file(output_path)
+    ai_path = 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\AoE2DE\\resources\\_common\\ai'
+    shutil.copy('../ai/Castle vs Castle.per', f'{ai_path}\\Castle vs Castle.per')
+    shutil.copytree('../ai/castle_vs_castle', f'{ai_path}\\castle_vs_castle', dirs_exist_ok=True)

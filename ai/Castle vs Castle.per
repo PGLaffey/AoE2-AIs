@@ -117,6 +117,7 @@
 (defconst c-stance-follow 1)
 (defconst c-stance-attack 2)
 (defconst c-stance-retreat 3)
+(defconst c-stance-defend 4)
 
 ; Group Consts
 (defconst c-cav-group 3)
@@ -124,6 +125,8 @@
 
 (defconst object-data-idling 49)
 (defconst object-data-group-flag 73)
+
+(load "castle_vs_castle/default_units")
 
 ; ===== Init =====
 (defrule
@@ -154,14 +157,142 @@
     (set-goal g-swap-general 1)
     (set-goal g-general-iterator c-cav-arch-general)
 
-    (load 'castle_vs_castle/default_units')
-
     (enable-timer t-create-unit-1 1)
     (enable-timer t-create-unit-2 2)
     (enable-timer t-create-unit-3 3)
 
     (disable-self)
 )
+
+
+; ; Units everyone has access to
+; (defrule 
+;     (true)
+;     =>
+;     (set-goal g-swordsman-unit militiaman-line)
+;     (set-goal g-spearman-unit spearman-line)
+;     (set-goal g-archer-unit archer-line)
+;     (set-goal g-skirmisher-unit skirmisher-line)
+;     (set-goal g-unique-unit my-unique-unit-line)
+;     (disable-self)
+; )
+; ; Alt Infantry
+; (defrule
+;     (can-train eagle-warrior-line)
+;     =>
+;     (set-goal g-alt-infantry-unit eagle-warrior-line)
+;     (disable-self)
+; )
+; (defrule
+;     (not
+;         (can-train eagle-warrior-line)
+;     )
+;     (can-train fire-lancer-line)
+;     =>
+;     (set-goal g-alt-infantry-unit fire-lancer-line)
+;     (disable-self)
+; )
+; ; Cavalry Archer
+; (defrule
+;     (can-train cavalry-archer-line)
+;     =>
+;     (set-goal g-cavalry-archer-unit cavalry-archer-line)
+;     (disable-self)
+; )
+; (defrule
+;     (not
+;         (can-train cavalry-archer-line)
+;     )
+;     (can-train elephant-archer-line)
+;     =>
+;     (set-goal g-cavalry-archer-unit elephant-archer-line)
+;     (disable-self)
+; )
+; ; Light Cavalry
+; (defrule
+;     (can-train scout-cavalry-line)
+;     =>
+;     (set-goal g-light-cavalry-unit scout-cavalry-line)
+;     (disable-self)
+; )
+; ; Heavy Cavalry
+; (defrule
+;     (can-train knight-line)
+;     =>
+;     (set-goal g-heavy-cavalry-unit knight-line)
+;     (disable-self)
+; )
+; (defrule
+;     (not (can-train knight-line))
+;     (can-train battle-elephant-line)
+;     =>
+;     (set-goal g-heavy-cavalry-unit battle-elephant-line)
+;     (disable-self)
+; )
+; (defrule
+;     (not(can-train battle-elephant-line))
+;     (not(can-train knight-line))
+;     (can-train hei-guang-cavalry-line)
+;     =>
+;     (set-goal g-heavy-cavalry-unit hei-guang-cavalry-line)
+;     (disable-self)
+; )
+; (defrule
+;     (not(can-train battle-elephant-line))
+;     (not(can-train knight-line))
+;     (not(can-train hei-guang-cavalry-line))
+;     (can-train steppe-lancer-line)
+;     =>
+;     (set-goal g-heavy-cavalry-unit steppe-lancer-line)
+;     (disable-self)
+; )
+; (defrule
+;     (not(can-train battle-elephant-line))
+;     (not(can-train knight-line))
+;     (not(can-train hei-guang-cavalry-line))
+;     (not(can-train steppe-lancer-line))
+;     (can-train shrivamsha-rider-line)
+;     =>
+;     (set-goal g-heavy-cavalry-unit shrivamsha-rider-line)
+;     (disable-self)
+; )
+; (defrule
+;     (not(can-train battle-elephant-line))
+;     (not(can-train knight-line))
+;     (not(can-train hei-guang-cavalry-line))
+;     (not(can-train steppe-lancer-line))
+;     (not(can-train shrivamsha-rider-line))
+;     (can-train 1570)
+;     =>
+;     (set-goal g-heavy-cavalry-unit 1570)
+;     (disable-self)
+; )
+; ; Alt Cavalry
+; (defrule
+;     (can-train camel-line)
+;     =>
+;     (set-goal g-alt-cavalry-unit camel-line)
+;     (disable-self)
+; )
+; (defrule
+;     (not (can-train camel-line))
+;     (can-train steppe-lancer-line)
+;     =>
+;     (set-goal g-alt-cavalry-unit steppe-lancer-line)
+;     (disable-self)
+; )
+; (defrule
+;     (not (can-train camel-line))
+;     (not (can-train steppe-lancer-line))
+;     (can-train battle-elephant-line)
+;     =>
+;     (set-goal g-alt-cavalry-unit battle-elephant-line)
+;     (disable-self)
+; )
+
+
+
+
 
 ; Set stance follow
 (defrule
