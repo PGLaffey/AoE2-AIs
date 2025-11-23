@@ -78,6 +78,15 @@ for player, army in players:
     setup_army.new_effect.research_technology(source_player=army, force_research_technology=True,
                                               technology=TechInfo.SET_MAXIMUM_POPULATION_NO_HOUSES.ID)
 
+    next_age = None
+    for i, age in enumerate(reversed([TechInfo.FEUDAL_AGE, TechInfo.CASTLE_AGE, TechInfo.IMPERIAL_AGE])):
+        army_age = t_man.add_trigger(f'Age {age.name} (p{player})', enabled=i==2, looping=False)
+        army_age.new_condition.research_technology(source_player=player, technology=age.ID)
+        army_age.new_effect.research_technology(source_player=army, technology=age.ID, force_research_technology=True)
+        if next_age is not None:
+            army_age.new_effect.activate_trigger(next_age.trigger_id)
+        next_age = army_age
+
     # Villager Limit
     vil_limit = t_man.add_trigger(f'Villager Limit (p{player})', enabled=True, looping=False)
     for unit in UnitInfo.vils():
@@ -141,6 +150,7 @@ for player, army in players:
                 source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
                 operation=Operation.SET, quantity=train_time
             )
+            infantry_training_setup.new_effect.change_object_cost(source_player=army, object_list_unit_id=unit.ID)
 
     infantry_training_time = t_man.add_trigger(f'Research Infantry Training Time (p{player})', enabled=True, looping=True)
     infantry_training_time.new_condition.research_technology(source_player=player, technology=tech_infantry_time.ID)
@@ -287,6 +297,7 @@ for player, army in players:
                 source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
                 operation=Operation.SET, quantity=train_time
             )
+            archer_training_setup.new_effect.change_object_cost(source_player=army, object_list_unit_id=unit.ID)
 
     archer_training_time = t_man.add_trigger(f'Research Archer Training Time (p{player})', enabled=True, looping=True)
     archer_training_time.new_condition.research_technology(source_player=player, technology=tech_archer_time.ID)
@@ -352,12 +363,10 @@ for player, army in players:
     # ----- Army Stable -----
     # -----------------------
     tech_cavalry_time = CustomTech(
-        override_tech=TechInfo.BLANK_TECHNOLOGY_14.ID, name='Cavalry Training Time',
-        icon=TechInfo.HUSBANDRY.ICON_ID,
-        description='Trains Cavalry 10% Faster',
-        cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        override_tech=TechInfo.BLANK_TECHNOLOGY_14.ID, name='Cavalry Training Time', icon=TechInfo.HUSBANDRY.ICON_ID,
+        description='Trains Cavalry 10% Faster', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
     tech_upgrade_light_cav = CustomTech(
-        override_tech=TechInfo.BLANK_TECHNOLOGY_15.ID, name='Upgrade Light Cavalry Line', icon=TechInfo.WINGED_HUSSAR_POLES.ICON_ID,
+        override_tech=TechInfo.BLANK_TECHNOLOGY_15.ID, name='Upgrade Light Cavalry Line', icon=TechInfo.WINGED_HUSSAR.ICON_ID,
         description='Improves the Light Cavalry line', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
     tech_upgrade_heavy_cav = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_16.ID, name='Upgrade Heavy Cavalry Line', icon=TechInfo.PALADIN.ICON_ID,
@@ -371,12 +380,12 @@ for player, army in players:
         description='Continuously creates Light Cavalry line to add to the army', cost=[], research_time=5)
     tech_toggle_heavy_cav = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_19.ID, name='Enable creating Heavy Cavalry Line',
-        icon=silver_crown_icon,
-        description='Continuously creates Heavy Cavalry line to add to the army', cost=[], research_time=5)
+        icon=silver_crown_icon, description='Continuously creates Heavy Cavalry line to add to the army',
+        cost=[], research_time=5)
     tech_toggle_alt_cav = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_20.ID, name='Enable creating Alternative Cavalry Line',
-        icon=silver_crown_icon,
-        description='Continuously creates Alternative Cavalry line to add to the army', cost=[], research_time=5)
+        icon=silver_crown_icon, description='Continuously creates Alternative Cavalry line to add to the army',
+        cost=[], research_time=5)
     stable_techs = [(tech_toggle_light_cav, 1), (tech_toggle_heavy_cav, 2), (tech_toggle_alt_cav, 3),
                      (tech_upgrade_light_cav, 6), (tech_upgrade_heavy_cav, 7), (tech_upgrade_alt_cav, 8),
                      (tech_cavalry_time, 15)]
@@ -404,6 +413,7 @@ for player, army in players:
                 source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
                 operation=Operation.SET, quantity=train_time
             )
+            cavalry_training_setup.new_effect.change_object_cost(source_player=army, object_list_unit_id=unit.ID)
 
     cavalry_training_time = t_man.add_trigger(f'Research Cavalry Training Time (p{player})', enabled=True, looping=True)
     cavalry_training_time.new_condition.research_technology(source_player=player, technology=tech_cavalry_time.ID)
@@ -493,8 +503,6 @@ for player, army in players:
                 upgrade_tech.update(player=player, trigger=up_trigger, cost=cost)
                 up_trigger.new_effect.activate_trigger(next_upgrade.trigger_id)
             next_upgrade = up_trigger
-
-    dark_age = t_man.add_trigger(f'Dark Age (p{player})', enabled=True, looping=False)
 
 print(t_man.get_summary_as_string())
 q = input('Save?')

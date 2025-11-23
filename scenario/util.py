@@ -69,7 +69,7 @@ class CustomTech:
         if description:
             self.description = f'<cost> {description}'
         if type(cost) == float:
-            self.cost = [(res, int(amount * cost)) for res, amount in self.cost]
+            self.cost = [(res, int(amount * cost) if res not in [Attribute.CURRENT_AGE] else amount) for res, amount in self.cost]
         elif type(cost) == int:
             self.cost = [(res, cost) for res, _ in self.cost]
         else:
@@ -100,6 +100,8 @@ def adjust_unit(trigger: Trigger, player: int, units: list[UnitInfo] | UnitInfo,
         trigger.new_effect.modify_attribute(source_player=player, object_list_unit_id=unit.ID, **params)
 
 def replace_unit(trigger: Trigger, player: int, new_unit: UnitInfo, old_unit: UnitInfo, building: BuildingInfo, location: int):
+    trigger.new_effect.change_train_location(source_player=player, object_list_unit_id=old_unit.ID,
+                                             object_list_unit_id_2=BuildingInfo.AQUEDUCT.ID, button_location=0)
     trigger.new_effect.enable_disable_object(source_player=player, object_list_unit_id=old_unit.ID, enabled=False)
     trigger.new_effect.change_train_location(source_player=player, object_list_unit_id=new_unit.ID,
                                              object_list_unit_id_2=building.ID, button_location=location)

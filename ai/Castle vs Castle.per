@@ -514,6 +514,14 @@
 ; ========================
 ; ===== Create Units =====
 ; ========================
+; Replace Standard Units with Custom Units
+(defrule ; Heavy Spearman
+    (can-train 892)
+    =>
+    (set-goal g-spearman-unit 892)
+    (disable-self)
+)
+
 ; Use timer to create units on schedule to try to spread unit combo
 (defrule
     ; (timer-triggered t-create-unit)
