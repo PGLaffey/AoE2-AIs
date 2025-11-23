@@ -15,6 +15,8 @@ from AoE2ScenarioParser.scenarios.aoe2_de_scenario import AoE2DEScenario
 from AoE2ScenarioParser.datasets.techs import TechInfo
 from AoE2ScenarioParser.datasets.trigger_lists.attribute import Attribute
 from util import *
+import dotenv
+import os
 
 class PlayerNum:
     def __init__(self, num: int, army: int):
@@ -27,8 +29,8 @@ class PlayerNum:
     def __getitem__(self, item):
         return [self.num, self.army][item]
 
-
-scenario_folder = 'C:/Users/User/Games/Age of Empires 2 DE/76561198138036391/resources/_common/scenario'
+dotenv.load_dotenv()
+scenario_folder = f'C:/Users/{os.getenv("username", "User")}/Games/Age of Empires 2 DE/76561198138036391/resources/_common/scenario'
 input_path = f'{scenario_folder}/Castle vs Castle.aoe2scenario'
 output_path = f'{scenario_folder}/Castle vs Castle - python.aoe2scenario'
 
@@ -71,6 +73,10 @@ for player, army in players:
 
     setup_res.new_effect.modify_resource(source_player=player, tribute_list=res_villagers, operation=Operation.SET, quantity=50)
     setup_res.new_effect.modify_resource(source_player=player, tribute_list=res_villagers, operation=Operation.SUBTRACT, quantity=3)
+
+    setup_army = t_man.add_trigger(f'Setup Army (p{player})', enabled=True, looping=False)
+    setup_army.new_effect.research_technology(source_player=army, force_research_technology=True,
+                                              technology=TechInfo.SET_MAXIMUM_POPULATION_NO_HOUSES.ID)
 
     # Villager Limit
     vil_limit = t_man.add_trigger(f'Villager Limit (p{player})', enabled=True, looping=False)
@@ -488,11 +494,12 @@ for player, army in players:
                 up_trigger.new_effect.activate_trigger(next_upgrade.trigger_id)
             next_upgrade = up_trigger
 
+    dark_age = t_man.add_trigger(f'Dark Age (p{player})', enabled=True, looping=False)
 
 print(t_man.get_summary_as_string())
 q = input('Save?')
 if q.lower() == 'y' or q.lower() == 'yes':
     scenario.write_to_file(output_path)
-    ai_path = 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\AoE2DE\\resources\\_common\\ai'
-    shutil.copy('../ai/Castle vs Castle.per', f'{ai_path}\\Castle vs Castle.per')
-    shutil.copytree('../ai/castle_vs_castle', f'{ai_path}\\castle_vs_castle', dirs_exist_ok=True)
+    ai_path = f'{os.getenv("steam_path", "C:/Program Files (x86)/Steam")}/steamapps/common/AoE2DE/resources/_common/ai'
+    shutil.copy('../ai/Castle vs Castle.per', f'{ai_path}/Castle vs Castle.per')
+    shutil.copytree('../ai/castle_vs_castle', f'{ai_path}/castle_vs_castle', dirs_exist_ok=True)

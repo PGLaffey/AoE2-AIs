@@ -77,7 +77,6 @@ class CustomTech:
         self.research_time = research_time or self.research_time
         self.stacking = stacking or self.stacking
         for building, location in self._applications[player]:
-            print(building, location)
             self.add_to_building(player, building, location, trigger)
 
 

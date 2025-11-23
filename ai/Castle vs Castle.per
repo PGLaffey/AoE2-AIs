@@ -4,6 +4,11 @@
 (defconst g-stance 2) 
 (defconst g-ally 3)
 
+(defconst g-barracks-count 6)
+(defconst g-archery-range-count 7)
+(defconst g-stable-count 8)
+(defconst g-castle-count 9)
+
 (defconst g-army-create-swordsman 10)
 (defconst g-army-create-spearman 11)
 (defconst g-army-create-alt-infantry 12)
@@ -96,9 +101,8 @@
 (defconst t-flare-timeout 2)
 (defconst t-delayed-stance 3)
 (defconst t-move-to-flare 4)
-(defconst t-create-unit-1 5)
-(defconst t-create-unit-2 6)
-(defconst t-create-unit-3 7)
+(defconst t-create-unit 5)
+(defconst t-check-building-count 6)
 
 ; ===== Constants =====
 (defconst c-all-units-class -1)
@@ -121,6 +125,11 @@
 
 ; Group Consts
 (defconst c-cav-group 3)
+
+; Missing Consts
+(defconst object-data-distance 44)
+(defconst search-order-asc 1)
+(defconst search-order-desc 2)
 
 
 (defconst object-data-idling 49)
@@ -157,9 +166,8 @@
     (set-goal g-swap-general 1)
     (set-goal g-general-iterator c-cav-arch-general)
 
-    (enable-timer t-create-unit-1 1)
-    (enable-timer t-create-unit-2 2)
-    (enable-timer t-create-unit-3 3)
+    (enable-timer t-create-unit 1)
+    (enable-timer t-check-building-count 10)
 
     (disable-self)
 )
@@ -508,91 +516,101 @@
 ; ========================
 ; Use timer to create units on schedule to try to spread unit combo
 (defrule
-    (timer-triggered t-create-unit-1)
+    ; (timer-triggered t-create-unit)
     (goal g-army-create-swordsman 1)
+    (up-pending-objects g: g-swordsman-unit g:< g-barracks-count)
     =>
-    (train g-swordsman-unit)
+    (up-train 0 g: g-swordsman-unit)
 )
 (defrule
-    (timer-triggered t-create-unit-2)
+    ; (timer-triggered t-create-unit)
     (goal g-army-create-spearman 1)
+    (up-pending-objects g: g-spearman-unit g:< g-barracks-count)
     =>
-    (train g-spearman-unit)
+    (up-train 0 g: g-spearman-unit)
 )
 (defrule
-    (timer-triggered t-create-unit-3)
+    ; (timer-triggered t-create-unit)
     (goal g-army-create-alt-infantry 1)
+    (up-pending-objects g: g-alt-infantry-unit g:< g-barracks-count)
     =>
-    (train g-alt-infantry-unit)
+    (up-train 0 g: g-alt-infantry-unit)
 )
 (defrule
-    (timer-triggered t-create-unit-1)
+    ; (timer-triggered t-create-unit)
     (goal g-army-create-archer 1)
+    (up-pending-objects g: g-archer-unit g:< g-archery-range-count)
     =>
-    (train g-archer-unit)
+    (up-train 0 g: g-archer-unit)
 )
 (defrule
-    (timer-triggered t-create-unit-2)
+    ; (timer-triggered t-create-unit)
     (goal g-army-create-skirmisher 1)
+    (up-pending-objects g: g-skirmisher-unit g:< g-archery-range-count)
     =>
-    (train g-skirmisher-unit)
+    (up-train 0 g: g-skirmisher-unit)
 )
 (defrule
-    (timer-triggered t-create-unit-3)
+    ; (timer-triggered t-create-unit)
     (goal g-army-create-cavalry-archer 1)
+    (up-pending-objects g: g-cavalry-archer-unit g:< g-archery-range-count)
     =>
-    (train g-cavalry-archer-unit)
+    (up-train 0 g: g-cavalry-archer-unit)
 )
 (defrule
-    (timer-triggered t-create-unit-1)
+    ; (timer-triggered t-create-unit)
     (goal g-army-create-light-cavalry 1)
+    (up-pending-objects g: g-light-cavalry-unit g:< g-stable-count)
     =>
-    (train g-light-cavalry-unit)
+    (up-train 0 g: g-light-cavalry-unit)
 )
 (defrule
-    (timer-triggered t-create-unit-2)
+    ; (timer-triggered t-create-unit)
     (goal g-army-create-heavy-cavalry 1)
+    (up-pending-objects g: g-heavy-cavalry-unit g:< g-stable-count)
     =>
-    (train g-heavy-cavalry-unit)
+    (up-train 0 g: g-heavy-cavalry-unit)
 )
 (defrule
-    (timer-triggered t-create-unit-3)
+    ; (timer-triggered t-create-unit)
     (goal g-army-create-alt-cavalry 1)
+    (up-pending-objects g: g-alt-cavalry-unit g:< g-stable-count)
     =>
-    (train g-alt-cavalry-unit)
+    (up-train 0 g: g-alt-cavalry-unit)
 )
 (defrule
+    ; (timer-triggered t-create-unit)
     (goal g-army-create-unique-unit 1)
+    (up-pending-objects g: g-unique-unit g:< g-castle-count)
     =>
-    (train g-unique-unit)
+    (up-train 0 g: g-unique-unit)
 )
 
 ; Reset unit timers
+; (defrule
+;     (timer-triggered t-create-unit)
+;     =>
+;     (disable-timer t-create-unit)
+;     (enable-timer t-create-unit 1)
+; )
 (defrule
-    (timer-triggered t-create-unit-1)
+    (timer-triggered t-check-building-count)
     =>
-    (disable-timer t-create-unit-1)
-    (enable-timer t-create-unit-1 3)
+    (disable-timer t-check-building-count)
+    (enable-timer t-check-building-count 10)
+    (up-get-fact building-type-count barracks g-barracks-count)
+    (up-get-fact building-type-count archery-range g-archery-range-count)
+    (up-get-fact building-type-count stable g-stable-count)
+    (up-get-fact building-type-count castle g-castle-count)
 )
-(defrule
-    (timer-triggered t-create-unit-2)
-    =>
-    (disable-timer t-create-unit-2)
-    (enable-timer t-create-unit-2 3)
-)
-(defrule
-    (timer-triggered t-create-unit-3)
-    =>
-    (disable-timer t-create-unit-3)
-    (enable-timer t-create-unit-3 3)
-)
+
 ; ========================================
 ; ===== (Event) Toggle Unit Creation =====
 ; ========================================
 #load-if-defined UP-PLAYER-5
 (defrule
     (event-detected trigger e-p1-army-create-swordsman)
-    (goal g-army-create-swordsman 0)
+    (goal g-army-create-swordsman -1)
     =>
     (acknowledge-event trigger e-p1-army-create-swordsman)
     (set-goal g-army-create-swordsman 1)
@@ -602,11 +620,11 @@
     (goal g-army-create-swordsman 1)
     =>
     (acknowledge-event trigger e-p1-army-create-swordsman)
-    (set-goal g-army-create-swordsman 0)
+    (set-goal g-army-create-swordsman -1)
 )
 (defrule
     (event-detected trigger e-p1-army-create-spearman)
-    (goal g-army-create-spearman 0)
+    (goal g-army-create-spearman -1)
     =>
     (acknowledge-event trigger e-p1-army-create-spearman)
     (set-goal g-army-create-spearman 1)
@@ -616,11 +634,11 @@
     (goal g-army-create-spearman 1)
     =>
     (acknowledge-event trigger e-p1-army-create-spearman)
-    (set-goal g-army-create-spearman 0)
+    (set-goal g-army-create-spearman -1)
 )
 (defrule
     (event-detected trigger e-p1-army-create-alt-infantry)
-    (goal g-army-create-alt-infantry 0)
+    (goal g-army-create-alt-infantry -1)
     =>
     (acknowledge-event trigger e-p1-army-create-alt-infantry)
     (set-goal g-army-create-alt-infantry 1)
@@ -630,11 +648,11 @@
     (goal g-army-create-alt-infantry 1)
     =>
     (acknowledge-event trigger e-p1-army-create-alt-infantry)
-    (set-goal g-army-create-alt-infantry 0)
+    (set-goal g-army-create-alt-infantry -1)
 )
 (defrule
     (event-detected trigger e-p1-army-create-archer)
-    (goal g-army-create-archer 0)
+    (goal g-army-create-archer -1)
     =>
     (acknowledge-event trigger e-p1-army-create-archer)
     (set-goal g-army-create-archer 1)
@@ -644,11 +662,11 @@
     (goal g-army-create-archer 1)
     =>
     (acknowledge-event trigger e-p1-army-create-archer)
-    (set-goal g-army-create-archer 0)
+    (set-goal g-army-create-archer -1)
 )
 (defrule
     (event-detected trigger e-p1-army-create-skirmisher)
-    (goal g-army-create-skirmisher 0)
+    (goal g-army-create-skirmisher -1)
     =>
     (acknowledge-event trigger e-p1-army-create-skirmisher)
     (set-goal g-army-create-skirmisher 1)
@@ -658,11 +676,11 @@
     (goal g-army-create-skirmisher 1)
     =>
     (acknowledge-event trigger e-p1-army-create-skirmisher)
-    (set-goal g-army-create-skirmisher 0)
+    (set-goal g-army-create-skirmisher -1)
 )
 (defrule
     (event-detected trigger e-p1-army-create-cavalry-archer)
-    (goal g-army-create-cavalry-archer 0)
+    (goal g-army-create-cavalry-archer -1)
     =>
     (acknowledge-event trigger e-p1-army-create-cavalry-archer)
     (set-goal g-army-create-cavalry-archer 1)
@@ -672,11 +690,11 @@
     (goal g-army-create-cavalry-archer 1)
     =>
     (acknowledge-event trigger e-p1-army-create-cavalry-archer)
-    (set-goal g-army-create-cavalry-archer 0)
+    (set-goal g-army-create-cavalry-archer -1)
 )
 (defrule
     (event-detected trigger e-p1-army-create-light-cavalry)
-    (goal g-army-create-light-cavalry 0)
+    (goal g-army-create-light-cavalry -1)
     =>
     (acknowledge-event trigger e-p1-army-create-light-cavalry)
     (set-goal g-army-create-light-cavalry 1)
@@ -686,11 +704,11 @@
     (goal g-army-create-light-cavalry 1)
     =>
     (acknowledge-event trigger e-p1-army-create-light-cavalry)
-    (set-goal g-army-create-light-cavalry 0)
+    (set-goal g-army-create-light-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p1-army-create-heavy-cavalry)
-    (goal g-army-create-heavy-cavalry 0)
+    (goal g-army-create-heavy-cavalry -1)
     =>
     (acknowledge-event trigger e-p1-army-create-heavy-cavalry)
     (set-goal g-army-create-heavy-cavalry 1)
@@ -700,11 +718,11 @@
     (goal g-army-create-heavy-cavalry 1)
     =>
     (acknowledge-event trigger e-p1-army-create-heavy-cavalry)
-    (set-goal g-army-create-heavy-cavalry 0)
+    (set-goal g-army-create-heavy-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p1-army-create-alt-cavalry)
-    (goal g-army-create-alt-cavalry 0)
+    (goal g-army-create-alt-cavalry -1)
     =>
     (acknowledge-event trigger e-p1-army-create-alt-cavalry)
     (set-goal g-army-create-alt-cavalry 1)
@@ -714,11 +732,11 @@
     (goal g-army-create-alt-cavalry 1)
     =>
     (acknowledge-event trigger e-p1-army-create-alt-cavalry)
-    (set-goal g-army-create-alt-cavalry 0)
+    (set-goal g-army-create-alt-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p1-army-create-unique-unit)
-    (goal g-army-create-unique-unit 0)
+    (goal g-army-create-unique-unit -1)
     =>
     (acknowledge-event trigger e-p1-army-create-unique-unit)
     (set-goal g-army-create-unique-unit 1)
@@ -728,14 +746,14 @@
     (goal g-army-create-unique-unit 1)
     =>
     (acknowledge-event trigger e-p1-army-create-unique-unit)
-    (set-goal g-army-create-unique-unit 0)
+    (set-goal g-army-create-unique-unit -1)
 )
 #end-if
 
 #load-if-defined UP-PLAYER-8
 (defrule
     (event-detected trigger e-p2-army-create-swordsman)
-    (goal g-army-create-swordsman 0)
+    (goal g-army-create-swordsman -1)
     =>
     (acknowledge-event trigger e-p2-army-create-swordsman)
     (set-goal g-army-create-swordsman 1)
@@ -745,11 +763,11 @@
     (goal g-army-create-swordsman 1)
     =>
     (acknowledge-event trigger e-p2-army-create-swordsman)
-    (set-goal g-army-create-swordsman 0)
+    (set-goal g-army-create-swordsman -1)
 )
 (defrule
     (event-detected trigger e-p2-army-create-spearman)
-    (goal g-army-create-spearman 0)
+    (goal g-army-create-spearman -1)
     =>
     (acknowledge-event trigger e-p2-army-create-spearman)
     (set-goal g-army-create-spearman 1)
@@ -759,11 +777,11 @@
     (goal g-army-create-spearman 1)
     =>
     (acknowledge-event trigger e-p2-army-create-spearman)
-    (set-goal g-army-create-spearman 0)
+    (set-goal g-army-create-spearman -1)
 )
 (defrule
     (event-detected trigger e-p2-army-create-alt-infantry)
-    (goal g-army-create-alt-infantry 0)
+    (goal g-army-create-alt-infantry -1)
     =>
     (acknowledge-event trigger e-p2-army-create-alt-infantry)
     (set-goal g-army-create-alt-infantry 1)
@@ -773,11 +791,11 @@
     (goal g-army-create-alt-infantry 1)
     =>
     (acknowledge-event trigger e-p2-army-create-alt-infantry)
-    (set-goal g-army-create-alt-infantry 0)
+    (set-goal g-army-create-alt-infantry -1)
 )
 (defrule
     (event-detected trigger e-p2-army-create-archer)
-    (goal g-army-create-archer 0)
+    (goal g-army-create-archer -1)
     =>
     (acknowledge-event trigger e-p2-army-create-archer)
     (set-goal g-army-create-archer 1)
@@ -787,11 +805,11 @@
     (goal g-army-create-archer 1)
     =>
     (acknowledge-event trigger e-p2-army-create-archer)
-    (set-goal g-army-create-archer 0)
+    (set-goal g-army-create-archer -1)
 )
 (defrule
     (event-detected trigger e-p2-army-create-skirmisher)
-    (goal g-army-create-skirmisher 0)
+    (goal g-army-create-skirmisher -1)
     =>
     (acknowledge-event trigger e-p2-army-create-skirmisher)
     (set-goal g-army-create-skirmisher 1)
@@ -801,11 +819,11 @@
     (goal g-army-create-skirmisher 1)
     =>
     (acknowledge-event trigger e-p2-army-create-skirmisher)
-    (set-goal g-army-create-skirmisher 0)
+    (set-goal g-army-create-skirmisher -1)
 )
 (defrule
     (event-detected trigger e-p2-army-create-cavalry-archer)
-    (goal g-army-create-cavalry-archer 0)
+    (goal g-army-create-cavalry-archer -1)
     =>
     (acknowledge-event trigger e-p2-army-create-cavalry-archer)
     (set-goal g-army-create-cavalry-archer 1)
@@ -815,11 +833,11 @@
     (goal g-army-create-cavalry-archer 1)
     =>
     (acknowledge-event trigger e-p2-army-create-cavalry-archer)
-    (set-goal g-army-create-cavalry-archer 0)
+    (set-goal g-army-create-cavalry-archer -1)
 )
 (defrule
     (event-detected trigger e-p2-army-create-light-cavalry)
-    (goal g-army-create-light-cavalry 0)
+    (goal g-army-create-light-cavalry -1)
     =>
     (acknowledge-event trigger e-p2-army-create-light-cavalry)
     (set-goal g-army-create-light-cavalry 1)
@@ -829,11 +847,11 @@
     (goal g-army-create-light-cavalry 1)
     =>
     (acknowledge-event trigger e-p2-army-create-light-cavalry)
-    (set-goal g-army-create-light-cavalry 0)
+    (set-goal g-army-create-light-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p2-army-create-heavy-cavalry)
-    (goal g-army-create-heavy-cavalry 0)
+    (goal g-army-create-heavy-cavalry -1)
     =>
     (acknowledge-event trigger e-p2-army-create-heavy-cavalry)
     (set-goal g-army-create-heavy-cavalry 1)
@@ -843,11 +861,11 @@
     (goal g-army-create-heavy-cavalry 1)
     =>
     (acknowledge-event trigger e-p2-army-create-heavy-cavalry)
-    (set-goal g-army-create-heavy-cavalry 0)
+    (set-goal g-army-create-heavy-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p2-army-create-alt-cavalry)
-    (goal g-army-create-alt-cavalry 0)
+    (goal g-army-create-alt-cavalry -1)
     =>
     (acknowledge-event trigger e-p2-army-create-alt-cavalry)
     (set-goal g-army-create-alt-cavalry 1)
@@ -857,11 +875,11 @@
     (goal g-army-create-alt-cavalry 1)
     =>
     (acknowledge-event trigger e-p2-army-create-alt-cavalry)
-    (set-goal g-army-create-alt-cavalry 0)
+    (set-goal g-army-create-alt-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p2-army-create-unique-unit)
-    (goal g-army-create-unique-unit 0)
+    (goal g-army-create-unique-unit -1)
     =>
     (acknowledge-event trigger e-p2-army-create-unique-unit)
     (set-goal g-army-create-unique-unit 1)
@@ -871,14 +889,14 @@
     (goal g-army-create-unique-unit 1)
     =>
     (acknowledge-event trigger e-p2-army-create-unique-unit)
-    (set-goal g-army-create-unique-unit 0)
+    (set-goal g-army-create-unique-unit -1)
 )
 #end-if
 
 #load-if-defined UP-PLAYER-4
 (defrule
     (event-detected trigger e-p3-army-create-swordsman)
-    (goal g-army-create-swordsman 0)
+    (goal g-army-create-swordsman -1)
     =>
     (acknowledge-event trigger e-p3-army-create-swordsman)
     (set-goal g-army-create-swordsman 1)
@@ -888,11 +906,11 @@
     (goal g-army-create-swordsman 1)
     =>
     (acknowledge-event trigger e-p3-army-create-swordsman)
-    (set-goal g-army-create-swordsman 0)
+    (set-goal g-army-create-swordsman -1)
 )
 (defrule
     (event-detected trigger e-p3-army-create-spearman)
-    (goal g-army-create-spearman 0)
+    (goal g-army-create-spearman -1)
     =>
     (acknowledge-event trigger e-p3-army-create-spearman)
     (set-goal g-army-create-spearman 1)
@@ -902,11 +920,11 @@
     (goal g-army-create-spearman 1)
     =>
     (acknowledge-event trigger e-p3-army-create-spearman)
-    (set-goal g-army-create-spearman 0)
+    (set-goal g-army-create-spearman -1)
 )
 (defrule
     (event-detected trigger e-p3-army-create-alt-infantry)
-    (goal g-army-create-alt-infantry 0)
+    (goal g-army-create-alt-infantry -1)
     =>
     (acknowledge-event trigger e-p3-army-create-alt-infantry)
     (set-goal g-army-create-alt-infantry 1)
@@ -916,11 +934,11 @@
     (goal g-army-create-alt-infantry 1)
     =>
     (acknowledge-event trigger e-p3-army-create-alt-infantry)
-    (set-goal g-army-create-alt-infantry 0)
+    (set-goal g-army-create-alt-infantry -1)
 )
 (defrule
     (event-detected trigger e-p3-army-create-archer)
-    (goal g-army-create-archer 0)
+    (goal g-army-create-archer -1)
     =>
     (acknowledge-event trigger e-p3-army-create-archer)
     (set-goal g-army-create-archer 1)
@@ -930,11 +948,11 @@
     (goal g-army-create-archer 1)
     =>
     (acknowledge-event trigger e-p3-army-create-archer)
-    (set-goal g-army-create-archer 0)
+    (set-goal g-army-create-archer -1)
 )
 (defrule
     (event-detected trigger e-p3-army-create-skirmisher)
-    (goal g-army-create-skirmisher 0)
+    (goal g-army-create-skirmisher -1)
     =>
     (acknowledge-event trigger e-p3-army-create-skirmisher)
     (set-goal g-army-create-skirmisher 1)
@@ -944,11 +962,11 @@
     (goal g-army-create-skirmisher 1)
     =>
     (acknowledge-event trigger e-p3-army-create-skirmisher)
-    (set-goal g-army-create-skirmisher 0)
+    (set-goal g-army-create-skirmisher -1)
 )
 (defrule
     (event-detected trigger e-p3-army-create-cavalry-archer)
-    (goal g-army-create-cavalry-archer 0)
+    (goal g-army-create-cavalry-archer -1)
     =>
     (acknowledge-event trigger e-p3-army-create-cavalry-archer)
     (set-goal g-army-create-cavalry-archer 1)
@@ -958,11 +976,11 @@
     (goal g-army-create-cavalry-archer 1)
     =>
     (acknowledge-event trigger e-p3-army-create-cavalry-archer)
-    (set-goal g-army-create-cavalry-archer 0)
+    (set-goal g-army-create-cavalry-archer -1)
 )
 (defrule
     (event-detected trigger e-p3-army-create-light-cavalry)
-    (goal g-army-create-light-cavalry 0)
+    (goal g-army-create-light-cavalry -1)
     =>
     (acknowledge-event trigger e-p3-army-create-light-cavalry)
     (set-goal g-army-create-light-cavalry 1)
@@ -972,11 +990,11 @@
     (goal g-army-create-light-cavalry 1)
     =>
     (acknowledge-event trigger e-p3-army-create-light-cavalry)
-    (set-goal g-army-create-light-cavalry 0)
+    (set-goal g-army-create-light-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p3-army-create-heavy-cavalry)
-    (goal g-army-create-heavy-cavalry 0)
+    (goal g-army-create-heavy-cavalry -1)
     =>
     (acknowledge-event trigger e-p3-army-create-heavy-cavalry)
     (set-goal g-army-create-heavy-cavalry 1)
@@ -986,11 +1004,11 @@
     (goal g-army-create-heavy-cavalry 1)
     =>
     (acknowledge-event trigger e-p3-army-create-heavy-cavalry)
-    (set-goal g-army-create-heavy-cavalry 0)
+    (set-goal g-army-create-heavy-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p3-army-create-alt-cavalry)
-    (goal g-army-create-alt-cavalry 0)
+    (goal g-army-create-alt-cavalry -1)
     =>
     (acknowledge-event trigger e-p3-army-create-alt-cavalry)
     (set-goal g-army-create-alt-cavalry 1)
@@ -1000,11 +1018,11 @@
     (goal g-army-create-alt-cavalry 1)
     =>
     (acknowledge-event trigger e-p3-army-create-alt-cavalry)
-    (set-goal g-army-create-alt-cavalry 0)
+    (set-goal g-army-create-alt-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p3-army-create-unique-unit)
-    (goal g-army-create-unique-unit 0)
+    (goal g-army-create-unique-unit -1)
     =>
     (acknowledge-event trigger e-p3-army-create-unique-unit)
     (set-goal g-army-create-unique-unit 1)
@@ -1014,14 +1032,14 @@
     (goal g-army-create-unique-unit 1)
     =>
     (acknowledge-event trigger e-p3-army-create-unique-unit)
-    (set-goal g-army-create-unique-unit 0)
+    (set-goal g-army-create-unique-unit -1)
 )
 #end-if
 
 #load-if-defined UP-PLAYER-7
 (defrule
     (event-detected trigger e-p4-army-create-swordsman)
-    (goal g-army-create-swordsman 0)
+    (goal g-army-create-swordsman -1)
     =>
     (acknowledge-event trigger e-p4-army-create-swordsman)
     (set-goal g-army-create-swordsman 1)
@@ -1031,11 +1049,11 @@
     (goal g-army-create-swordsman 1)
     =>
     (acknowledge-event trigger e-p4-army-create-swordsman)
-    (set-goal g-army-create-swordsman 0)
+    (set-goal g-army-create-swordsman -1)
 )
 (defrule
     (event-detected trigger e-p4-army-create-spearman)
-    (goal g-army-create-spearman 0)
+    (goal g-army-create-spearman -1)
     =>
     (acknowledge-event trigger e-p4-army-create-spearman)
     (set-goal g-army-create-spearman 1)
@@ -1045,11 +1063,11 @@
     (goal g-army-create-spearman 1)
     =>
     (acknowledge-event trigger e-p4-army-create-spearman)
-    (set-goal g-army-create-spearman 0)
+    (set-goal g-army-create-spearman -1)
 )
 (defrule
     (event-detected trigger e-p4-army-create-alt-infantry)
-    (goal g-army-create-alt-infantry 0)
+    (goal g-army-create-alt-infantry -1)
     =>
     (acknowledge-event trigger e-p4-army-create-alt-infantry)
     (set-goal g-army-create-alt-infantry 1)
@@ -1059,11 +1077,11 @@
     (goal g-army-create-alt-infantry 1)
     =>
     (acknowledge-event trigger e-p4-army-create-alt-infantry)
-    (set-goal g-army-create-alt-infantry 0)
+    (set-goal g-army-create-alt-infantry -1)
 )
 (defrule
     (event-detected trigger e-p4-army-create-archer)
-    (goal g-army-create-archer 0)
+    (goal g-army-create-archer -1)
     =>
     (acknowledge-event trigger e-p4-army-create-archer)
     (set-goal g-army-create-archer 1)
@@ -1073,11 +1091,11 @@
     (goal g-army-create-archer 1)
     =>
     (acknowledge-event trigger e-p4-army-create-archer)
-    (set-goal g-army-create-archer 0)
+    (set-goal g-army-create-archer -1)
 )
 (defrule
     (event-detected trigger e-p4-army-create-skirmisher)
-    (goal g-army-create-skirmisher 0)
+    (goal g-army-create-skirmisher -1)
     =>
     (acknowledge-event trigger e-p4-army-create-skirmisher)
     (set-goal g-army-create-skirmisher 1)
@@ -1087,11 +1105,11 @@
     (goal g-army-create-skirmisher 1)
     =>
     (acknowledge-event trigger e-p4-army-create-skirmisher)
-    (set-goal g-army-create-skirmisher 0)
+    (set-goal g-army-create-skirmisher -1)
 )
 (defrule
     (event-detected trigger e-p4-army-create-cavalry-archer)
-    (goal g-army-create-cavalry-archer 0)
+    (goal g-army-create-cavalry-archer -1)
     =>
     (acknowledge-event trigger e-p4-army-create-cavalry-archer)
     (set-goal g-army-create-cavalry-archer 1)
@@ -1101,11 +1119,11 @@
     (goal g-army-create-cavalry-archer 1)
     =>
     (acknowledge-event trigger e-p4-army-create-cavalry-archer)
-    (set-goal g-army-create-cavalry-archer 0)
+    (set-goal g-army-create-cavalry-archer -1)
 )
 (defrule
     (event-detected trigger e-p4-army-create-light-cavalry)
-    (goal g-army-create-light-cavalry 0)
+    (goal g-army-create-light-cavalry -1)
     =>
     (acknowledge-event trigger e-p4-army-create-light-cavalry)
     (set-goal g-army-create-light-cavalry 1)
@@ -1115,11 +1133,11 @@
     (goal g-army-create-light-cavalry 1)
     =>
     (acknowledge-event trigger e-p4-army-create-light-cavalry)
-    (set-goal g-army-create-light-cavalry 0)
+    (set-goal g-army-create-light-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p4-army-create-heavy-cavalry)
-    (goal g-army-create-heavy-cavalry 0)
+    (goal g-army-create-heavy-cavalry -1)
     =>
     (acknowledge-event trigger e-p4-army-create-heavy-cavalry)
     (set-goal g-army-create-heavy-cavalry 1)
@@ -1129,11 +1147,11 @@
     (goal g-army-create-heavy-cavalry 1)
     =>
     (acknowledge-event trigger e-p4-army-create-heavy-cavalry)
-    (set-goal g-army-create-heavy-cavalry 0)
+    (set-goal g-army-create-heavy-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p4-army-create-alt-cavalry)
-    (goal g-army-create-alt-cavalry 0)
+    (goal g-army-create-alt-cavalry -1)
     =>
     (acknowledge-event trigger e-p4-army-create-alt-cavalry)
     (set-goal g-army-create-alt-cavalry 1)
@@ -1143,11 +1161,11 @@
     (goal g-army-create-alt-cavalry 1)
     =>
     (acknowledge-event trigger e-p4-army-create-alt-cavalry)
-    (set-goal g-army-create-alt-cavalry 0)
+    (set-goal g-army-create-alt-cavalry -1)
 )
 (defrule
     (event-detected trigger e-p4-army-create-unique-unit)
-    (goal g-army-create-unique-unit 0)
+    (goal g-army-create-unique-unit -1)
     =>
     (acknowledge-event trigger e-p4-army-create-unique-unit)
     (set-goal g-army-create-unique-unit 1)
@@ -1157,6 +1175,6 @@
     (goal g-army-create-unique-unit 1)
     =>
     (acknowledge-event trigger e-p4-army-create-unique-unit)
-    (set-goal g-army-create-unique-unit 0)
+    (set-goal g-army-create-unique-unit -1)
 )
 #end-if
