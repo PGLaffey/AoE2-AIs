@@ -343,17 +343,20 @@ for player, army in players:
          (ObjectAttribute.HIT_POINTS, 10)],
     ]
     cav_archer_upgrades = [
-        [],
-        [],
-        [TechInfo.HEAVY_CAVALRY_ARCHER],
-        [],
-        [],
+        [(ObjectAttribute.HIT_POINTS, 10), (ObjectAttribute.MOVEMENT_SPEED, 1.1)],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [TechInfo.HEAVY_CAVALRY_ARCHER, (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.INFANTRY), 3), (ObjectAttribute.MAXIMUM_RANGE, 1)],
+        [(ObjectAttribute.ATTACK_RELOAD_TIME, 0.80), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1),
+         (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [(ObjectAttribute.HIT_POINTS, 10), (ObjectAttribute.MOVEMENT_SPEED, 1.1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
         [(UnitInfo.SCYTHIAN_HORSE_ARCHER, UnitInfo.HEAVY_CAVALRY_ARCHER, BuildingInfo.ARCHERY_RANGE, 3),
-         TechInfo.ELITE_ELEPHANT_ARCHER],
-        [],
-        [],
-        [(UnitInfo.KHAN, UnitInfo.SCYTHIAN_HORSE_ARCHER, BuildingInfo.ARCHERY_RANGE, 3)],
-        []
+         TechInfo.ELITE_ELEPHANT_ARCHER, (ObjectAttribute.ATTACK_RELOAD_TIME, 0.80), (ObjectAttribute.HIT_POINTS, 20),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.PIERCE), 2), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.INFANTRY), 4), (ObjectAttribute.MOVEMENT_SPEED, 1.1),
+         (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1), (ObjectAttribute.ATTACK_RELOAD_TIME, 0.80)],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (ObjectAttribute.HIT_POINTS, 20)],
+        [(UnitInfo.KHAN, UnitInfo.SCYTHIAN_HORSE_ARCHER, BuildingInfo.ARCHERY_RANGE, 3), (ObjectAttribute.MOVEMENT_SPEED, 1.1)],
+        [(ObjectAttribute.ATTACK_RELOAD_TIME, 0.80)]
     ]
     archery_unit_upgrade = [('Archer', tech_upgrade_archer, archer_upgrades, archer_units),
                             ('Skirmisher', tech_upgrade_skirmisher, skirmisher_upgrades, skirmisher_units),
