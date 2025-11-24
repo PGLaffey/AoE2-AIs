@@ -19,6 +19,7 @@ class A_TYPE:
     BUILDING = 11
     ELEPHANT = 5
     CAMEL = 30
+    CAVALRY_ARCHER = 28
 
 class AttackArmor:
     def __init__(self, attribute: ObjectAttribute, a_type: int):

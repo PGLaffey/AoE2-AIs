@@ -309,28 +309,38 @@ for player, army in players:
         )
 
     archer_upgrades = [
-        [],
-        [],
-        [TechInfo.CROSSBOWMAN],
-        [],
-        [],
-        [TechInfo.ARBALESTER],
-        [],
-        [],
-        [(UnitInfo.HEAVY_CROSSBOWMAN, UnitInfo.ARBALESTER, BuildingInfo.ARCHERY_RANGE, 1)],
-        []
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.PIERCE), 1), (ObjectAttribute.MAXIMUM_RANGE, 1)],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [TechInfo.CROSSBOWMAN, (ObjectAttribute.ATTACK_RELOAD_TIME, 0.85)],
+        [(ObjectAttribute.HIT_POINTS, 10), (ObjectAttribute.LINE_OF_SIGHT, 2), (ObjectAttribute.MAXIMUM_RANGE, 1)],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.INFANTRY), 4)],
+        [TechInfo.ARBALESTER, (ObjectAttribute.MAXIMUM_RANGE, 1), (ObjectAttribute.LINE_OF_SIGHT, 2),
+         (ObjectAttribute.MAXIMUM_TOTAL_MISSILES, 1), (ObjectAttribute.TOTAL_MISSILES, 1)],
+        [(ObjectAttribute.HIT_POINTS, 10), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.PIERCE), 1),
+         (ObjectAttribute.ATTACK_RELOAD_TIME, 0.85)],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1),
+         (ObjectAttribute.MAXIMUM_RANGE, 1)],
+        [(UnitInfo.HEAVY_CROSSBOWMAN, UnitInfo.ARBALESTER, BuildingInfo.ARCHERY_RANGE, 1),
+         (ObjectAttribute.ATTACK_RELOAD_TIME, 0.4)],
+        [(ObjectAttribute.MAXIMUM_TOTAL_MISSILES, 2), (ObjectAttribute.TOTAL_MISSILES, 2), (ObjectAttribute.MAXIMUM_RANGE, 1)],
     ]
     skirmisher_upgrades = [
-        [],
-        [],
-        [TechInfo.ELITE_SKIRMISHER],
-        [],
-        [],
-        [TechInfo.IMPERIAL_SKIRMISHER],
-        [],
-        [],
-        [(UnitInfo.MERCENARY_PELTAST, UnitInfo.IMPERIAL_SKIRMISHER, BuildingInfo.ARCHERY_RANGE, 2)],
-        []
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (ObjectAttribute.ATTACK_RELOAD_TIME, 0.85),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.PIERCE), 1)],
+        [(ObjectAttribute.MAXIMUM_RANGE, 1), (ObjectAttribute.HIT_POINTS, 10),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.ARCHER), 2), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.CAVALRY_ARCHER), 1)],
+        [TechInfo.ELITE_SKIRMISHER, (ObjectAttribute.ATTACK_RELOAD_TIME, 0.85), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.PIERCE), 1), (ObjectAttribute.MAXIMUM_RANGE, 1)],
+        [(ObjectAttribute.HIT_POINTS, 10), (ObjectAttribute.ATTACK_RELOAD_TIME, 0.85)],
+        [TechInfo.IMPERIAL_SKIRMISHER, (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.ARCHER), 2)],
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.PIERCE), 1), (ObjectAttribute.ATTACK_RELOAD_TIME, 0.85)],
+        [(ObjectAttribute.HIT_POINTS, 10), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
+        [(UnitInfo.MERCENARY_PELTAST, UnitInfo.IMPERIAL_SKIRMISHER, BuildingInfo.ARCHERY_RANGE, 2),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.ARCHER), 5), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.CAVALRY_ARCHER), 6),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.INFANTRY), 5), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 4)],
+        [(ObjectAttribute.MAXIMUM_RANGE, 1), (ObjectAttribute.MAXIMUM_TOTAL_MISSILES, 9), (ObjectAttribute.TOTAL_MISSILES, 9),
+         (ObjectAttribute.HIT_POINTS, 10)],
     ]
     cav_archer_upgrades = [
         [],
@@ -433,7 +443,7 @@ for player, army in players:
     heavy_cav_4_units = [UnitInfo.HEI_GUANG_CAVALRY, UnitInfo.HEAVY_HEI_GUANG_CAVALRY, UnitInfo.CRUSADER_KNIGHT], 70
     heavy_cav_units = (heavy_cav_1_units[0] + heavy_cav_2_units[0] + heavy_cav_3_units[0] + heavy_cav_4_units[0],)
     alt_cav_1_units = [UnitInfo.CAMEL_SCOUT, UnitInfo.CAMEL_RIDER, UnitInfo.HEAVY_CAMEL_RIDER, UnitInfo.IMPERIAL_CAMEL_RIDER], 60
-    alt_cav_2_units = [UnitInfo.BATTLE_ELEPHANT, UnitInfo.ELITE_BATTLE_ELEPHANT], 80
+    alt_cav_2_units = [UnitInfo.BATTLE_ELEPHANT, UnitInfo.ELITE_BATTLE_ELEPHANT, UnitInfo.SANNAHYA], 80
     alt_cav_units = (alt_cav_1_units[0] + alt_cav_2_units[0],)
     stable_units = light_cav_units[0] + heavy_cav_units[0] + alt_cav_units[0]
 
@@ -483,13 +493,13 @@ for player, army in players:
     ]
     alt_cav_upgrades = [
         [],
+        [TechInfo.UPGRADE_CAMEL_SCOUTS_TO_RIDERS],
+        [],
+        [TechInfo.ELITE_BATTLE_ELEPHANT],
+        [TechInfo.HEAVY_CAMEL_RIDER],
         [],
         [],
-        [],
-        [],
-        [],
-        [],
-        [],
+        [TechInfo.IMPERIAL_CAMEL_RIDER, (UnitInfo.SANNAHYA, UnitInfo.ELITE_BATTLE_ELEPHANT, BuildingInfo.STABLE, 4)],
         [],
         []
     ]
