@@ -137,7 +137,7 @@ for player, army in players:
 
     swordsman_units = [UnitInfo.MILITIA, UnitInfo.MAN_AT_ARMS, UnitInfo.LONG_SWORDSMAN, UnitInfo.TWO_HANDED_SWORDSMAN,
                        UnitInfo.CHAMPION, UnitInfo.LEGIONARY], 60
-    spearman_units = [UnitInfo.SPEARMAN, UnitInfo.PIKEMAN, UnitInfo.HALBERDIER, UnitInfo.HEAVY_PIKEMAN], 60
+    spearman_units = [UnitInfo.SPEARMAN, UnitInfo.PIKEMAN, UnitInfo.HALBERDIER, UnitInfo.HEAVY_PIKEMAN], 60 #TODO UnitInfo.SPARABARA
     alt_infantry_1_units = [UnitInfo.EAGLE_SCOUT, UnitInfo.EAGLE_WARRIOR, UnitInfo.ELITE_EAGLE_WARRIOR], 80
     alt_infantry_2_units = [UnitInfo.FIRE_LANCER, UnitInfo.ELITE_FIRE_LANCER], 80
     alt_infantry_units = (alt_infantry_1_units[0] + alt_infantry_2_units[0],)
@@ -283,9 +283,9 @@ for player, army in players:
     for tech, location in archery_techs:
         tech.add_to_building(player, BuildingInfo.CAMP_ARCHERY_RANGE.ID, location, camp_archery)
 
-    archer_units = [UnitInfo.ARCHER, UnitInfo.CROSSBOWMAN, UnitInfo.ARBALESTER], 70
-    skirmisher_units = [UnitInfo.SKIRMISHER, UnitInfo.ELITE_SKIRMISHER, UnitInfo.IMPERIAL_SKIRMISHER], 60
-    cav_archer_1_units = [UnitInfo.CAVALRY_ARCHER, UnitInfo.HEAVY_CAVALRY_ARCHER], 80
+    archer_units = [UnitInfo.ARCHER, UnitInfo.CROSSBOWMAN, UnitInfo.ARBALESTER, UnitInfo.HEAVY_CROSSBOWMAN], 70
+    skirmisher_units = [UnitInfo.SKIRMISHER, UnitInfo.ELITE_SKIRMISHER, UnitInfo.IMPERIAL_SKIRMISHER, UnitInfo.MERCENARY_PELTAST], 60
+    cav_archer_1_units = [UnitInfo.CAVALRY_ARCHER, UnitInfo.HEAVY_CAVALRY_ARCHER,UnitInfo.SCYTHIAN_HORSE_ARCHER, UnitInfo.KHAN], 80
     cav_archer_2_units = [UnitInfo.ELEPHANT_ARCHER, UnitInfo.ELITE_ELEPHANT_ARCHER], 90
     cav_archer_units = (cav_archer_1_units[0] + cav_archer_2_units[0],)
     archery_range_units = archer_units[0] + skirmisher_units[0] + cav_archer_1_units[0] + cav_archer_2_units[0]
@@ -308,9 +308,42 @@ for player, army in players:
             operation=Operation.MULTIPLY, quantity=0.9
         )
 
-    archer_upgrades = []
-    skirmisher_upgrades = []
-    cav_archer_upgrades = []
+    archer_upgrades = [
+        [],
+        [],
+        [TechInfo.CROSSBOWMAN],
+        [],
+        [],
+        [TechInfo.ARBALESTER],
+        [],
+        [],
+        [(UnitInfo.HEAVY_CROSSBOWMAN, UnitInfo.ARBALESTER, BuildingInfo.ARCHERY_RANGE, 1)],
+        []
+    ]
+    skirmisher_upgrades = [
+        [],
+        [],
+        [TechInfo.ELITE_SKIRMISHER],
+        [],
+        [],
+        [TechInfo.IMPERIAL_SKIRMISHER],
+        [],
+        [],
+        [(UnitInfo.MERCENARY_PELTAST, UnitInfo.IMPERIAL_SKIRMISHER, BuildingInfo.ARCHERY_RANGE, 2)],
+        []
+    ]
+    cav_archer_upgrades = [
+        [],
+        [],
+        [TechInfo.HEAVY_CAVALRY_ARCHER],
+        [],
+        [],
+        [(UnitInfo.SCYTHIAN_HORSE_ARCHER, UnitInfo.HEAVY_CAVALRY_ARCHER, BuildingInfo.ARCHERY_RANGE, 3)],
+        [],
+        [],
+        [(UnitInfo.KHAN, UnitInfo.SCYTHIAN_HORSE_ARCHER, BuildingInfo.ARCHERY_RANGE, 3)],
+        []
+    ]
     archery_unit_upgrade = [('Archer', tech_upgrade_archer, archer_upgrades, archer_units),
                             ('Skirmisher', tech_upgrade_skirmisher, skirmisher_upgrades, skirmisher_units),
                             ('Cav Archer', tech_upgrade_cav_archer, cav_archer_upgrades, cav_archer_units)]
@@ -394,20 +427,18 @@ for player, army in players:
         tech.add_to_building(player, BuildingInfo.CAMP_STABLE.ID, location, camp_stable)
 
     light_cav_units = [UnitInfo.SCOUT_CAVALRY, UnitInfo.LIGHT_CAVALRY, UnitInfo.HUSSAR, UnitInfo.WINGED_HUSSAR], 60
-    heavy_cav_1_units = [UnitInfo.KNIGHT, UnitInfo.CAVALIER, UnitInfo.PALADIN], 70
-    heavy_cav_2_units = [UnitInfo.BATTLE_ELEPHANT, UnitInfo.ELITE_BATTLE_ELEPHANT], 80
-    heavy_cav_3_units = [UnitInfo.STEPPE_LANCER, UnitInfo.ELITE_STEPPE_LANCER], 60
-    heavy_cav_4_units = [UnitInfo.SHRIVAMSHA_RIDER, UnitInfo.ELITE_SHRIVAMSHA_RIDER], 60
-    heavy_cav_5_units = [UnitInfo.HEI_GUANG_CAVALRY, UnitInfo.HEAVY_HEI_GUANG_CAVALRY], 70
-    heavy_cav_units = (heavy_cav_1_units[0] + heavy_cav_2_units[0] + heavy_cav_3_units[0] + heavy_cav_4_units[0] + heavy_cav_5_units[0],)
+    heavy_cav_1_units = [UnitInfo.KNIGHT, UnitInfo.CAVALIER, UnitInfo.PALADIN, UnitInfo.CRUSADER_KNIGHT], 70
+    heavy_cav_2_units = [UnitInfo.STEPPE_LANCER, UnitInfo.ELITE_STEPPE_LANCER, UnitInfo.SOGDIAN_CATAPHRACT], 60
+    heavy_cav_3_units = [UnitInfo.SHRIVAMSHA_RIDER, UnitInfo.ELITE_SHRIVAMSHA_RIDER, UnitInfo.GREEK_NOBLE_CAVALRY], 60
+    heavy_cav_4_units = [UnitInfo.HEI_GUANG_CAVALRY, UnitInfo.HEAVY_HEI_GUANG_CAVALRY, UnitInfo.CRUSADER_KNIGHT], 70
+    heavy_cav_units = (heavy_cav_1_units[0] + heavy_cav_2_units[0] + heavy_cav_3_units[0] + heavy_cav_4_units[0],)
     alt_cav_1_units = [UnitInfo.CAMEL_SCOUT, UnitInfo.CAMEL_RIDER, UnitInfo.HEAVY_CAMEL_RIDER, UnitInfo.IMPERIAL_CAMEL_RIDER], 60
     alt_cav_2_units = [UnitInfo.BATTLE_ELEPHANT, UnitInfo.ELITE_BATTLE_ELEPHANT], 80
-    alt_cav_3_units = [UnitInfo.STEPPE_LANCER, UnitInfo.ELITE_STEPPE_LANCER], 60
-    alt_cav_units = (alt_cav_1_units[0] + alt_cav_2_units[0] + alt_cav_3_units[0],)
+    alt_cav_units = (alt_cav_1_units[0] + alt_cav_2_units[0],)
     stable_units = light_cav_units[0] + heavy_cav_units[0] + alt_cav_units[0]
 
     cavalry_training_setup = t_man.add_trigger(f'Init Cavalry Training Time (p{player})', enabled=True, looping=False)
-    for units, train_time in [light_cav_units, heavy_cav_1_units, heavy_cav_2_units, heavy_cav_3_units, heavy_cav_4_units, heavy_cav_5_units, alt_cav_1_units]:
+    for units, train_time in [light_cav_units, heavy_cav_1_units, heavy_cav_2_units, heavy_cav_3_units, heavy_cav_4_units, alt_cav_1_units, alt_cav_2_units]:
         for unit in units:
             cavalry_training_setup.new_effect.modify_attribute(
                 source_player=army, object_list_unit_id=unit.ID, object_attributes=ObjectAttribute.TRAIN_TIME,
@@ -424,9 +455,44 @@ for player, army in players:
             operation=Operation.MULTIPLY, quantity=0.9
         )
 
-    light_cav_upgrades = []
-    heavy_cav_upgrades = []
-    alt_cav_upgrades = []
+    light_cav_upgrades = [
+        [],
+        [],
+        [TechInfo.LIGHT_CAVALRY],
+        [],
+        [],
+        [TechInfo.HUSSAR],
+        [],
+        [],
+        [TechInfo.WINGED_HUSSAR],
+        []
+    ]
+    heavy_cav_upgrades = [
+        [],
+        [],
+        [TechInfo.CAVALIER],
+        [TechInfo.ELITE_STEPPE_LANCER, TechInfo.ELITE_SHRIVAMSHA_RIDER],
+        [],
+        [TechInfo.PALADIN],
+        [],
+        [(UnitInfo.SOGDIAN_CATAPHRACT, UnitInfo.ELITE_STEPPE_LANCER, BuildingInfo.STABLE, 4),
+         (UnitInfo.GREEK_NOBLE_CAVALRY, UnitInfo.ELITE_SHRIVAMSHA_RIDER, BuildingInfo.STABLE, 2)],
+        [(UnitInfo.CRUSADER_KNIGHT, UnitInfo.PALADIN, BuildingInfo.STABLE, 2),
+         (UnitInfo.CRUSADER_KNIGHT, UnitInfo.HEAVY_HEI_GUANG_CAVALRY, BuildingInfo.STABLE, 2)],
+        []
+    ]
+    alt_cav_upgrades = [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+    ]
     cavalry_unit_upgrades = [('Light Cavalry', tech_upgrade_light_cav, light_cav_upgrades, light_cav_units),
                              ('Heavy Cavalry', tech_upgrade_heavy_cav, heavy_cav_upgrades, heavy_cav_units),
                              ('Alt Cavalry', tech_upgrade_alt_cav, alt_cav_upgrades, alt_cav_units)]

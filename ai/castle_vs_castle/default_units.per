@@ -9,6 +9,7 @@
     (set-goal g-unique-unit my-unique-unit-line)
     (disable-self)
 )
+
 ; Alt Infantry
 (defrule
     (can-train eagle-warrior-line)
@@ -56,14 +57,6 @@
     (disable-self)
 )
 (defrule
-    (not (can-train knight-line))
-    (can-train battle-elephant-line)
-    =>
-    (set-goal g-heavy-cavalry-unit battle-elephant-line)
-    (disable-self)
-)
-(defrule
-    (not(can-train battle-elephant-line))
     (not(can-train knight-line))
     (can-train hei-guang-cavalry-line)
     =>
@@ -71,7 +64,6 @@
     (disable-self)
 )
 (defrule
-    (not(can-train battle-elephant-line))
     (not(can-train knight-line))
     (not(can-train hei-guang-cavalry-line))
     (can-train steppe-lancer-line)
@@ -80,7 +72,6 @@
     (disable-self)
 )
 (defrule
-    (not(can-train battle-elephant-line))
     (not(can-train knight-line))
     (not(can-train hei-guang-cavalry-line))
     (not(can-train steppe-lancer-line))
@@ -90,7 +81,6 @@
     (disable-self)
 )
 (defrule
-    (not(can-train battle-elephant-line))
     (not(can-train knight-line))
     (not(can-train hei-guang-cavalry-line))
     (not(can-train steppe-lancer-line))
@@ -109,16 +99,69 @@
 )
 (defrule
     (not (can-train camel-line))
-    (can-train steppe-lancer-line)
-    =>
-    (set-goal g-alt-cavalry-unit steppe-lancer-line)
-    (disable-self)
-)
-(defrule
-    (not (can-train camel-line))
-    (not (can-train steppe-lancer-line))
     (can-train battle-elephant-line)
     =>
     (set-goal g-alt-cavalry-unit battle-elephant-line)
+    (disable-self)
+)
+
+
+; Replace Standard Units with Custom Units
+(defrule ; Heavy Spearman
+    (can-train 892)
+    =>
+    (set-goal g-spearman-unit 892)
+    (disable-self)
+)
+(defrule ; Heavy Crossbow
+    (can-train 493)
+    =>
+    (set-goal g-archer-unit 493)
+    (disable-self)
+)
+(defrule ; Peltast
+    (can-train 2332)
+    =>
+    (set-goal g-skirmisher-unit 2332)
+    (disable-self)
+)
+(defrule ; Scythian Horse Archer
+    (can-train 2485)
+    (can-train cavalry-archer-line)
+    =>
+    (set-goal g-cavalry-archer-unit 2485)
+    (disable-self)
+)
+(defrule ; Khan
+    (can-train 1275)
+    (can-train cavalry-archer-line)
+    =>
+    (set-goal g-cavalry-archer-unit 1275)
+    (disable-self)
+)
+(defrule ; Crusader Knight
+    (can-train 1723)
+    (or
+        (can-train knight-line)
+        (can-train hei-guang-cavalry-line)
+    )
+    =>
+    (set-goal g-heavy-cavalry-unit 1723)
+    (disable-self)
+)
+(defrule ; Sogdian Cataphract
+    (can-train 1299)
+    (can-train steppe-lancer-line)
+    (not(can-train knight-line))
+    (not((can-train hei-guang-cavalry-line)))
+    =>
+    (set-goal g-heavy-cavalry-unit 1299)
+    (disable-self)
+)
+(defrule ; Greek Noble Cavalry
+    (can-train 2322)
+    (can-train shrivamsha-rider-line)
+    =>
+    (set-goal g-heavy-cavalry-unit 2322)
     (disable-self)
 )
