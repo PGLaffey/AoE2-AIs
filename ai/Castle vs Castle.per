@@ -391,7 +391,8 @@
     (up-compare-goal g-state-3 g:== g-remote-iterator)
     =>
     (up-full-reset-search)
-    (set-goal g-general-iterator c-cav-arch-general)
+    ; (set-goal g-general-iterator c-cav-arch-general)
+    (set-goal g-remote-iterator 0)
     (set-goal g-swap-general 1)
 )
 (defrule
@@ -456,9 +457,12 @@
     (up-remove-objects search-local object-data-idling c:== 0) 
     (up-get-search-state g-state-1)
 
-    ; If idle units are found, command them to guard
-    (up-set-target-object search-remote g: g-remote-iterator)
-    (up-target-objects 1 action-guard formation-stagger stance-defensive)
+    ; ; If idle units are found, command them to guard
+    ; (up-set-target-object search-remote g: g-remote-iterator)
+    ; (up-target-objects 1 action-guard formation-stagger stance-defensive)
+    ; If idle units are found, command them to move near the general
+    (up-set-target-point g-point-x)
+    (up-target-objects 1 action-move formation-stagger stance-aggressive)
 
     ; Move to the next general
     (up-modify-goal g-remote-iterator c:+ 1)
