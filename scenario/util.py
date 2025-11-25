@@ -47,7 +47,7 @@ class CustomUnit:
             for i, (resource, amount) in enumerate(self.cost):
                 cost[f'resource_{i + 1}'] = resource
                 cost[f'resource_{i + 1}_quantity'] = amount
-            trigger.new_effect.change_technology_cost(**params, **cost)
+            trigger.new_effect.change_object_cost(**params, **cost)
         trigger.new_effect.change_train_location(**params, object_list_unit_id_2=building, button_location=location)
         trigger.new_effect.enable_disable_object(**params, enabled=True)
 

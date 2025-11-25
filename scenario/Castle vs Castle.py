@@ -114,7 +114,7 @@ for player, army in players:
                                     cost=[(Attribute.GOLD_STORAGE, 100), (Attribute.WOOD_STORAGE, 50)])
     general_setup = t_man.add_trigger(f'General setup (p{player})', enabled=True, looping=False)
     for i, general in enumerate([infantry_general, archer_general, cavalry_general, cav_archer_general]):
-        general.add_to_building(trigger=general_setup, player=player, building=BuildingInfo.MACEDONIAN_COMMAND_POST,
+        general.add_to_building(trigger=general_setup, player=player, building=BuildingInfo.MACEDONIAN_COMMAND_POST.ID,
                                 location=i+1)
 
 
