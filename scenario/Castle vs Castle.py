@@ -102,6 +102,22 @@ for player, army in players:
     vil_died.new_effect.remove_object(source_player=player, object_list_unit_id=OtherInfo.IMPALED_CORPSE.ID, max_units_affected=1)
     vil_died.new_effect.modify_resource(source_player=player, tribute_list=res_villagers, operation=Operation.ADD, quantity=1)
 
+    # Command Post
+    # TODO Add 10 pop limit per general type
+    infantry_general = CustomUnit(unit=HeroInfo.WILLIAM_WALLACE, name='Infantry General', train_time=30,
+                                  cost=[(Attribute.FOOD_STORAGE, 100), (Attribute.GOLD_STORAGE, 50)])
+    archer_general = CustomUnit(unit=HeroInfo.ROBIN_HOOD, name='Archer General', train_time=30,
+                                cost=[(Attribute.WOOD_STORAGE, 100), (Attribute.GOLD_STORAGE, 50)])
+    cavalry_general = CustomUnit(unit=HeroInfo.MASTER_OF_THE_TEMPLAR, name='Cavalry General', train_time=30,
+                                 cost=[(Attribute.GOLD_STORAGE, 100), (Attribute.FOOD_STORAGE, 50)])
+    cav_archer_general = CustomUnit(unit=HeroInfo.GENGHIS_KHAN, name='Cavalry Archer General', train_time=30,
+                                    cost=[(Attribute.GOLD_STORAGE, 100), (Attribute.WOOD_STORAGE, 50)])
+    general_setup = t_man.add_trigger(f'General setup (p{player})', enabled=True, looping=False)
+    for i, general in enumerate([infantry_general, archer_general, cavalry_general, cav_archer_general]):
+        general.add_to_building(trigger=general_setup, player=player, building=BuildingInfo.MACEDONIAN_COMMAND_POST,
+                                location=i+1)
+
+
     # -------------------------
     # ----- Army Barracks -----
     # -------------------------

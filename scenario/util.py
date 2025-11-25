@@ -1,4 +1,5 @@
 from AoE2ScenarioParser.datasets.buildings import BuildingInfo
+from AoE2ScenarioParser.datasets.heroes import HeroInfo
 from AoE2ScenarioParser.datasets.techs import TechInfo
 from AoE2ScenarioParser.datasets.trigger_lists import Attribute, ObjectAttribute, Operation
 from AoE2ScenarioParser.datasets.units import UnitInfo
@@ -25,6 +26,30 @@ class AttackArmor:
     def __init__(self, attribute: ObjectAttribute, a_type: int):
         self.attribute = attribute
         self.a_type = a_type
+
+class CustomUnit:
+    def __init__(self, unit: UnitInfo | HeroInfo, name: str = None, icon: UnitInfo.ID = None, description: str = None,
+                 cost: list[tuple[Attribute, int]] = None, train_time: int = None):
+        self.unit = unit.ID
+        self.name = name or unit.name
+        self.icon = icon or unit.ID
+        self.description = f'<cost> {description or self.name}'
+        self.cost = cost
+        self.train_time = train_time or 30
+
+    def add_to_building(self, player: int, building: BuildingInfo.ID, location: int, trigger: Trigger):
+        params = {'source_player': player, 'object_list_unit_id': self.unit}
+        trigger.new_effect.change_object_name(**params, message=self.name)
+        trigger.new_effect.change_object_icon(**params, object_list_unit_id_2=self.icon)
+        trigger.new_effect.change_object_description(**params, message=self.description)
+        if self.cost is not None:
+            cost = {}
+            for i, (resource, amount) in enumerate(self.cost):
+                cost[f'resource_{i + 1}'] = resource
+                cost[f'resource_{i + 1}_quantity'] = amount
+            trigger.new_effect.change_technology_cost(**params, **cost)
+        trigger.new_effect.change_train_location(**params, object_list_unit_id_2=building, button_location=location)
+        trigger.new_effect.enable_disable_object(**params, enabled=True)
 
 
 class CustomTech:
