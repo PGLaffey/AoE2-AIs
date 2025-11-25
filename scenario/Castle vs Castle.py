@@ -107,17 +107,17 @@ for player, army in players:
     # -------------------------
     tech_infantry_time = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_0.ID, name='Infantry Training Time', icon=TechInfo.SQUIRES.ICON_ID,
-        description='Trains Infantry 10% Faster', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        description='Trains Infantry 10% Faster', cost=[(Attribute.FOOD_STORAGE, 200), (Attribute.GOLD_STORAGE, 50)])
     tech_upgrade_swordsman = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_1.ID, name='Upgrade Swordsman Line', icon=TechInfo.CHAMPION.ICON_ID,
-        description='Improves the Swordsman line', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        description='Improves the Swordsman line', cost=[(Attribute.FOOD_STORAGE, 150), (Attribute.GOLD_STORAGE, 100)])
     tech_upgrade_spearman = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_2.ID, name='Upgrade Spearman Line', icon=TechInfo.HALBERDIER.ICON_ID,
-        description='Improves the Spearman line', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        description='Improves the Spearman line', cost=[(Attribute.FOOD_STORAGE, 150), (Attribute.WOOD_STORAGE, 100)])
     tech_upgrade_alt_infantry = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_3.ID, name='Upgrade Alternative Infantry Line',
         icon=TechInfo.ELITE_EAGLE_WARRIOR.ICON_ID, description='Improves the Alternative Infantry line',
-        cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        cost=[(Attribute.GOLD_STORAGE, 150), (Attribute.FOOD_STORAGE, 100)])
     tech_toggle_swordsman = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_4.ID, name='Enable creating Swordsman Line', icon=silver_crown_icon,
         description='Continuously creates Swordsman line to add to the army', cost=[], research_time=5)
@@ -137,7 +137,7 @@ for player, army in players:
 
     swordsman_units = [UnitInfo.MILITIA, UnitInfo.MAN_AT_ARMS, UnitInfo.LONG_SWORDSMAN, UnitInfo.TWO_HANDED_SWORDSMAN,
                        UnitInfo.CHAMPION, UnitInfo.LEGIONARY], 60
-    spearman_units = [UnitInfo.SPEARMAN, UnitInfo.PIKEMAN, UnitInfo.HALBERDIER, UnitInfo.HEAVY_PIKEMAN], 60 #TODO UnitInfo.SPARABARA
+    spearman_units = [UnitInfo.SPEARMAN, UnitInfo.PIKEMAN, UnitInfo.HALBERDIER, UnitInfo.HEAVY_PIKEMAN], 60
     alt_infantry_1_units = [UnitInfo.EAGLE_SCOUT, UnitInfo.EAGLE_WARRIOR, UnitInfo.ELITE_EAGLE_WARRIOR], 80
     alt_infantry_2_units = [UnitInfo.FIRE_LANCER, UnitInfo.ELITE_FIRE_LANCER], 80
     alt_infantry_units = (alt_infantry_1_units[0] + alt_infantry_2_units[0],)
@@ -256,17 +256,17 @@ for player, army in players:
     # Camp Archery Range
     tech_archer_time = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_7.ID, name='Archer Training Time', icon=TechInfo.PARTHIAN_TACTICS.ICON_ID,
-        description='Trains Archers 10% Faster', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        description='Trains Archers 10% Faster', cost=[(Attribute.WOOD_STORAGE, 200), (Attribute.GOLD_STORAGE, 50)])
     tech_upgrade_archer = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_8.ID, name='Upgrade Archer Line', icon=TechInfo.ARBALESTER.ICON_ID,
-        description='Improves the Archer line', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        description='Improves the Archer line', cost=[(Attribute.WOOD_STORAGE, 150), (Attribute.GOLD_STORAGE, 100)])
     tech_upgrade_skirmisher = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_9.ID, name='Upgrade Skirmisher Line', icon=TechInfo.IMPERIAL_SKIRMISHER.ICON_ID,
-        description='Improves the Skirmisher line', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        description='Improves the Skirmisher line', cost=[(Attribute.WOOD_STORAGE, 150), (Attribute.FOOD_STORAGE, 100)])
     tech_upgrade_cav_archer = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_10.ID, name='Upgrade Mounted Archer Line',
         icon=TechInfo.HEAVY_CAVALRY_ARCHER.ICON_ID, description='Improves the Mounted Archer line',
-        cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        cost=[(Attribute.GOLD_STORAGE, 150), (Attribute.FOOD_STORAGE, 100)])
     tech_toggle_archer = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_11.ID, name='Enable creating Archer Line', icon=silver_crown_icon,
         description='Continuously creates Archer line to add to the army', cost=[], research_time=5)
@@ -285,8 +285,8 @@ for player, army in players:
 
     archer_units = [UnitInfo.ARCHER, UnitInfo.CROSSBOWMAN, UnitInfo.ARBALESTER, UnitInfo.HEAVY_CROSSBOWMAN], 70
     skirmisher_units = [UnitInfo.SKIRMISHER, UnitInfo.ELITE_SKIRMISHER, UnitInfo.IMPERIAL_SKIRMISHER, UnitInfo.MERCENARY_PELTAST], 60
-    cav_archer_1_units = [UnitInfo.CAVALRY_ARCHER, UnitInfo.HEAVY_CAVALRY_ARCHER,UnitInfo.SCYTHIAN_HORSE_ARCHER, UnitInfo.KHAN], 80
-    cav_archer_2_units = [UnitInfo.ELEPHANT_ARCHER, UnitInfo.ELITE_ELEPHANT_ARCHER], 90
+    cav_archer_1_units = [UnitInfo.CAVALRY_ARCHER, UnitInfo.HEAVY_CAVALRY_ARCHER,UnitInfo.SCYTHIAN_HORSE_ARCHER, UnitInfo.KHAN], 90
+    cav_archer_2_units = [UnitInfo.ELEPHANT_ARCHER, UnitInfo.ELITE_ELEPHANT_ARCHER], 110
     cav_archer_units = (cav_archer_1_units[0] + cav_archer_2_units[0],)
     archery_range_units = archer_units[0] + skirmisher_units[0] + cav_archer_1_units[0] + cav_archer_2_units[0]
 
@@ -411,17 +411,17 @@ for player, army in players:
     # -----------------------
     tech_cavalry_time = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_14.ID, name='Cavalry Training Time', icon=TechInfo.HUSBANDRY.ICON_ID,
-        description='Trains Cavalry 10% Faster', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        description='Trains Cavalry 10% Faster', cost=[(Attribute.GOLD_STORAGE, 200), (Attribute.FOOD_STORAGE, 50)])
     tech_upgrade_light_cav = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_15.ID, name='Upgrade Light Cavalry Line', icon=TechInfo.WINGED_HUSSAR.ICON_ID,
-        description='Improves the Light Cavalry line', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        description='Improves the Light Cavalry line', cost=[(Attribute.FOOD_STORAGE, 250)])
     tech_upgrade_heavy_cav = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_16.ID, name='Upgrade Heavy Cavalry Line', icon=TechInfo.PALADIN.ICON_ID,
-        description='Improves the Heavy Cavalry line', cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        description='Improves the Heavy Cavalry line', cost=[(Attribute.GOLD_STORAGE, 150), (Attribute.FOOD_STORAGE, 100)])
     tech_upgrade_alt_cav = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_17.ID, name='Upgrade Alternative Cavalry Line',
         icon=TechInfo.HEAVY_CAVALRY_ARCHER.ICON_ID, description='Improves the Alternative Cavalry line',
-        cost=[(Attribute.FOOD_STORAGE, 250), (Attribute.GOLD_STORAGE, 200)])
+        cost=[(Attribute.FOOD_STORAGE, 150), (Attribute.GOLD_STORAGE, 100)])
     tech_toggle_light_cav = CustomTech(
         override_tech=TechInfo.BLANK_TECHNOLOGY_18.ID, name='Enable creating Light Cavalry Line', icon=silver_crown_icon,
         description='Continuously creates Light Cavalry line to add to the army', cost=[], research_time=5)
@@ -440,14 +440,14 @@ for player, army in players:
     for tech, location in stable_techs:
         tech.add_to_building(player, BuildingInfo.CAMP_STABLE.ID, location, camp_stable)
 
-    light_cav_units = [UnitInfo.SCOUT_CAVALRY, UnitInfo.LIGHT_CAVALRY, UnitInfo.HUSSAR, UnitInfo.WINGED_HUSSAR], 60
-    heavy_cav_1_units = [UnitInfo.KNIGHT, UnitInfo.CAVALIER, UnitInfo.PALADIN, UnitInfo.CRUSADER_KNIGHT], 70
-    heavy_cav_2_units = [UnitInfo.STEPPE_LANCER, UnitInfo.ELITE_STEPPE_LANCER, UnitInfo.SOGDIAN_CATAPHRACT], 60
-    heavy_cav_3_units = [UnitInfo.SHRIVAMSHA_RIDER, UnitInfo.ELITE_SHRIVAMSHA_RIDER, UnitInfo.GREEK_NOBLE_CAVALRY], 60
-    heavy_cav_4_units = [UnitInfo.HEI_GUANG_CAVALRY, UnitInfo.HEAVY_HEI_GUANG_CAVALRY, UnitInfo.CRUSADER_KNIGHT], 70
+    light_cav_units = [UnitInfo.SCOUT_CAVALRY, UnitInfo.LIGHT_CAVALRY, UnitInfo.HUSSAR, UnitInfo.WINGED_HUSSAR], 70
+    heavy_cav_1_units = [UnitInfo.KNIGHT, UnitInfo.CAVALIER, UnitInfo.PALADIN, UnitInfo.CRUSADER_KNIGHT], 100
+    heavy_cav_2_units = [UnitInfo.STEPPE_LANCER, UnitInfo.ELITE_STEPPE_LANCER, UnitInfo.SOGDIAN_CATAPHRACT], 80
+    heavy_cav_3_units = [UnitInfo.SHRIVAMSHA_RIDER, UnitInfo.ELITE_SHRIVAMSHA_RIDER, UnitInfo.GREEK_NOBLE_CAVALRY], 80
+    heavy_cav_4_units = [UnitInfo.HEI_GUANG_CAVALRY, UnitInfo.HEAVY_HEI_GUANG_CAVALRY, UnitInfo.CRUSADER_KNIGHT], 100
     heavy_cav_units = (heavy_cav_1_units[0] + heavy_cav_2_units[0] + heavy_cav_3_units[0] + heavy_cav_4_units[0],)
     alt_cav_1_units = [UnitInfo.CAMEL_SCOUT, UnitInfo.CAMEL_RIDER, UnitInfo.HEAVY_CAMEL_RIDER, UnitInfo.IMPERIAL_CAMEL_RIDER], 60
-    alt_cav_2_units = [UnitInfo.BATTLE_ELEPHANT, UnitInfo.ELITE_BATTLE_ELEPHANT, UnitInfo.SANNAHYA], 80
+    alt_cav_2_units = [UnitInfo.BATTLE_ELEPHANT, UnitInfo.ELITE_BATTLE_ELEPHANT, UnitInfo.SANNAHYA], 100
     alt_cav_units = (alt_cav_1_units[0] + alt_cav_2_units[0],)
     stable_units = light_cav_units[0] + heavy_cav_units[0] + alt_cav_units[0]
 
@@ -470,42 +470,56 @@ for player, army in players:
         )
 
     light_cav_upgrades = [
-        [],
-        [],
-        [TechInfo.LIGHT_CAVALRY],
-        [],
-        [],
-        [TechInfo.HUSSAR],
-        [],
-        [],
-        [TechInfo.WINGED_HUSSAR],
-        []
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1),
+         (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1), (ObjectAttribute.MOVEMENT_SPEED, 1.1),
+         (ObjectAttribute.HIT_POINTS, 10)],
+        [TechInfo.LIGHT_CAVALRY, (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.ARCHER), 3)],
+        [(ObjectAttribute.ATTACK_RELOAD_TIME, 0.8), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [(ObjectAttribute.MOVEMENT_SPEED, 1.1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1),
+         (ObjectAttribute.HIT_POINTS, 10)],
+        [TechInfo.HUSSAR, (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.ARCHER), 3),
+         (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1)],
+        [(ObjectAttribute.ATTACK_RELOAD_TIME, 0.8), (ObjectAttribute.MOVEMENT_SPEED, 1.1),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.CAVALRY_ARCHER), 5)],
+        [TechInfo.WINGED_HUSSAR, (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1),
+         (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [(ObjectAttribute.CHARGE_TYPE, 4), (ObjectAttribute.RECHARGE_RATE, 0.25), (ObjectAttribute.MAXIMUM_CHARGE, 5),
+         (ObjectAttribute.CHARGE_EVENT, 0), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 2),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.ARCHER), 3)]
     ]
     heavy_cav_upgrades = [
-        [],
-        [],
-        [TechInfo.CAVALIER],
-        [TechInfo.ELITE_STEPPE_LANCER, TechInfo.ELITE_SHRIVAMSHA_RIDER],
-        [],
-        [TechInfo.PALADIN],
-        [],
+        [(AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (ObjectAttribute.MOVEMENT_SPEED, 1.1)],
+        [(ObjectAttribute.HIT_POINTS, 10), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.INFANTRY), 3)],
+        [TechInfo.CAVALIER, (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1), (ObjectAttribute.ATTACK_RELOAD_TIME, 0.8)],
+        [TechInfo.ELITE_STEPPE_LANCER, TechInfo.ELITE_SHRIVAMSHA_RIDER, (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1),
+         (ObjectAttribute.HIT_POINTS, 10)],
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.INFANTRY), 3), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1)],
+        [TechInfo.PALADIN, (ObjectAttribute.ATTACK_RELOAD_TIME, 0.8), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
+        [(ObjectAttribute.HIT_POINTS, 10), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
         [(UnitInfo.SOGDIAN_CATAPHRACT, UnitInfo.ELITE_STEPPE_LANCER, BuildingInfo.STABLE, 4),
-         (UnitInfo.GREEK_NOBLE_CAVALRY, UnitInfo.ELITE_SHRIVAMSHA_RIDER, BuildingInfo.STABLE, 2)],
+         (UnitInfo.GREEK_NOBLE_CAVALRY, UnitInfo.ELITE_SHRIVAMSHA_RIDER, BuildingInfo.STABLE, 2),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 2)],
         [(UnitInfo.CRUSADER_KNIGHT, UnitInfo.PALADIN, BuildingInfo.STABLE, 2),
-         (UnitInfo.CRUSADER_KNIGHT, UnitInfo.HEAVY_HEI_GUANG_CAVALRY, BuildingInfo.STABLE, 2)],
-        []
+         (UnitInfo.CRUSADER_KNIGHT, UnitInfo.HEAVY_HEI_GUANG_CAVALRY, BuildingInfo.STABLE, 2),
+         (ObjectAttribute.HIT_POINTS, 70)],
+        [(ObjectAttribute.BLAST_ATTACK_LEVEL, 3), (ObjectAttribute.AREA_DAMAGE, 0.5), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)]
     ]
     alt_cav_upgrades = [
-        [],
-        [TechInfo.UPGRADE_CAMEL_SCOUTS_TO_RIDERS],
-        [],
-        [TechInfo.ELITE_BATTLE_ELEPHANT],
-        [TechInfo.HEAVY_CAMEL_RIDER],
-        [],
-        [],
-        [TechInfo.IMPERIAL_CAMEL_RIDER, (UnitInfo.SANNAHYA, UnitInfo.ELITE_BATTLE_ELEPHANT, BuildingInfo.STABLE, 4)],
-        [],
-        []
+        [(ObjectAttribute.MOVEMENT_SPEED, 1.1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
+        [TechInfo.UPGRADE_CAMEL_SCOUTS_TO_RIDERS, (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1),
+         (ObjectAttribute.ATTACK_RELOAD_TIME, 0.8)],
+        [(ObjectAttribute.HIT_POINTS, 10), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1),
+         (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.CAVALRY), 5)],
+        [TechInfo.ELITE_BATTLE_ELEPHANT, (ObjectAttribute.MOVEMENT_SPEED, 1.1), (ObjectAttribute.ATTACK_RELOAD_TIME, 0.8)],
+        [TechInfo.HEAVY_CAMEL_RIDER, (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.PIERCE), 1), (AttackArmor(ObjectAttribute.ARMOR, A_TYPE.MELEE), 1)],
+        [(ObjectAttribute.ATTACK_RELOAD_TIME, 0.8), (ObjectAttribute.MOVEMENT_SPEED, 1.1), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1)],
+        [(ObjectAttribute.HIT_POINTS, 10), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.CAVALRY), 5)],
+        [TechInfo.IMPERIAL_CAMEL_RIDER, (UnitInfo.SANNAHYA, UnitInfo.ELITE_BATTLE_ELEPHANT, BuildingInfo.STABLE, 4),
+         (ObjectAttribute.ATTACK_RELOAD_TIME, 0.8), (ObjectAttribute.MOVEMENT_SPEED, 1.1)],
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.CAVALRY), 5), (AttackArmor(ObjectAttribute.ATTACK, A_TYPE.MELEE), 1)],
+        [(AttackArmor(ObjectAttribute.ATTACK, A_TYPE.CAVALRY), 10), (ObjectAttribute.ATTACK_RELOAD_TIME, 0.8)]
     ]
     cavalry_unit_upgrades = [('Light Cavalry', tech_upgrade_light_cav, light_cav_upgrades, light_cav_units),
                              ('Heavy Cavalry', tech_upgrade_heavy_cav, heavy_cav_upgrades, heavy_cav_units),
